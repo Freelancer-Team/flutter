@@ -68,7 +68,7 @@ class MyDrawer extends StatelessWidget {
                   fontWeight: FontWeight.bold
               ),),
             leading: Icon(Icons.person, color: Colors.black,),
-            onTap: () {},
+            onTap: () {Navigator.pushNamed(context, '/profile');},
           ),
           Divider(
             height: 15.0,
