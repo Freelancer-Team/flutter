@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:freelancer_flutter/helper/quad_clipper.dart';
-import 'package:freelancer_flutter/helper/MyDrawer.dart';
+import 'package:freelancer_flutter/component/quad_clipper.dart';
+import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/theme/light_color.dart';
-import 'package:freelancer_flutter/pages/Lists.dart';
+import 'package:freelancer_flutter/component/Lists.dart';
 
 
 class RecomendedPage extends StatelessWidget {

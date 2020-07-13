@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/pages/home.dart';
+import 'package:freelancer_flutter/pages/profile.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
 //        '/login' : (context) => Login(),
 //        '/signup' : (context) => Signup(),
 //        '/category' : (context) => Category(),
-
+          '/profile' : (context) => ProfilePage(),
       },
     );
   }
