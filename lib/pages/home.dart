@@ -4,15 +4,14 @@ import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/theme/light_color.dart';
 import 'package:freelancer_flutter/component/Lists.dart';
 
-
 class RecomendedPage extends StatelessWidget {
   RecomendedPage({Key key}) : super(key: key);
 
   double width;
 
-  List<Lists> categories =[
-    Lists(text:'我要工作'),
-    Lists(text:'我要雇人'),
+  List<Lists> categories = [
+    Lists(text: '我要工作'),
+    Lists(text: '我要雇人'),
   ];
 
   Widget _circularContainer(double height, Color color,
@@ -29,10 +28,10 @@ class RecomendedPage extends StatelessWidget {
   }
 
   Widget _categoryRow(
-      String title,
-      Color primary,
-      Color textColor,
-      ) {
+    String title,
+    Color primary,
+    Color textColor,
+  ) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
       height: 30,
@@ -61,13 +60,13 @@ class RecomendedPage extends StatelessWidget {
             _card(
                 primary: LightColor.orange,
                 backWidget:
-                _decorationContainerA(LightColor.lightOrange, 50, -30),
+                    _decorationContainerA(LightColor.lightOrange, 50, -30),
                 chipColor: LightColor.orange,
                 chipText1: "Find the right degree for you",
                 chipText2: "8 Cources",
                 isPrimaryCard: true,
                 imgPath:
-                "https://jshopping.in/images/detailed/591/ibboll-Fashion-Mens-Optical-Glasses-Frames-Classic-Square-Wrap-Frame-Luxury-Brand-Men-Clear-Eyeglasses-Frame.jpg"),
+                    "https://jshopping.in/images/detailed/591/ibboll-Fashion-Mens-Optical-Glasses-Frames-Classic-Square-Wrap-Frame-Luxury-Brand-Men-Clear-Eyeglasses-Frame.jpg"),
             _card(
                 primary: Colors.white,
                 chipColor: LightColor.seeBlue,
@@ -75,7 +74,7 @@ class RecomendedPage extends StatelessWidget {
                 chipText1: "Become a data scientist",
                 chipText2: "8 Cources",
                 imgPath:
-                "https://hips.hearstapps.com/esquireuk.cdnds.net/16/39/980x980/square-1475143834-david-gandy.jpg?resize=480:*"),
+                    "https://hips.hearstapps.com/esquireuk.cdnds.net/16/39/980x980/square-1475143834-david-gandy.jpg?resize=480:*"),
             _card(
                 primary: Colors.white,
                 chipColor: LightColor.lightOrange,
@@ -83,7 +82,7 @@ class RecomendedPage extends StatelessWidget {
                 chipText1: "Become a digital marketer",
                 chipText2: "8 Cources",
                 imgPath:
-                "https://www.visafranchise.com/wp-content/uploads/2019/05/patrick-findaro-visa-franchise-square.jpg"),
+                    "https://www.visafranchise.com/wp-content/uploads/2019/05/patrick-findaro-visa-franchise-square.jpg"),
             _card(
                 primary: Colors.white,
                 chipColor: LightColor.seeBlue,
@@ -93,7 +92,7 @@ class RecomendedPage extends StatelessWidget {
                 chipText1: "Become a machine learner",
                 chipText2: "8 Cources",
                 imgPath:
-                "https://d1mo3tzxttab3n.cloudfront.net/static/img/shop/560x580/vint0080.jpg"),
+                    "https://d1mo3tzxttab3n.cloudfront.net/static/img/shop/560x580/vint0080.jpg"),
           ],
         ),
       ),
@@ -119,7 +118,7 @@ class RecomendedPage extends StatelessWidget {
                 chipText2: "8 Cources",
                 isPrimaryCard: true,
                 imgPath:
-                "https://www.reiss.com/media/product/946/218/silk-paisley-printed-pocket-square-mens-morocco-in-pink-red-20.jpg?format=jpeg&auto=webp&quality=85&width=1200&height=1200&fit=bounds"),
+                    "https://www.reiss.com/media/product/946/218/silk-paisley-printed-pocket-square-mens-morocco-in-pink-red-20.jpg?format=jpeg&auto=webp&quality=85&width=1200&height=1200&fit=bounds"),
             _card(
                 primary: Colors.white,
                 chipColor: LightColor.lightpurple,
@@ -132,7 +131,7 @@ class RecomendedPage extends StatelessWidget {
                 chipText1: "Bussiness foundation",
                 chipText2: "8 Cources",
                 imgPath:
-                "https://i.dailymail.co.uk/i/pix/2016/08/05/19/36E9139400000578-3725856-image-a-58_1470422921868.jpg"),
+                    "https://i.dailymail.co.uk/i/pix/2016/08/05/19/36E9139400000578-3725856-image-a-58_1470422921868.jpg"),
             _card(
                 primary: Colors.white,
                 chipColor: LightColor.lightOrange,
@@ -141,7 +140,7 @@ class RecomendedPage extends StatelessWidget {
                 chipText1: "Excel skill for business",
                 chipText2: "8 Cources",
                 imgPath:
-                "https://www.reiss.com/media/product/945/066/03-2.jpg?format=jpeg&auto=webp&quality=85&width=632&height=725&fit=bounds"),
+                    "https://www.reiss.com/media/product/945/066/03-2.jpg?format=jpeg&auto=webp&quality=85&width=632&height=725&fit=bounds"),
             _card(
                 primary: Colors.white,
                 chipColor: LightColor.seeBlue,
@@ -153,7 +152,7 @@ class RecomendedPage extends StatelessWidget {
                 chipText1: "Beacame a data analyst",
                 chipText2: "8 Cources",
                 imgPath:
-                "https://img.alicdn.com/imgextra/i4/52031722/O1CN0165X68s1OaiaYCEX6U_!!52031722.jpg"),
+                    "https://img.alicdn.com/imgextra/i4/52031722/O1CN0165X68s1OaiaYCEX6U_!!52031722.jpg"),
           ],
         ),
       ),
@@ -162,12 +161,12 @@ class RecomendedPage extends StatelessWidget {
 
   Widget _card(
       {Color primary = Colors.redAccent,
-        String imgPath,
-        String chipText1 = '',
-        String chipText2 = '',
-        Widget backWidget,
-        Color chipColor = LightColor.orange,
-        bool isPrimaryCard = false}) {
+      String imgPath,
+      String chipText1 = '',
+      String chipText2 = '',
+      Widget backWidget,
+      Color chipColor = LightColor.orange,
+      bool isPrimaryCard = false}) {
     return Container(
         height: isPrimaryCard ? 190 : 180,
         width: isPrimaryCard ? width * .32 : width * .32,
@@ -426,7 +425,8 @@ class RecomendedPage extends StatelessWidget {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: Text('Freelancer',
+          title: Text(
+            'Freelancer',
             style: TextStyle(
               fontSize: 30.0,
             ),
@@ -434,79 +434,72 @@ class RecomendedPage extends StatelessWidget {
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              color: Colors.blue[900],
+              color: Colors.blue,
             ),
           ),
           brightness: Brightness.light,
-
-
         ),
         drawer: MyDrawer(),
-
-
-        body:Container(
-          child: Stack(
-              children: <Widget>[
-                SingleChildScrollView(
-                  child:Container(
-                    child: Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                          child: Card(
-                            color: Colors.blue[900],
-                            elevation: 10.0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                            child: ListTile(
-                              onTap: () {},
-                              title: Center(
-                                widthFactor: 15.0,
-                                child: Text(categories[0].text,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 30
-
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                          child: Card(
-                            color: Colors.blue[900],
-                            elevation: 10.0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                            child: ListTile(
-                              onTap: () {},
-                              title: Center(
-                                widthFactor: 15.0,
-                                child: Text(categories[1].text,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 30
-
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: 110),
-                        _categoryRow("Recommended", LightColor.orange, LightColor.orange),
-                        _featuredRowA(),
-                        SizedBox(height: 0),
-                        _categoryRow(
-                            "Featured", LightColor.purple, LightColor.darkpurple),
-                        _featuredRowB(),
-                      ],
+        body: SingleChildScrollView(
+          child: Column(children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(10.0),
+              child:Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Container(
+                    height: 100,
+                    child: MaterialButton(
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18)),
+                      child: Text(
+                        '我要雇人',
+                        style: TextStyle(fontSize: 26),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/login");
+                      },
                     ),
                   ),
+                  Container(
+                    height: 100,
+                    child: MaterialButton(
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18)),
+                      child: Text(
+                        '我要工作',
+                        style: TextStyle(fontSize: 26),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/login");
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SingleChildScrollView(
+              child: Container(
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(height: 0),
+                    _categoryRow(
+                        "Recommended", LightColor.orange, LightColor.orange),
+                    _featuredRowA(),
+                    SizedBox(height: 0),
+                    _categoryRow(
+                        "Featured", LightColor.purple, LightColor.darkpurple),
+                    _featuredRowB(),
+                  ],
                 ),
-              ]
-          ),
+              ),
+            ),
+          ]),
         ));
   }
 }

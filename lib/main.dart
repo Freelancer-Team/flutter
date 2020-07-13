@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:freelancer_flutter/pages/profile.dart';
+import 'package:freelancer_flutter/pages/ProjDetails.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
       routes: {
 //        '/': (context) => Splash(),
           '/home' : (context) => RecomendedPage(),
+          '/projdetails' : (context) => ProjDetails(),
 //        '/login' : (context) => Login(),
 //        '/signup' : (context) => Signup(),
 //        '/category' : (context) => Category(),
