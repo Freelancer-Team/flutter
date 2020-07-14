@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:freelancer_flutter/component/constants.dart';
 import 'package:freelancer_flutter/pages/login.dart';
 
-//import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class signUpScreen extends StatefulWidget {
@@ -22,79 +22,94 @@ class _signUpScreenState extends State<signUpScreen> {
   Color nameTextColor = Color(0xFF6CA8F1);
 
   TextEditingController emailAddressControl = TextEditingController();
+
   String get emailAddress => emailAddressControl.text;
 
   TextEditingController passwordControl = TextEditingController();
+
   String get password => passwordControl.text;
 
   TextEditingController districtControl = TextEditingController();
+
   String get district => districtControl.text;
 
   TextEditingController numberControl = TextEditingController();
+
   String get phoneNum => numberControl.text;
 
   TextEditingController nameControl = TextEditingController();
+
   String get name => nameControl.text;
 
   checkAllFilled() {
     setState(() {
-      if (emailAddressControl.text == ''||!emailAddressControl.text.contains('@')) {
-        emailTextColor = Color(0xDFB0C4DE);//red[300];
+      if (emailAddressControl.text == '' ||
+          !emailAddressControl.text.contains('@')) {
+        emailTextColor = Color(0xDFB0C4DE); //red[300];
         getAccess = false;
       } else {
         emailTextColor = Color(0xFF6CA8F1);
       }
       if (passwordControl.text == '') {
-        passTextColor = Color(0xDFB0C4DE);;
+        passTextColor = Color(0xDFB0C4DE);
+        ;
         getAccess = false;
       } else {
         passTextColor = Color(0xFF6CA8F1);
       }
-      if (nameControl.text == ''||nameControl.text.length<2) {
-        nameTextColor =  Color(0xDFB0C4DE);;
+      if (nameControl.text == '' || nameControl.text.length < 2) {
+        nameTextColor = Color(0xDFB0C4DE);
+        ;
         getAccess = false;
       } else {
         nameTextColor = Color(0xFF6CA8F1);
       }
-      if (districtControl.text == ''||districtControl.text.length<6) {
-        disTextColor =  Color(0xDFB0C4DE);;
+      if (districtControl.text == '' || districtControl.text.length < 6) {
+        disTextColor = Color(0xDFB0C4DE);
+        ;
         getAccess = false;
       } else {
         disTextColor = Color(0xFF6CA8F1);
       }
-      if (numberControl.text == ''||numberControl.text.length!=11) {
-        phoneTextColor =  Color(0xDFB0C4DE);;
+      if (numberControl.text == '' || numberControl.text.length != 11) {
+        phoneTextColor = Color(0xDFB0C4DE);
+        ;
         getAccess = false;
       } else {
         phoneTextColor = Color(0xFF6CA8F1);
       }
 
-      if(numberControl.text != '' && emailAddressControl.text != '' && passwordControl.text != '' && districtControl.text != '' && nameControl.text != ''){
+      if (numberControl.text != '' &&
+          emailAddressControl.text != '' &&
+          passwordControl.text != '' &&
+          districtControl.text != '' &&
+          nameControl.text != '') {
         getAccess = true;
       }
     });
 
-//    if(getAccess == true){
-//      insertData();
-//    }
-
+    if (getAccess == true) {
+     print('aa');
+      insertData();
+    }
   }
 
-//  insertData() async {
-//    String url = "https://worky-flutter.000webhostapp.com/insertSignUpdata.php";
-//    var res = await http.post(Uri.encodeFull(url), headers: {
-//      "Accept": "application/json"
-//    }, body: {
-//      "Email": emailAddress,
-//      "Password": password,
-//      "District": district,
-//      "Number": phoneNum,
-//      "Name": name,
-//    });
-//
-//    Navigator.of(context).push(CupertinoPageRoute(
-//        builder: (BuildContext context) => LoginScreen()));
-//  }
+  insertData() async {
+    print('bb');
+    String url = "http://localhost:8080/signup";
+    var res = await http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "Email": emailAddress,
+      "Password": password,
+      "District": district,
+      "Number": phoneNum,
+      "Name": name,
+    });
+
+    Navigator.of(context).push(
+        CupertinoPageRoute(builder: (BuildContext context) => LoginScreen()));
+  }
 
   Widget _buildEmailTF() {
     return Column(

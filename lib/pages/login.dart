@@ -6,8 +6,8 @@ import 'package:freelancer_flutter/pages/signup.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-//import 'package:http/http.dart' as http;
-//import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -16,8 +16,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
-  String trueEmail="YE";
-  String truePass="YP";
+  String trueEmail;//="YE";
+  String truePass;//="YP";
   FlutterToast flutterToast;
 
   Color emailTextColor = Color(0xFF6CA8F1);
@@ -61,21 +61,22 @@ class _LoginScreenState extends State<LoginScreen> {
       toastDuration: Duration(seconds: 2),
     );}
     authentication() async {
-//    try {
-//      String url = "https://worky-flutter.000webhostapp.com/authenticationLogin.php";
-//      var res = await http.post(Uri.encodeFull(url), headers: {
-//        "Accept": "application/json"
-//      }, body: {
-//        "email": emailAddress,
-//        "password": password,
-//      });
-//
-//      var response = json.decode(res.body);
+    try {
+      String url = "http://localhost:8080/login";//Uri.encodeFull(url)
+      var res = await http.post(Uri.encodeFull(url), headers: {
+        "Accept": "application/json"
+      }, body: {
+        "username": emailAddress,
+        "password": password,
+      });
+
+      var response = json.decode(res.body);
+      print(response);
 //      trueEmail = response[0].toString();
 //      truePass = response[1].toString();
-//    }catch(e){
-//      print("unable to connect");
-//    }
+    }catch(e){
+      print("unable to connect");
+    }
 //    setState(() {
 //      if(trueEmail=="NE"){
 //        emailTextColor=Colors.red[300];
