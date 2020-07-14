@@ -90,21 +90,27 @@ class _ApplyState extends State<ApplyPage> {
             key: formKey,
             child: new Column(
               children: <Widget>[
+                new TextFormField(
+                  decoration: new InputDecoration(labelText: "Name"),
+                  validator: (val) =>
+                  val.length < 2 ? 'Please input your name' : null,
+                  onSaved: (val) => _name= val,
+                ),
                 Row(children: <Widget>[
-                  new Expanded(
-                      child: new TextFormField(
-                    decoration: new InputDecoration(labelText: "Name"),
-                    validator: (val) =>
-                        val.length < 2 ? 'Please input your name' : null,
-                    onSaved: (val) => _name = val,
-                  )),
-                  new Text('  '),
                   new Expanded(
                       child: new TextFormField(
                     decoration: new InputDecoration(labelText: "Age"),
                     validator: (val) =>
                         val.length < 1 ? 'Please input your age' : null,
-                    onSaved: (val) => _owner = val,
+                    onSaved: (val) => _age = val,
+                  )),
+                  new Text('  '),
+                  new Expanded(
+                      child: new TextFormField(
+                    decoration: new InputDecoration(labelText: "Gender(F/M)"),
+                    validator: (val) =>
+                    val.length < 1 ? 'Please input your gender' :((val.trim()=='F'||val.trim()=='M')?'invalid gender': null),
+                    onSaved: (val) => _gender = val.trim(),
                   ))
                 ]),
                 new TextFormField(

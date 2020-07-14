@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 // One entry in the multilevel list displayed by this app.
 class Entry {
   Entry(this.title, [this.children = const <Entry>[]]);
@@ -125,7 +124,7 @@ class _SkillDialogState extends State<SkillDialog> {
             margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25.0),
-              color: Colors.lightGreenAccent,
+              color: Colors.black12,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

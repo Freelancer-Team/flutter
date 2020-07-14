@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:freelancer_flutter/component/SkillChooseModal.dart';
 
 class PublishPage extends StatefulWidget {
   @override
@@ -9,8 +11,9 @@ class _PublishState extends State<PublishPage> {
   double width;
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
+  FlutterToast flutterToast;
+  List<String> selSkills = [];
 
-//  String _email;
   String _title;
   String _owner;
   String _address;
@@ -34,6 +37,60 @@ class _PublishState extends State<PublishPage> {
     scaffoldKey.currentState.showSnackBar(snackbar);
   }
 
+  @override
+  void initState() {
+    super.initState();
+    flutterToast = FlutterToast(context);
+  }
+
+  _showToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.greenAccent,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("更新技能点成功"),
+        ],
+      ),
+    );
+
+    flutterToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 2),
+    );
+  }
+
+  _showSimpleDialog() {
+    onSkillChange(var skills) {
+      setState(() {
+        selSkills = selSkills;
+      });
+      Navigator.pop(context);
+      _showToast();
+    }
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => SimpleDialog(title: Text('编辑所需的专业技能'),
+                // 这里传入一个选择器列表即可
+                children: [
+                  SkillDialog(
+                    skillChoose: this.selSkills,
+                    onSkillChanged: onSkillChange,
+                  ),
+                ]));
+  }
+
   Widget chosenTime(BuildContext context) {
     if (_ddl == null)
       return Text('请选择    ');
@@ -44,6 +101,35 @@ class _PublishState extends State<PublishPage> {
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
+
+    List<Widget> skillManageList = selSkills
+        .map((skill) => Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25.0),
+                color: Colors.black12,
+              ),
+              child: Text(skill, style: TextStyle(height: 1)),
+            ))
+        .toList();
+    skillManageList.add(Container(
+      child: SizedOverflowBox(
+        size: Size(32, 32),
+        alignment: Alignment.center,
+        child: IconButton(
+          // action button
+          icon: new Icon(Icons.add_circle),
+          padding: const EdgeInsets.all(0),
+          onPressed: () {
+            _showSimpleDialog();
+          },
+        ),
+      ),
+    ));
+
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
@@ -91,6 +177,18 @@ class _PublishState extends State<PublishPage> {
                   onSaved: (val) => _address = val,
                 ),
                 new Padding(
+                  padding: const EdgeInsets.only(top: 40.0),
+                ),
+                new Align(
+                    alignment: new FractionalOffset(0.0, 0.0),
+                    child:
+                    new Text('选择所需的技能点')),
+                new Align(
+                    alignment: new FractionalOffset(0.0, 0.0),
+                    child: Wrap(
+                      children: skillManageList,
+                    )),
+                new Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                 ),
                 new Align(
@@ -101,16 +199,12 @@ class _PublishState extends State<PublishPage> {
                   new Expanded(
                       child: TextFormField(
                     decoration: new InputDecoration(labelText: "Min"),
-//                    validator: (val) =>
-//                        val.length < 6 ? 'Please enter salary' : null,
                     onSaved: (val) => _min = val,
                   )),
                   new Text('  '),
                   new Expanded(
                       child: TextFormField(
                     decoration: new InputDecoration(labelText: "Max"),
-//                    validator: (val) =>
-//                        val.length < 6 ? 'Please enter salary' : null,
                     onSaved: (val) => _max = val,
                   ))
                 ]),
@@ -125,14 +219,14 @@ class _PublishState extends State<PublishPage> {
                   new MaterialButton(
                     child: new Text(
                       '选择',
-                      style: new TextStyle(color: Colors.white),
+//                      style: new TextStyle(color: Colors.white),
                     ),
                     color: Colors.black12,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)),
-                    onPressed: () async {
+                    onPressed: () {
                       // 调用函数打开
-                      final DateTime date = await showDatePicker(
+                      showDatePicker(
                         context: context,
                         initialDate: new DateTime.now(),
                         firstDate:
@@ -154,7 +248,8 @@ class _PublishState extends State<PublishPage> {
                 new TextFormField(
                   decoration: new InputDecoration(labelText: "Description"),
                   keyboardType: TextInputType.multiline,
-                  maxLines: null, //不限制行数
+                  maxLines: null,
+                  //不限制行数
                   validator: (val) =>
                       val.length < 20 ? 'Description too short' : null,
                   onSaved: (val) => _description = val,
