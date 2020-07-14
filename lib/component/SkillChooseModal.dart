@@ -67,3 +67,96 @@ class EntryItem extends StatelessWidget {
     return _buildTiles(entry);
   }
 }
+
+
+typedef void SkillChangedCallback(var skills);
+
+class SkillDialog extends StatefulWidget{
+  final List<String> skillChoose;
+
+  final SkillChangedCallback onSkillChanged;
+
+  SkillDialog({Key key, this.skillChoose, this.onSkillChanged}) : super(key: key);
+
+  @override
+  _SkillDialogState createState() => new _SkillDialogState();
+}
+
+class _SkillDialogState extends State<SkillDialog> {
+  List<String> skillChoose = [];
+
+  @override
+  void initState() {
+    super.initState();
+    skillChoose = widget.skillChoose;
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    this.dispose();
+  }
+
+  void addOrDeleteSkill(skill){
+    setState(() {
+      if (skillChoose.contains(skill)) {
+        skillChoose.remove(skill);
+      } else {
+        skillChoose.add(skill);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: SingleChildScrollView(
+            child: Column(
+              children: data.map((e) => EntryItem(e, addOrDeleteSkill, skillChoose)).toList(),
+            ),
+          ),
+        ),
+        Wrap(
+          children: skillChoose.map((skill) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+            margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25.0),
+              color: Colors.lightGreenAccent,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(skill,
+                  style: TextStyle(height: 1),
+                ),
+                SizedBox(
+                  width: 6.0,
+                ),
+                SizedOverflowBox(
+                  size: Size(14,14),
+                  alignment: Alignment.center,
+                  child: IconButton( // action button
+                    icon: new Icon(Icons.close),
+                    iconSize: 14,
+                    padding: const EdgeInsets.all(0),
+                    onPressed: () { addOrDeleteSkill(skill); },
+                  ),
+                ),
+              ],
+            ),
+          )).toList(),
+        ),
+        FlatButton(
+          onPressed: () {
+            widget.onSkillChanged(skillChoose);
+          },
+          child: Text("确认"),
+        ),
+      ],
+    );
+  }
+}
