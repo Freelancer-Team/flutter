@@ -169,7 +169,7 @@ class _PublishState extends State<PublishPage> {
                       child: new TextFormField(
                     decoration: new InputDecoration(labelText: "Owner"),
                     validator: (val) =>
-                        val.length < 1 ? 'Please input your name' : null,
+                        val.length < 2 ? 'Please input your name' : null,
                     onSaved: (val) => _owner = val,
                   ))
                 ]),
@@ -196,7 +196,7 @@ class _PublishState extends State<PublishPage> {
                 new Align(
                     alignment: new FractionalOffset(0.0, 0.0),
                     child:
-                        new Text('预算：若不填写max，则默认无上限，不填写min，则默认下限为0，均不填则为面议')),
+                        new Text('Budget：若不填写max，则默认无上限，不填写min，则默认下限为0，均不填则为面议')),
                 Row(children: <Widget>[
                   new Expanded(
                       child: TextFormField(

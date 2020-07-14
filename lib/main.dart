@@ -13,13 +13,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/signup',
+      initialRoute: '/login',
 
       routes: {
 //        '/': (context) => Splash(),
           '/home' : (context) => RecomendedPage(),
           '/projdetails' : (context) => ProjDetails(),
-//        '/login' : (context) => LoginScreen(),
+        '/login' : (context) => LoginScreen(),
         '/signup' : (context) => signUpScreen(),
 //        '/category' : (context) => Category(),
           '/profile' : (context) => ProfilePage(),

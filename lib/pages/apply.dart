@@ -118,8 +118,8 @@ class _ApplyState extends State<ApplyPage> {
                       child: new TextFormField(
                         decoration: new InputDecoration(labelText: "Phone"),
                         validator: (val) =>
-                        val.length < 11 ? 'Please input your telephone number' : null,
-                        onSaved: (val) => _tel = val,
+                        val.trim().length != 11 ? 'Please input your telephone number' : null,
+                        onSaved: (val) => _tel = val.trim(),
                       )),
                   new Text('  '),
                   new Expanded(

@@ -38,7 +38,7 @@ class _signUpScreenState extends State<signUpScreen> {
 
   checkAllFilled() {
     setState(() {
-      if (emailAddressControl.text == '') {
+      if (emailAddressControl.text == ''||!emailAddressControl.text.contains('@')) {
         emailTextColor = Color(0xDFB0C4DE);//red[300];
         getAccess = false;
       } else {
@@ -50,19 +50,19 @@ class _signUpScreenState extends State<signUpScreen> {
       } else {
         passTextColor = Color(0xFF6CA8F1);
       }
-      if (nameControl.text == '') {
+      if (nameControl.text == ''||nameControl.text.length<2) {
         nameTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         nameTextColor = Color(0xFF6CA8F1);
       }
-      if (districtControl.text == '') {
+      if (districtControl.text == ''||districtControl.text.length<6) {
         disTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         disTextColor = Color(0xFF6CA8F1);
       }
-      if (numberControl.text == '') {
+      if (numberControl.text == ''||numberControl.text.length!=11) {
         phoneTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
@@ -179,7 +179,7 @@ class _signUpScreenState extends State<signUpScreen> {
                 Icons.perm_identity,
                 color: Colors.white,
               ),
-              hintText: 'Enter your name',
+              hintText: 'Enter your name (more than 2 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -225,7 +225,7 @@ class _signUpScreenState extends State<signUpScreen> {
                 Icons.add_location,
                 color: Colors.white,
               ),
-              hintText: 'Enter your district',
+              hintText: 'Enter your district (more than 6 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -271,7 +271,7 @@ class _signUpScreenState extends State<signUpScreen> {
                 Icons.lock,
                 color: Colors.white,
               ),
-              hintText: 'Enter your Password',
+              hintText: 'Enter your Password (more than 6 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -316,7 +316,7 @@ class _signUpScreenState extends State<signUpScreen> {
                 Icons.phone,
                 color: Colors.white,
               ),
-              hintText: 'Enter your phone number',
+              hintText: 'Enter your phone number (need 11 numbers)',
               hintStyle: kHintTextStyle,
             ),
           ),
