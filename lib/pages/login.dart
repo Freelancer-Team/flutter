@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:freelancer_flutter/component/constants.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
+import 'package:freelancer_flutter/pages/home.dart';
 
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
@@ -25,21 +26,21 @@ class _LoginScreenState extends State<LoginScreen> {
   String get password => passwordControl.text;
 
   authentication() async {
-    try {
-      String url = "https://worky-flutter.000webhostapp.com/authenticationLogin.php";
-      var res = await http.post(Uri.encodeFull(url), headers: {
-        "Accept": "application/json"
-      }, body: {
-        "email": emailAddress,
-        "password": password,
-      });
-
-      var response = json.decode(res.body);
-      trueEmail = response[0].toString();
-      truePass = response[1].toString();
-    }catch(e){
-      print("unable to connect");
-    }
+//    try {
+//      String url = "https://worky-flutter.000webhostapp.com/authenticationLogin.php";
+//      var res = await http.post(Uri.encodeFull(url), headers: {
+//        "Accept": "application/json"
+//      }, body: {
+//        "email": emailAddress,
+//        "password": password,
+//      });
+//
+//      var response = json.decode(res.body);
+//      trueEmail = response[0].toString();
+//      truePass = response[1].toString();
+//    }catch(e){
+//      print("unable to connect");
+//    }
     setState(() {
       if(trueEmail=="NE"){
         emailTextColor=Colors.red[300];
@@ -55,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     if(trueEmail=="YE" && truePass=="YP"){
       Navigator.of(context).push(CupertinoPageRoute(
-          builder: (BuildContext context) => Homepage()));
+          builder: (BuildContext context) => RecomendedPage()));
     }
     print(trueEmail);
     print(truePass);
@@ -294,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(CupertinoPageRoute(
-            builder: (BuildContext context) => signUPScreen()));
+            builder: (BuildContext context) => signUpScreen()));
       },
       child: RichText(
         text: TextSpan(

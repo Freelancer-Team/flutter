@@ -43,21 +43,21 @@ class _PublishState extends State<PublishPage> {
     flutterToast = FlutterToast(context);
   }
 
-  _showToast() {
+  _showToast(bool t) {
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: Colors.greenAccent,
+        color: Colors.black12,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check),
+          Icon(t?Icons.check:Icons.clear),
           SizedBox(
             width: 12.0,
           ),
-          Text("更新技能点成功"),
+          Text(t?"Update Successfully":"At Most 5 Skills"),
         ],
       ),
     );
@@ -71,17 +71,20 @@ class _PublishState extends State<PublishPage> {
 
   _showSimpleDialog() {
     onSkillChange(var skills) {
-      setState(() {
-        selSkills = selSkills;
-      });
-      Navigator.pop(context);
-      _showToast();
+      if (selSkills.length <= 5) {
+        setState(() {
+          selSkills = selSkills;
+        });
+        Navigator.pop(context);
+        _showToast(true);
+      } else
+        _showToast(false);
     }
 
     showDialog(
         barrierDismissible: false,
         context: context,
-        builder: (context) => SimpleDialog(title: Text('编辑所需的专业技能'),
+        builder: (context) => SimpleDialog(title: Text('Edit'),
                 // 这里传入一个选择器列表即可
                 children: [
                   SkillDialog(
@@ -181,8 +184,7 @@ class _PublishState extends State<PublishPage> {
                 ),
                 new Align(
                     alignment: new FractionalOffset(0.0, 0.0),
-                    child:
-                    new Text('选择所需的技能点')),
+                    child: new Text('Choose Needed Skills')),
                 new Align(
                     alignment: new FractionalOffset(0.0, 0.0),
                     child: Wrap(
@@ -218,7 +220,7 @@ class _PublishState extends State<PublishPage> {
                   chosenTime(context),
                   new MaterialButton(
                     child: new Text(
-                      '选择',
+                      'Choose',
 //                      style: new TextStyle(color: Colors.white),
                     ),
                     color: Colors.black12,
@@ -259,7 +261,7 @@ class _PublishState extends State<PublishPage> {
                 ),
                 new RaisedButton(
                   child: new Text(
-                    "submit",
+                    "Submit",
                     style: new TextStyle(color: Colors.white),
                   ),
                   color: Colors.blue,

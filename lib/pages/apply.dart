@@ -113,12 +113,23 @@ class _ApplyState extends State<ApplyPage> {
                     onSaved: (val) => _gender = val.trim(),
                   ))
                 ]),
-                new TextFormField(
-                  decoration: new InputDecoration(labelText: "Email"),
-                  validator: (val) =>
-                      !val.contains('@') ? 'Invalid Email' : null,
-                  onSaved: (val) => _email = val,
-                ),
+                Row(children: <Widget>[
+                  new Expanded(
+                      child: new TextFormField(
+                        decoration: new InputDecoration(labelText: "Phone"),
+                        validator: (val) =>
+                        val.length < 11 ? 'Please input your telephone number' : null,
+                        onSaved: (val) => _tel = val,
+                      )),
+                  new Text('  '),
+                  new Expanded(
+                      child: new TextFormField(
+                        decoration: new InputDecoration(labelText: "Email"),
+                        validator: (val) =>
+                        !val.contains('@') ? 'Invalid Email' : null,
+                        onSaved: (val) => _email = val,
+                      ))
+                ]),
                 new TextFormField(
                   decoration: new InputDecoration(labelText: "Address"),
                   validator: (val) =>
@@ -156,7 +167,7 @@ class _ApplyState extends State<ApplyPage> {
                             },
                             title: Text(f.skill),
                             controlAffinity: ListTileControlAffinity.platform,
-                            activeColor: Colors.green,
+                            activeColor: Colors.blue,
                           ),
                         ),
                       ],
@@ -185,7 +196,7 @@ class _ApplyState extends State<ApplyPage> {
                 ),
                 new RaisedButton(
                   child: new Text(
-                    "submit",
+                    "Submit",
                     style: new TextStyle(color: Colors.white),
                   ),
                   color: Colors.blue,

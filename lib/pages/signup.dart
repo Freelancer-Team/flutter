@@ -7,12 +7,12 @@ import 'package:freelancer_flutter/pages/login.dart';
 //import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class signUPScreen extends StatefulWidget {
+class signUpScreen extends StatefulWidget {
   @override
-  _signUPScreenState createState() => _signUPScreenState();
+  _signUpScreenState createState() => _signUpScreenState();
 }
 
-class _signUPScreenState extends State<signUPScreen> {
+class _signUpScreenState extends State<signUpScreen> {
   bool getAccess = false;
 
   Color emailTextColor = Color(0xFF6CA8F1);
@@ -39,32 +39,31 @@ class _signUPScreenState extends State<signUPScreen> {
   checkAllFilled() {
     setState(() {
       if (emailAddressControl.text == '') {
-        print("asa");
-        emailTextColor = Colors.red[300];
+        emailTextColor = Color(0xDFB0C4DE);//red[300];
         getAccess = false;
       } else {
         emailTextColor = Color(0xFF6CA8F1);
       }
       if (passwordControl.text == '') {
-        passTextColor = Colors.red[300];
+        passTextColor = Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         passTextColor = Color(0xFF6CA8F1);
       }
       if (nameControl.text == '') {
-        nameTextColor = Colors.red[300];
+        nameTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         nameTextColor = Color(0xFF6CA8F1);
       }
       if (districtControl.text == '') {
-        disTextColor = Colors.red[300];
+        disTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         disTextColor = Color(0xFF6CA8F1);
       }
       if (numberControl.text == '') {
-        phoneTextColor = Colors.red[300];
+        phoneTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         phoneTextColor = Color(0xFF6CA8F1);
@@ -75,28 +74,27 @@ class _signUPScreenState extends State<signUPScreen> {
       }
     });
 
-    if(getAccess == true){
-      insertData();
-
-    }
+//    if(getAccess == true){
+//      insertData();
+//    }
 
   }
 
-  insertData() async {
-    String url = "https://worky-flutter.000webhostapp.com/insertSignUpdata.php";
-    var res = await http.post(Uri.encodeFull(url), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "Email": emailAddress,
-      "Password": password,
-      "District": district,
-      "Number": phoneNum,
-      "Name": name,
-    });
-
-    Navigator.of(context).push(CupertinoPageRoute(
-        builder: (BuildContext context) => LoginScreen()));
-  }
+//  insertData() async {
+//    String url = "https://worky-flutter.000webhostapp.com/insertSignUpdata.php";
+//    var res = await http.post(Uri.encodeFull(url), headers: {
+//      "Accept": "application/json"
+//    }, body: {
+//      "Email": emailAddress,
+//      "Password": password,
+//      "District": district,
+//      "Number": phoneNum,
+//      "Name": name,
+//    });
+//
+//    Navigator.of(context).push(CupertinoPageRoute(
+//        builder: (BuildContext context) => LoginScreen()));
+//  }
 
   Widget _buildEmailTF() {
     return Column(
