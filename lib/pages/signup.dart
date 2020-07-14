@@ -13,7 +13,7 @@ class signUpScreen extends StatefulWidget {
 }
 
 class _signUpScreenState extends State<signUpScreen> {
-  bool getAccess = false;
+  bool getAccess = true;
 
   Color emailTextColor = Color(0xFF6CA8F1);
   Color passTextColor = Color(0xFF6CA8F1);
@@ -22,93 +22,80 @@ class _signUpScreenState extends State<signUpScreen> {
   Color nameTextColor = Color(0xFF6CA8F1);
 
   TextEditingController emailAddressControl = TextEditingController();
-
   String get emailAddress => emailAddressControl.text;
 
   TextEditingController passwordControl = TextEditingController();
-
   String get password => passwordControl.text;
 
   TextEditingController districtControl = TextEditingController();
-
   String get district => districtControl.text;
 
   TextEditingController numberControl = TextEditingController();
-
   String get phoneNum => numberControl.text;
 
   TextEditingController nameControl = TextEditingController();
-
   String get name => nameControl.text;
 
   checkAllFilled() {
     setState(() {
-      if (emailAddressControl.text == '' ||
-          !emailAddressControl.text.contains('@')) {
-        emailTextColor = Color(0xDFB0C4DE); //red[300];
+      if (emailAddressControl.text == ''||!emailAddressControl.text.contains('@')) {
+        emailTextColor = Color(0xDFB0C4DE);//red[300];
         getAccess = false;
       } else {
         emailTextColor = Color(0xFF6CA8F1);
       }
       if (passwordControl.text == '') {
-        passTextColor = Color(0xDFB0C4DE);
-        ;
+        passTextColor = Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         passTextColor = Color(0xFF6CA8F1);
       }
-      if (nameControl.text == '' || nameControl.text.length < 2) {
-        nameTextColor = Color(0xDFB0C4DE);
-        ;
+      if (nameControl.text == ''||nameControl.text.length<2) {
+        nameTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         nameTextColor = Color(0xFF6CA8F1);
       }
-      if (districtControl.text == '' || districtControl.text.length < 6) {
-        disTextColor = Color(0xDFB0C4DE);
-        ;
+      if (districtControl.text == ''||districtControl.text.length<6) {
+        disTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         disTextColor = Color(0xFF6CA8F1);
       }
-      if (numberControl.text == '' || numberControl.text.length != 11) {
-        phoneTextColor = Color(0xDFB0C4DE);
-        ;
+      if (numberControl.text == ''||numberControl.text.length!=11) {
+        phoneTextColor =  Color(0xDFB0C4DE);;
         getAccess = false;
       } else {
         phoneTextColor = Color(0xFF6CA8F1);
       }
 
-      if (numberControl.text != '' &&
-          emailAddressControl.text != '' &&
-          passwordControl.text != '' &&
-          districtControl.text != '' &&
-          nameControl.text != '') {
-        getAccess = true;
-      }
+//      if(numberControl.text != '' && emailAddressControl.text != '' && passwordControl.text != '' && districtControl.text != '' && nameControl.text != ''){
+//        getAccess = true;
+//      }
+
     });
 
-    if (getAccess == true) {
-     print('aa');
+    if(getAccess == true){
       insertData();
     }
+
+    getAccess = true;
   }
 
   insertData() async {
-    print('bb');
     String url = "http://localhost:8080/signup";
     var res = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     }, body: {
-      "Email": emailAddress,
-      "Password": password,
-      "District": district,
-      "Number": phoneNum,
-      "Name": name,
+      "email": emailAddress,
+      "password": password,
+      "address": district,
+      "phone": phoneNum,
+      "name": name,
     });
 
-    Navigator.of(context).push(
-        CupertinoPageRoute(builder: (BuildContext context) => LoginScreen()));
+    Navigator.of(context).push(CupertinoPageRoute(
+        builder: (BuildContext context) => LoginScreen()));
   }
 
   Widget _buildEmailTF() {
@@ -208,7 +195,7 @@ class _signUpScreenState extends State<signUpScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'District',
+          'Address',
           style: kLabelStyle,
         ),
         SizedBox(height: 10.0),
@@ -240,7 +227,7 @@ class _signUpScreenState extends State<signUpScreen> {
                 Icons.add_location,
                 color: Colors.white,
               ),
-              hintText: 'Enter your district (more than 6 letters)',
+              hintText: 'Enter your address (more than 6 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -368,6 +355,35 @@ class _signUpScreenState extends State<signUpScreen> {
     );
   }
 
+  Widget _buildChangeToLoginBtn() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 25.0),
+      width: double.infinity,
+      child: RaisedButton(
+        elevation: 5.0,
+        onPressed: () {
+          Navigator.of(context).push(CupertinoPageRoute(
+              builder: (BuildContext context) => LoginScreen()));
+        },
+        padding: EdgeInsets.all(15.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        color: Colors.white,
+        child: Text(
+          'Change To Login',
+          style: TextStyle(
+            color: Color(0xFF527DAA),
+            letterSpacing: 1.5,
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'OpenSans',
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -400,7 +416,7 @@ class _signUpScreenState extends State<signUpScreen> {
                   physics: AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.symmetric(
                     horizontal: 30.0,
-                    vertical: 80.0,
+                    vertical: 30.0,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -426,6 +442,8 @@ class _signUpScreenState extends State<signUpScreen> {
                       _buildCityName(),
                       SizedBox(height: 10.0),
                       _buildCreateAccountBtn(),
+                      SizedBox(height: 10.0),
+                      _buildChangeToLoginBtn(),
                     ],
                   ),
                 ),

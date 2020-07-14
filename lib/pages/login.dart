@@ -16,8 +16,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
-  String trueEmail;//="YE";
-  String truePass;//="YP";
+  String trueEmail="NE";
+  String truePass="NP";
   FlutterToast flutterToast;
 
   Color emailTextColor = Color(0xFF6CA8F1);
@@ -37,7 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _showToast() {
-    print('b');
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
@@ -62,44 +61,44 @@ class _LoginScreenState extends State<LoginScreen> {
     );}
     authentication() async {
     try {
-      String url = "http://localhost:8080/login";//Uri.encodeFull(url)
+
+      String url = "http://localhost:8080/login";
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json"
       }, body: {
-        "username": emailAddress,
+        "name": emailAddress,
         "password": password,
       });
-
       var response = json.decode(res.body);
-      print(response);
-//      trueEmail = response[0].toString();
-//      truePass = response[1].toString();
-    }catch(e){
-      print("unable to connect");
+      if(response!=null)
+        {
+          trueEmail = "YE";
+          truePass = "YP";
+        }
     }
-//    setState(() {
-//      if(trueEmail=="NE"){
-//        emailTextColor=Colors.red[300];
-//      }else{
-//        emailTextColor=Color(0xFF6CA8F1);
-//      }
-//      if(truePass=="NP"){
-//        passTextColor=Colors.red[300];
-//
-//      }else{
-//        passTextColor=Color(0xFF6CA8F1);
-//      }
-//    });
+    catch(e){
+      print("error name or password");
+    }
+    setState(() {
+      if(trueEmail=="NE"){
+        emailTextColor=Colors.red[300];
+      }else{
+        emailTextColor=Color(0xFF6CA8F1);
+      }
+      if(truePass=="NP"){
+        passTextColor=Colors.red[300];
+
+      }else{
+        passTextColor=Color(0xFF6CA8F1);
+      }
+    });
       if (trueEmail == "YE" && truePass == "YP") {
         Navigator.of(context).push(CupertinoPageRoute(
             builder: (BuildContext context) => RecomendedPage()));
       }
       else {
-        print('a');
         _showToast();
       }
-      print(trueEmail);
-      print(truePass);
     }
 
     Widget _buildEmailTF() {
