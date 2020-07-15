@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/component/constants.dart';
 import 'package:freelancer_flutter/pages/login.dart';
 
-//import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class signUpScreen extends StatefulWidget {
@@ -13,8 +14,8 @@ class signUpScreen extends StatefulWidget {
 }
 
 class _signUpScreenState extends State<signUpScreen> {
-  bool getAccess = false;
-
+  bool getAccess = true;
+  FlutterToast flutterToast;
   Color emailTextColor = Color(0xFF6CA8F1);
   Color passTextColor = Color(0xFF6CA8F1);
   Color phoneTextColor = Color(0xFF6CA8F1);
@@ -22,79 +23,110 @@ class _signUpScreenState extends State<signUpScreen> {
   Color nameTextColor = Color(0xFF6CA8F1);
 
   TextEditingController emailAddressControl = TextEditingController();
+
   String get emailAddress => emailAddressControl.text;
 
   TextEditingController passwordControl = TextEditingController();
+
   String get password => passwordControl.text;
 
   TextEditingController districtControl = TextEditingController();
+
   String get district => districtControl.text;
 
   TextEditingController numberControl = TextEditingController();
+
   String get phoneNum => numberControl.text;
 
   TextEditingController nameControl = TextEditingController();
+
   String get name => nameControl.text;
 
   checkAllFilled() {
     setState(() {
-      if (emailAddressControl.text == ''||!emailAddressControl.text.contains('@')) {
-        emailTextColor = Color(0xDFB0C4DE);//red[300];
+      if (emailAddressControl.text == '' ||
+          !emailAddressControl.text.contains('@')) {
+        emailTextColor = Color(0xDFB0C4DE); //red[300];
         getAccess = false;
       } else {
         emailTextColor = Color(0xFF6CA8F1);
       }
       if (passwordControl.text == '') {
-        passTextColor = Color(0xDFB0C4DE);;
+        passTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         passTextColor = Color(0xFF6CA8F1);
       }
-      if (nameControl.text == ''||nameControl.text.length<2) {
-        nameTextColor =  Color(0xDFB0C4DE);;
+      if (nameControl.text == '' || nameControl.text.length < 2) {
+        nameTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         nameTextColor = Color(0xFF6CA8F1);
       }
-      if (districtControl.text == ''||districtControl.text.length<6) {
-        disTextColor =  Color(0xDFB0C4DE);;
+      if (districtControl.text == '' || districtControl.text.length < 6) {
+        disTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         disTextColor = Color(0xFF6CA8F1);
       }
-      if (numberControl.text == ''||numberControl.text.length!=11) {
-        phoneTextColor =  Color(0xDFB0C4DE);;
+      if (numberControl.text == '' || numberControl.text.length != 11) {
+        phoneTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         phoneTextColor = Color(0xFF6CA8F1);
       }
-
-      if(numberControl.text != '' && emailAddressControl.text != '' && passwordControl.text != '' && districtControl.text != '' && nameControl.text != ''){
-        getAccess = true;
-      }
     });
 
-//    if(getAccess == true){
-//      insertData();
-//    }
-
+    if (getAccess == true) {
+      insertData();
+    }
+    getAccess = true;
+  }
+  @override
+  void initState() {
+    super.initState();
+    flutterToast = FlutterToast(context);
+  }
+  insertData() async {
+    String url = "http://localhost:8080/signup";
+    var res = await http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "email": emailAddress,
+      "password": password,
+      "address": district,
+      "phone": phoneNum,
+      "name": name,
+    });
+    _showToast();
+    Navigator.of(context).push(
+        CupertinoPageRoute(builder: (BuildContext context) => LoginScreen()));
   }
 
-//  insertData() async {
-//    String url = "https://worky-flutter.000webhostapp.com/insertSignUpdata.php";
-//    var res = await http.post(Uri.encodeFull(url), headers: {
-//      "Accept": "application/json"
-//    }, body: {
-//      "Email": emailAddress,
-//      "Password": password,
-//      "District": district,
-//      "Number": phoneNum,
-//      "Name": name,
-//    });
-//
-//    Navigator.of(context).push(CupertinoPageRoute(
-//        builder: (BuildContext context) => LoginScreen()));
-//  }
+  _showToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black12,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("Sign up Successfully"),
+        ],
+      ),
+    );
+    flutterToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 2),
+    );
+  }
 
   Widget _buildEmailTF() {
     return Column(
@@ -193,7 +225,7 @@ class _signUpScreenState extends State<signUpScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'District',
+          'Address',
           style: kLabelStyle,
         ),
         SizedBox(height: 10.0),
@@ -225,7 +257,7 @@ class _signUpScreenState extends State<signUpScreen> {
                 Icons.add_location,
                 color: Colors.white,
               ),
-              hintText: 'Enter your district (more than 6 letters)',
+              hintText: 'Enter your address (more than 6 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -353,6 +385,37 @@ class _signUpScreenState extends State<signUpScreen> {
     );
   }
 
+  Widget _buildLoginBtn() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(CupertinoPageRoute(
+            builder: (BuildContext context) => LoginScreen()));
+      },
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: 'Already have an Account? ',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.0,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            TextSpan(
+              text: 'Sign In',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -385,7 +448,7 @@ class _signUpScreenState extends State<signUpScreen> {
                   physics: AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.symmetric(
                     horizontal: 30.0,
-                    vertical: 80.0,
+                    vertical: 30.0,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -411,6 +474,8 @@ class _signUpScreenState extends State<signUpScreen> {
                       _buildCityName(),
                       SizedBox(height: 10.0),
                       _buildCreateAccountBtn(),
+                      SizedBox(height: 10.0),
+                      _buildLoginBtn(),
                     ],
                   ),
                 ),
