@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:freelancer_flutter/component/constants.dart';
+import 'package:freelancer_flutter/theme/constants.dart';
 import 'package:freelancer_flutter/pages/login.dart';
 
 import 'package:http/http.dart' as http;

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:freelancer_flutter/component/constants.dart';
+import 'package:freelancer_flutter/theme/constants.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json"
       }, body: {
-        "name": emailAddress,
+        "email": emailAddress,
         "password": password,
       });
       var response = json.decode(res.body);
