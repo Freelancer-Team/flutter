@@ -6,6 +6,8 @@ import 'package:freelancer_flutter/pages/signup.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -67,13 +69,14 @@ class _LoginScreenState extends State<LoginScreen> {
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json"
       }, body: {
-        "email": emailAddress,
+        "name": emailAddress,
         "password": password,
       });
       var response = json.decode(res.body);
       if (response != null) {
         trueEmail = "YE";
         truePass = "YP";
+        StorageUtil.setStringItem("email", response.email);
       }
     } catch (e) {
       print("error name or password");
