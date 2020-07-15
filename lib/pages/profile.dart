@@ -127,7 +127,7 @@ class _UserInfoState extends State<UserInfo> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: Colors.greenAccent,
+        color: Colors.black12,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -176,9 +176,9 @@ class _UserInfoState extends State<UserInfo> {
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: Colors.lightGreenAccent,
+        color: Color(0xFF023E8A),
       ),
-      child: Text(skill,style: TextStyle(height: 1)),
+      child: Text(skill,style: TextStyle(height: 1,color: Colors.white)),
     )).toList();
     skillManageList.add(Container(
       child: SizedOverflowBox(
