@@ -103,7 +103,9 @@ class MyDrawer extends StatelessWidget {
               Icons.home,
               color: Colors.black,
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.pushNamed(context, '/home');
+            },
           ),
           Divider(
             height: 15.0,
@@ -182,7 +184,7 @@ class MyDrawer extends StatelessWidget {
             ),
             onTap: () {
               Account.delUserInfo();
-              Navigator.pop(context, '/home');
+              Navigator.pushNamed(context, '/home');
             },
           ),
         ],
