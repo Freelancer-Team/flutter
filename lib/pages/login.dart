@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       String url = "http://localhost:8080/login";
       var res = await http.post(Uri.encodeFull(url), headers: {
-        "Accept": "application/json"
+        "Accept": "application/json;charset=UTF-8"
       }, body: {
         "email": emailAddress,
         "password": password,
@@ -79,8 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response != null) {
         trueEmail = "YE";
         truePass = "YP";
-        print(response);
-        print(response["email"]);
+        print(response);print(response["skills"]);
+
         Account.saveUserInfo(response);
       }
     } catch (e) {
