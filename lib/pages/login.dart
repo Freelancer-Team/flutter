@@ -81,8 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
         truePass = "YP";
         print(response);
         print(response["email"]);
-        StorageUtil.setStringItem("username", response["name"]);
-//        Account.saveUserInfo(response);
+        Account.saveUserInfo(response);
       }
     } catch (e) {
       print("error name or password");

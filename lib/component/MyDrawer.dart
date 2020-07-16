@@ -8,22 +8,33 @@ class UserInfo extends StatefulWidget {
 }
 
 class _UserInfoState extends State<UserInfo> {
-  String username = "x";
+  String username;
+
+  String email;
+
+  bool isLog = false;
+  String icon = 'unlogin.jpg';
 
   getUser() async {
     String usern = await StorageUtil.getStringItem("username");
-//    List<String> user = await StorageUtil.getStringListItem("user");
+    String e = await StorageUtil.getStringItem("email");
     print("aaa");
-    if (usern != null) {
+    if (usern != null && e != null) {
       setState(() {
         username = usern;
+        email = e;
+        icon = 'dragon.jpg';
+        isLog = true;
       });
     } else
       setState(() {
-        username = 'Ken';
+        username = 'not login';
+        email = '';
+        isLog = false;
       });
     print(username);
   }
+
   @override
   void initState() {
     super.initState();
@@ -36,36 +47,42 @@ class _UserInfoState extends State<UserInfo> {
     return Container(
         width: MediaQuery.of(context).size.width * 0.85,
         child: DrawerHeader(
-            child: Row(children: <Widget>[
-              CircleAvatar(
-                backgroundImage: AssetImage('assets/jene.jpg'),
-                radius: 50.0,
-              ),
-              SizedBox(
-                width: 10.0,
-              ),
-              Container(
-                padding: EdgeInsets.only(top: 40),
-                child: Column(
-                  children: <Widget>[
-                    Text(
+          child: Row(children: <Widget>[
+            CircleAvatar(
+              backgroundImage: AssetImage('$icon'),
+              radius: 50.0,
+            ),
+            SizedBox(
+              width: 10.0,
+            ),
+            Container(
+              padding: EdgeInsets.only(top: 40),
+              child: Column(
+                children: <Widget>[
+                  GestureDetector(
+                    child: Text(
                       '$username',
                       style: TextStyle(
                         fontSize: 25.0,
                         color: Colors.white,
                       ),
                     ),
-                    Text(
-                      'Bead Making',
-                      style: TextStyle(fontSize: 12.0, color: Colors.white),
-                    )
-                  ],
-                ),
+                    onTap: () {
+                      if (!isLog) Navigator.pushNamed(context, '/login');
+                    },
+                  ),
+                  Text(
+                    '$email',
+                    style: TextStyle(fontSize: 12.0, color: Colors.white),
+                  )
+                ],
               ),
-            ]),
-            decoration: BoxDecoration(
-              color: Colors.blue[900],
-            )));
+            ),
+          ]),
+          decoration: BoxDecoration(
+            color: Colors.blue[900],
+          ),
+        ));
   }
 }
 
@@ -77,43 +94,6 @@ class MyDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserInfo(),
-//          Container(
-//            width: MediaQuery.of(context).size.width * 0.85,
-//            child: DrawerHeader(
-//              child: Row(
-//                children: <Widget>[
-//                  CircleAvatar(
-//                    backgroundImage: AssetImage('assets/jene.jpg'),
-//                    radius: 50.0,
-//                  ),
-//                  SizedBox(
-//                    width: 10.0,
-//                  ),
-//                  Container(
-//                    padding: EdgeInsets.only(top: 40),
-//                    child: Column(
-//                      children: <Widget>[
-//                        Text(
-//                          '$username',
-//                          style: TextStyle(
-//                            fontSize: 25.0,
-//                            color: Colors.white,
-//                          ),
-//                        ),
-//                        Text(
-//                          'Bead Making',
-//                          style: TextStyle(fontSize: 12.0, color: Colors.white),
-//                        )
-//                      ],
-//                    ),
-//                  ),
-//                ],
-//              ),
-//              decoration: BoxDecoration(
-//                color: Colors.blue[900],
-//              ),
-//            ),
-//          ),
           ListTile(
             title: Text(
               "Home",
