@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
-class Skill{
+
+class Skill {
   String skill;
   bool isSelected;
 }
+
 class ApplyPage extends StatefulWidget {
   @override
   _ApplyState createState() => _ApplyState();
@@ -28,16 +30,16 @@ class _ApplyState extends State<ApplyPage> {
   String _title = 'KILL BILL';
   String _owner;
   String _budget;
-  List<Skill> skills =new List();
+  List<String> _neededSkills = new List();
 
   //必填项
-  List<Skill> selSkills=new List();
+  List<Skill> selSkills = new List();
   String _offer;
   String _application;
 
   void onSubmit() {
     final form = formKey.currentState;
-    if (form.validate()&&selSkills != null) {
+    if (form.validate() && selSkills != null) {
       form.save();
       performLogin();
     }
@@ -57,36 +59,53 @@ class _ApplyState extends State<ApplyPage> {
     addSkills();
   }
 
-    getUserInfo() async {
-      String email = await StorageUtil.getStringItem("email");
-      String uname = await StorageUtil.getStringItem("username");
-      String add = await StorageUtil.getStringItem("address");
-      String g = await StorageUtil.getStringItem("gender");
-      String phone = await StorageUtil.getStringItem("phone");
-      int age = await StorageUtil.getIntItem("age");
-      List<String> skills = await StorageUtil.getStringListItem("skills");
+  getUserInfo() async {
+    String email = await StorageUtil.getStringItem("email");
+    String uname = await StorageUtil.getStringItem("username");
+    String add = await StorageUtil.getStringItem("address");
+    String g = await StorageUtil.getStringItem("gender");
+    String phone = await StorageUtil.getStringItem("phone");
+    int age = await StorageUtil.getIntItem("age");
+    List<String> skills = await StorageUtil.getStringListItem("skills");
 
-      if (email != null) {
-        setState(() {
-          _email = email;
-          _name = uname;
-          _personalAddress = add;
-          _tel = phone;
-          _gender = g;
-          _age = age;
-          print(skills);
-          if (skills != null) _personalSkills = skills;
-        });
-      }
+    if (email != null) {
+      setState(() {
+        _email = email;
+        _name = uname;
+        _personalAddress = add;
+        _tel = phone;
+        _gender = g;
+        _age = age;
+        print(skills);
+        if (skills != null) _personalSkills = skills;
+      });
+    }
   }
-  void addSkills(){
+
+  void addSkills() {
     //用于测试
-    Skill a= new Skill();
-    a.isSelected=true;a.skill='好吃懒做';
-    Skill b= new Skill();
-    b.isSelected=false;b.skill='混吃等死';
-    skills.add(a);skills.add(b);
+    Skill a = new Skill();
+    a.isSelected = true;
+    a.skill = '好吃懒做';
+    Skill b = new Skill();
+    b.isSelected = false;
+    b.skill = '混吃等死';
+    selSkills.add(a);
+    selSkills.add(b);
+//实际
+    int l = _neededSkills.length;
+    for (int i = 0; i < l; i++) {
+      Skill a = new Skill();
+      String s = _neededSkills[i];
+      a.skill = s;
+      if (_personalSkills != null && _personalSkills.contains(s))
+        a.isSelected = true;
+      else
+        a.isSelected = false;
+      selSkills.add(a);
+    }
   }
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
@@ -117,9 +136,9 @@ class _ApplyState extends State<ApplyPage> {
                 new TextFormField(
                   decoration: new InputDecoration(labelText: "Name"),
                   validator: (val) =>
-                  val.length < 2 ? 'Please input your name' : null,
-                  onSaved: (val) => _name= val,
-                  controller:  new TextEditingController(text: '$_name'),
+                      val.length < 2 ? 'Please input your name' : null,
+                  onSaved: (val) => _name = val,
+                  controller: new TextEditingController(text: '$_name'),
                 ),
                 Row(children: <Widget>[
                   new Expanded(
@@ -128,43 +147,48 @@ class _ApplyState extends State<ApplyPage> {
                     validator: (val) =>
                         val.length < 1 ? 'Please input your age' : null,
                     onSaved: (val) => _age = int.parse(val),
-                        controller:  new TextEditingController(text: '$_age'),
+                    controller: new TextEditingController(text: '$_age'),
                   )),
                   new Text('  '),
                   new Expanded(
                       child: new TextFormField(
                     decoration: new InputDecoration(labelText: "Gender(F/M)"),
-                    validator: (val) =>
-                    val.length < 1 ? 'Please input your gender' :((val.trim()=='F'||val.trim()=='M')?'invalid gender': null),
+                    validator: (val) => val.length < 1
+                        ? 'Please input your gender'
+                        : ((val.trim() == 'F' || val.trim() == 'M')
+                            ? 'invalid gender'
+                            : null),
                     onSaved: (val) => _gender = val.trim(),
-                        controller:  new TextEditingController(text: '$_gender'),
+                    controller: new TextEditingController(text: '$_gender'),
                   ))
                 ]),
                 Row(children: <Widget>[
                   new Expanded(
                       child: new TextFormField(
-                        decoration: new InputDecoration(labelText: "Phone"),
-                        validator: (val) =>
-                        val.trim().length != 11 ? 'Please input your telephone number' : null,
-                        onSaved: (val) => _tel = val.trim(),
-                        controller:  new TextEditingController(text: '$_tel'),
-                      )),
+                    decoration: new InputDecoration(labelText: "Phone"),
+                    validator: (val) => val.trim().length != 11
+                        ? 'Please input your telephone number'
+                        : null,
+                    onSaved: (val) => _tel = val.trim(),
+                    controller: new TextEditingController(text: '$_tel'),
+                  )),
                   new Text('  '),
                   new Expanded(
                       child: new TextFormField(
-                        decoration: new InputDecoration(labelText: "Email"),
-                        validator: (val) =>
+                    decoration: new InputDecoration(labelText: "Email"),
+                    validator: (val) =>
                         !val.contains('@') ? 'Invalid Email' : null,
-                        onSaved: (val) => _email = val,
-                        controller:  new TextEditingController(text: '$_email'),
-                      ))
+                    onSaved: (val) => _email = val,
+                    controller: new TextEditingController(text: '$_email'),
+                  ))
                 ]),
                 new TextFormField(
                   decoration: new InputDecoration(labelText: "Address"),
                   validator: (val) =>
                       val.length < 6 ? 'Please input your address' : null,
                   onSaved: (val) => _personalAddress = val,
-                  controller:  new TextEditingController(text: '$_personalAddress'),
+                  controller:
+                      new TextEditingController(text: '$_personalAddress'),
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 20.0),
@@ -174,7 +198,7 @@ class _ApplyState extends State<ApplyPage> {
                     child: new Text('Needed Skills')),
                 new Column(children: <Widget>[
                   Column(
-                      children: skills.map((f) {
+                      children: selSkills.map((f) {
                     return Column(
                       children: <Widget>[
                         Container(
@@ -185,13 +209,17 @@ class _ApplyState extends State<ApplyPage> {
                                 f.isSelected = !f.isSelected;
                                 //保存已选中的
                                 if (f.isSelected) {
-                                  if (!selSkills.contains(f))
-                                    selSkills.add(f);
+                                  if (!_personalSkills.contains(f.skill)) {
+//                                    selSkills.add(f);
+                                    _personalSkills.add(f.skill);
+                                  }
                                 } //删除
                                 else {
-                                  if (selSkills != null &&
-                                      selSkills.contains(f))
-                                    selSkills.remove(f);
+                                  if (_personalSkills != null &&
+                                      _personalSkills.contains(f.skill)) {
+//                                    selSkills.remove(f);
+                                    _personalSkills.remove(f.skill);
+                                  }
                                 }
                               });
                             },
@@ -205,7 +233,8 @@ class _ApplyState extends State<ApplyPage> {
                   }).toList())
                 ]),
                 new TextFormField(
-                  decoration: new InputDecoration(labelText: "Offer (Expected to be paid $_budget)"),
+                  decoration: new InputDecoration(
+                      labelText: "Offer (Expected to be paid $_budget)"),
                   validator: (val) =>
                       val.length < 6 ? 'Please enter your target salary' : null,
                   onSaved: (val) => _offer = val,
