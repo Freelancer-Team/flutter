@@ -90,29 +90,46 @@ class _ApplyState extends State<ApplyPage> {
             key: formKey,
             child: new Column(
               children: <Widget>[
+                new TextFormField(
+                  decoration: new InputDecoration(labelText: "Name"),
+                  validator: (val) =>
+                  val.length < 2 ? 'Please input your name' : null,
+                  onSaved: (val) => _name= val,
+                ),
                 Row(children: <Widget>[
-                  new Expanded(
-                      child: new TextFormField(
-                    decoration: new InputDecoration(labelText: "Name"),
-                    validator: (val) =>
-                        val.length < 2 ? 'Please input your name' : null,
-                    onSaved: (val) => _name = val,
-                  )),
-                  new Text('  '),
                   new Expanded(
                       child: new TextFormField(
                     decoration: new InputDecoration(labelText: "Age"),
                     validator: (val) =>
                         val.length < 1 ? 'Please input your age' : null,
-                    onSaved: (val) => _owner = val,
+                    onSaved: (val) => _age = val,
+                  )),
+                  new Text('  '),
+                  new Expanded(
+                      child: new TextFormField(
+                    decoration: new InputDecoration(labelText: "Gender(F/M)"),
+                    validator: (val) =>
+                    val.length < 1 ? 'Please input your gender' :((val.trim()=='F'||val.trim()=='M')?'invalid gender': null),
+                    onSaved: (val) => _gender = val.trim(),
                   ))
                 ]),
-                new TextFormField(
-                  decoration: new InputDecoration(labelText: "Email"),
-                  validator: (val) =>
-                      !val.contains('@') ? 'Invalid Email' : null,
-                  onSaved: (val) => _email = val,
-                ),
+                Row(children: <Widget>[
+                  new Expanded(
+                      child: new TextFormField(
+                        decoration: new InputDecoration(labelText: "Phone"),
+                        validator: (val) =>
+                        val.trim().length != 11 ? 'Please input your telephone number' : null,
+                        onSaved: (val) => _tel = val.trim(),
+                      )),
+                  new Text('  '),
+                  new Expanded(
+                      child: new TextFormField(
+                        decoration: new InputDecoration(labelText: "Email"),
+                        validator: (val) =>
+                        !val.contains('@') ? 'Invalid Email' : null,
+                        onSaved: (val) => _email = val,
+                      ))
+                ]),
                 new TextFormField(
                   decoration: new InputDecoration(labelText: "Address"),
                   validator: (val) =>
@@ -150,7 +167,7 @@ class _ApplyState extends State<ApplyPage> {
                             },
                             title: Text(f.skill),
                             controlAffinity: ListTileControlAffinity.platform,
-                            activeColor: Colors.green,
+                            activeColor: Colors.blue,
                           ),
                         ),
                       ],
@@ -179,7 +196,7 @@ class _ApplyState extends State<ApplyPage> {
                 ),
                 new RaisedButton(
                   child: new Text(
-                    "submit",
+                    "Submit",
                     style: new TextStyle(color: Colors.white),
                   ),
                   color: Colors.blue,

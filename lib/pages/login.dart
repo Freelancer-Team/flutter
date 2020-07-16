@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:freelancer_flutter/component/constants.dart';
+import 'package:freelancer_flutter/theme/constants.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
+import 'package:freelancer_flutter/pages/home.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -14,51 +16,90 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
-  String trueEmail;
-  String truePass;
+  String trueEmail = "NE";
+  String truePass = "NP";
+  FlutterToast flutterToast;
+
   Color emailTextColor = Color(0xFF6CA8F1);
   Color passTextColor = Color(0xFF6CA8F1);
   TextEditingController emailAddressControl = TextEditingController();
+
   String get emailAddress => emailAddressControl.text;
 
   TextEditingController passwordControl = TextEditingController();
+
   String get password => passwordControl.text;
+
+  @override
+  void initState() {
+    super.initState();
+    flutterToast = FlutterToast(context);
+  }
+
+  _showToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black12,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.clear),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("用户名或密码错误"),
+        ],
+      ),
+    );
+    flutterToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 2),
+    );
+  }
 
   authentication() async {
     try {
-      String url = "https://worky-flutter.000webhostapp.com/authenticationLogin.php";
+      String url = "http://localhost:8080/login";
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json"
       }, body: {
         "email": emailAddress,
         "password": password,
       });
-
       var response = json.decode(res.body);
-      trueEmail = response[0].toString();
-      truePass = response[1].toString();
-    }catch(e){
-      print("unable to connect");
+      if (response != null) {
+        trueEmail = "YE";
+        truePass = "YP";
+      }
+    } catch (e) {
+      print("error name or password");
     }
     setState(() {
-      if(trueEmail=="NE"){
-        emailTextColor=Colors.red[300];
-      }else{
-        emailTextColor=Color(0xFF6CA8F1);
+      if (trueEmail == "NE") {
+        emailTextColor = Color(0xDFB0C4DE);
+      } else {
+        emailTextColor = Color(0xFF6CA8F1);
       }
-      if(truePass=="NP"){
-        passTextColor=Colors.red[300];
-
-      }else{
-        passTextColor=Color(0xFF6CA8F1);
+      if (truePass == "NP") {
+        passTextColor = Color(0xDFB0C4DE);
+      } else {
+        passTextColor = Color(0xFF6CA8F1);
       }
     });
-    if(trueEmail=="YE" && truePass=="YP"){
+    if (trueEmail == "YE" && truePass == "YP") {
       Navigator.of(context).push(CupertinoPageRoute(
+<<<<<<< HEAD
           builder: (BuildContext context) => HomePage()));
+=======
+          builder: (BuildContext context) => RecomendedPage()));
+    } else {
+      _showToast();
+>>>>>>> remotes/origin/master
     }
-    print(trueEmail);
-    print(truePass);
   }
 
   Widget _buildEmailTF() {
@@ -294,7 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(CupertinoPageRoute(
-            builder: (BuildContext context) => signUPScreen()));
+            builder: (BuildContext context) => signUpScreen()));
       },
       child: RichText(
         text: TextSpan(
@@ -372,10 +413,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 10.0),
                       _buildPasswordTF(),
                       _buildForgotPasswordBtn(),
-                      _buildRememberMeCheckbox(),
+//                        _buildRememberMeCheckbox(),
                       _buildLoginBtn(),
-                      _buildSignInWithText(),
-                      _buildSocialBtnRow(),
+//                      _buildSignInWithText(),
+//                      _buildSocialBtnRow(),
                       _buildSignupBtn(),
                     ],
                   ),
@@ -387,4 +428,10 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+@override
+Widget build(BuildContext context) {
+  // TODO: implement build
+  throw UnimplementedError();
 }
