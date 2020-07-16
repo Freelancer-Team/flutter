@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json"
       }, body: {
-        "name": emailAddress,
+        "email": emailAddress,
         "password": password,
       });
       var response = json.decode(res.body);
@@ -81,7 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
         truePass = "YP";
         print(response);
         print(response["email"]);
-        Account.saveUserInfo(response);
+        StorageUtil.setStringItem("username", response["name"]);
+//        Account.saveUserInfo(response);
       }
     } catch (e) {
       print("error name or password");
