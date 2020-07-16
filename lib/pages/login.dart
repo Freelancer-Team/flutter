@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     if(trueEmail=="YE" && truePass=="YP"){
       Navigator.of(context).push(CupertinoPageRoute(
-          builder: (BuildContext context) => Homepage()));
+          builder: (BuildContext context) => HomePage()));
     }
     print(trueEmail);
     print(truePass);
