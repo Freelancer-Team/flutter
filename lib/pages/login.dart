@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json"
       }, body: {
-        "name": emailAddress,
+        "email": emailAddress,
         "password": password,
       });
       var response = json.decode(res.body);
