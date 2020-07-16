@@ -1,8 +1,12 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/component/SkillChooseModal.dart';
-
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -13,7 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Choice _selectedChoice = choices[0]; // The app's "state".
 
   void _select(Choice choice) {
-    setState(() { // Causes the app to rebuild with the new _selectedChoice.
+    setState(() {
+      // Causes the app to rebuild with the new _selectedChoice.
       _selectedChoice = choice;
     });
   }
@@ -21,48 +26,49 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title: Text('个人中心',
-            style: TextStyle(
-              fontSize: 30.0,
-            ),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: Text(
+          '个人中心',
+          style: TextStyle(
+            fontSize: 30.0,
           ),
-          centerTitle: true,
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              color: Colors.blue[900],
-            ),
-          ),
-          brightness: Brightness.light,
-          actions: <Widget>[
-            PopupMenuButton<Choice>( // overflow menu
-              icon: Icon(Icons.dashboard),
-              onSelected: _select,
-              itemBuilder: (BuildContext context) {
-                return choices.map<PopupMenuItem<Choice>>((Choice choice) {
-                  return PopupMenuItem<Choice>(
-                    value: choice,
-                    child: new ListTile(
-                      leading: Icon(choice.icon),
-                      title: Text(choice.title),
-                    ),
-                  );
-                }).toList();
-              },
-            ),
-          ],
         ),
-        drawer: MyDrawer(),
-
-
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            color: Colors.blue[900],
+          ),
+        ),
+        brightness: Brightness.light,
+        actions: <Widget>[
+          PopupMenuButton<Choice>(
+            // overflow menu
+            icon: Icon(Icons.dashboard),
+            onSelected: _select,
+            itemBuilder: (BuildContext context) {
+              return choices.map<PopupMenuItem<Choice>>((Choice choice) {
+                return PopupMenuItem<Choice>(
+                  value: choice,
+                  child: new ListTile(
+                    leading: Icon(choice.icon),
+                    title: Text(choice.title),
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ],
+      ),
+      drawer: MyDrawer(),
       body: ChoiceCard(choice: _selectedChoice),
     );
   }
 }
 
 class Choice {
-  const Choice({ this.title, this.icon });
+  const Choice({this.title, this.icon});
+
   final String title;
   final IconData icon;
 }
@@ -74,31 +80,32 @@ const List<Choice> choices = <Choice>[
 ];
 
 class ChoiceCard extends StatelessWidget {
-  const ChoiceCard({ Key key, this.choice }) : super(key: key);
+  const ChoiceCard({Key key, this.choice}) : super(key: key);
 
   final Choice choice;
 
   @override
   Widget build(BuildContext context) {
-    if(choice.title == '个人信息') return UserInfo();
-    else if(choice.title == '我的项目') return ProjectInfo();
-    else return Card(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(choice.icon, size: 128.0),
-            Text(choice.title),
-          ],
+    if (choice.title == '个人信息')
+      return UserInfo();
+    else if (choice.title == '我的项目')
+      return ProjectInfo();
+    else
+      return Card(
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(choice.icon, size: 128.0),
+              Text(choice.title),
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }
-
-
 
 class UserInfo extends StatefulWidget {
   UserInfo({Key key}) : super(key: key);
@@ -108,17 +115,30 @@ class UserInfo extends StatefulWidget {
 }
 
 class _UserInfoState extends State<UserInfo> {
-
   //假数据在这里
   List<String> _skills = ["Java", "C++", "JavaScript", "Dart", "Python"];
-
-
+  String email = "s";
 
   FlutterToast flutterToast;
+
+  getToken() async {
+    String email = await StorageUtil.getStringItem("email");
+//    List<String> user = await StorageUtil.getStringListItem("user");
+    print("aaa");
+    if (email != null) {
+      // 跳转到首页print(user);
+//      print(user[0]);
+      setState(() {
+        this.email = email;
+      });
+    }
+    else print('bbb');
+  }
 
   @override
   void initState() {
     super.initState();
+    getToken();
     flutterToast = FlutterToast(context);
   }
 
@@ -148,11 +168,24 @@ class _UserInfoState extends State<UserInfo> {
     );
   }
 
+  saveSkills(skills) async {
+    try {
+      String url = "http://localhost:8080/updateSkills?id=1";
+      var res = await http.post(Uri.encodeFull(url),
+          headers: {"Accept": "application/json"}, body: {"skills": skills});
+      var response = json.decode(res.body);
+      if (response != null) {}
+    } catch (e) {
+      print(e);
+    }
+  }
+
   _showSimpleDialog() {
-    onSkillChange(var skills){
+    onSkillChange(var skills) {
       setState(() {
         _skills = skills;
       });
+      saveSkills(skills);
       Navigator.pop(context);
       _showToast();
     }
@@ -160,91 +193,97 @@ class _UserInfoState extends State<UserInfo> {
     showDialog(
         barrierDismissible: false,
         context: context,
-        builder: (context) => SimpleDialog(
-            title: Text('编辑您的专业技能'),
-            // 这里传入一个选择器列表即可
-            children: [
-              SkillDialog(skillChoose: this._skills, onSkillChanged: onSkillChange,),
-            ]
-        ));
+        builder: (context) => SimpleDialog(title: Text('编辑您的专业技能'),
+                // 这里传入一个选择器列表即可
+                children: [
+                  SkillDialog(
+                    skillChoose: this._skills,
+                    onSkillChanged: onSkillChange,
+                  ),
+                ]));
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> skillManageList = _skills.map((skill) => Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
-        color: Color(0xFF023E8A),
-      ),
-      child: Text(skill,style: TextStyle(height: 1,color: Colors.white)),
-    )).toList();
+//    getToken();
+    List<Widget> skillManageList = _skills
+        .map((skill) => Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25.0),
+                color: Color(0xFF023E8A),
+              ),
+              child:
+                  Text(skill, style: TextStyle(height: 1, color: Colors.white)),
+            ))
+        .toList();
     skillManageList.add(Container(
       child: SizedOverflowBox(
-        size: Size(32,32),
+        size: Size(32, 32),
         alignment: Alignment.center,
-        child: IconButton( // action button
+        child: IconButton(
+          // action button
           icon: new Icon(Icons.add_circle),
           padding: const EdgeInsets.all(0),
-          onPressed: () { _showSimpleDialog(); },
+          onPressed: () {
+            _showSimpleDialog();
+          },
         ),
       ),
     ));
 
     return Container(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30),
-        child: Column(
+        child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 30),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        new ListTile(
+          leading: Icon(Icons.account_circle),
+          title: Text("个人信息"),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            new ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text("个人信息"),
+            Image(
+              image: AssetImage('assets/ProfileImage/userIcon.jpg'),
+              height: 128,
+              width: 128,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image(
-                  image:AssetImage('assets/ProfileImage/userIcon.jpg'),
-                  height: 128,
-                  width: 128,
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: 128),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Text("Username",
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontFamily: "Courier",
-                        ),
-                      ),
-                      Text("年龄"),
-                      Text("性别"),
-                      Text("邮箱"),
-                      Text("电话"),
-                      Text("地区")
-                    ],
+            ConstrainedBox(
+              constraints: BoxConstraints(minHeight: 128),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Text(
+                    "Username",
+                    style: TextStyle(
+                      fontSize: 30.0,
+                      fontFamily: "Courier",
+                    ),
                   ),
-                )
-              ],
-            ),
-            Text("加入日期"),
-            Text("技能点"),
-            Wrap(
-              children: skillManageList,
-            ),
-            Text("个人描述"),
-          ]
+                  Text("年龄"),
+                  Text("性别"),
+                  Text("邮箱 $email"),
+                  Text("电话"),
+                  Text("地区")
+                ],
+              ),
+            )
+          ],
         ),
-      )
-
-    );
+        Text("加入日期"),
+        Text("技能点"),
+        Wrap(
+          children: skillManageList,
+        ),
+        Text("个人描述"),
+      ]),
+    ));
   }
 }
 
