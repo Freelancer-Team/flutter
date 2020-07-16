@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'package:freelancer_flutter/utilities/Account.dart';
 class Skill{
   String skill;
-  int id;
   bool isSelected;
 }
 class ApplyPage extends StatefulWidget {
@@ -18,16 +18,16 @@ class _ApplyState extends State<ApplyPage> {
   //若有用户信息则自动填写
   String _email;
   String _name;
-  String _age;
+  int _age;
   String _gender;
   String _personalAddress;
   String _tel;
+  List<String> _personalSkills;
 
   //从父组件传来
   String _title = 'KILL BILL';
   String _owner;
-  String _min;
-  String _max;
+  String _budget;
   List<Skill> skills =new List();
 
   //必填项
@@ -53,14 +53,38 @@ class _ApplyState extends State<ApplyPage> {
   @override
   void initState() {
     // TODO: implement initState
+    getUserInfo();
     addSkills();
+  }
+
+    getUserInfo() async {
+      String email = await StorageUtil.getStringItem("email");
+      String uname = await StorageUtil.getStringItem("username");
+      String add = await StorageUtil.getStringItem("address");
+      String g = await StorageUtil.getStringItem("gender");
+      String phone = await StorageUtil.getStringItem("phone");
+      int age = await StorageUtil.getIntItem("age");
+      List<String> skills = await StorageUtil.getStringListItem("skills");
+
+      if (email != null) {
+        setState(() {
+          _email = email;
+          _name = uname;
+          _personalAddress = add;
+          _tel = phone;
+          _gender = g;
+          _age = age;
+          print(skills);
+          if (skills != null) _personalSkills = skills;
+        });
+      }
   }
   void addSkills(){
     //用于测试
     Skill a= new Skill();
-    a.id=1;a.isSelected=true;a.skill='好吃懒做';
+    a.isSelected=true;a.skill='好吃懒做';
     Skill b= new Skill();
-    b.id=2;b.isSelected=false;b.skill='混吃等死';
+    b.isSelected=false;b.skill='混吃等死';
     skills.add(a);skills.add(b);
   }
   @override
@@ -95,6 +119,7 @@ class _ApplyState extends State<ApplyPage> {
                   validator: (val) =>
                   val.length < 2 ? 'Please input your name' : null,
                   onSaved: (val) => _name= val,
+                  controller:  new TextEditingController(text: '$_name'),
                 ),
                 Row(children: <Widget>[
                   new Expanded(
@@ -102,7 +127,8 @@ class _ApplyState extends State<ApplyPage> {
                     decoration: new InputDecoration(labelText: "Age"),
                     validator: (val) =>
                         val.length < 1 ? 'Please input your age' : null,
-                    onSaved: (val) => _age = val,
+                    onSaved: (val) => _age = int.parse(val),
+                        controller:  new TextEditingController(text: '$_age'),
                   )),
                   new Text('  '),
                   new Expanded(
@@ -111,6 +137,7 @@ class _ApplyState extends State<ApplyPage> {
                     validator: (val) =>
                     val.length < 1 ? 'Please input your gender' :((val.trim()=='F'||val.trim()=='M')?'invalid gender': null),
                     onSaved: (val) => _gender = val.trim(),
+                        controller:  new TextEditingController(text: '$_gender'),
                   ))
                 ]),
                 Row(children: <Widget>[
@@ -120,6 +147,7 @@ class _ApplyState extends State<ApplyPage> {
                         validator: (val) =>
                         val.trim().length != 11 ? 'Please input your telephone number' : null,
                         onSaved: (val) => _tel = val.trim(),
+                        controller:  new TextEditingController(text: '$_tel'),
                       )),
                   new Text('  '),
                   new Expanded(
@@ -128,6 +156,7 @@ class _ApplyState extends State<ApplyPage> {
                         validator: (val) =>
                         !val.contains('@') ? 'Invalid Email' : null,
                         onSaved: (val) => _email = val,
+                        controller:  new TextEditingController(text: '$_email'),
                       ))
                 ]),
                 new TextFormField(
@@ -135,6 +164,7 @@ class _ApplyState extends State<ApplyPage> {
                   validator: (val) =>
                       val.length < 6 ? 'Please input your address' : null,
                   onSaved: (val) => _personalAddress = val,
+                  controller:  new TextEditingController(text: '$_personalAddress'),
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 20.0),
@@ -175,7 +205,7 @@ class _ApplyState extends State<ApplyPage> {
                   }).toList())
                 ]),
                 new TextFormField(
-                  decoration: new InputDecoration(labelText: "Offer (Expected to be paid between $_min and $_max dollars)"),
+                  decoration: new InputDecoration(labelText: "Offer (Expected to be paid $_budget)"),
                   validator: (val) =>
                       val.length < 6 ? 'Please enter your target salary' : null,
                   onSaved: (val) => _offer = val,

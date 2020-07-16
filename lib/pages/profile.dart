@@ -192,9 +192,10 @@ class _UserInfoState extends State<UserInfo> {
   saveSkills(skills) async {
     try {
       String url = "http://localhost:8080/updateSkills?userId=" + uid.toString();
+      print(url);print(skills);
       var res = await http.post(Uri.encodeFull(url),
-          headers: {"Accept": "application/json"},
-          body: {"skills": skills});
+          headers: {"content-type": "application/json"},
+          body:  json.encode(skills));
       var response = json.decode(res.body);
       if (response != null) {
         Account.saveUserSkill(response);
