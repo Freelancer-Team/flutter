@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
@@ -120,13 +122,14 @@ class _UserInfoState extends State<UserInfo> {
   FlutterToast flutterToast;
 
   getToken() async {
-    String user = await StorageUtil.getStringItem("email");
-    print('aaa');
-    if (user != null) {
-      // 跳转到首页
-      print(user);
+    String email = await StorageUtil.getStringItem("email");
+//    List<String> user = await StorageUtil.getStringListItem("user");
+    print("aaa");
+    if (email != null) {
+      // 跳转到首页print(user);
+//      print(user[0]);
       setState(() {
-        email = user;
+        this.email = email;
       });
     }
     else print('bbb');
@@ -202,6 +205,7 @@ class _UserInfoState extends State<UserInfo> {
 
   @override
   Widget build(BuildContext context) {
+//    getToken();
     List<Widget> skillManageList = _skills
         .map((skill) => Container(
               padding:

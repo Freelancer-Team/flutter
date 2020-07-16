@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freelancer_flutter/utilities/Account.dart';
 
 class MyDrawer extends StatelessWidget {
   @override
@@ -121,6 +122,7 @@ class MyDrawer extends StatelessWidget {
               ),),
             leading: Icon(Icons.lock_outline, color: Colors.black,),
             onTap: () {
+              Account.delUserInfo();
               Navigator.pop(context, '/home');
             },
           ),

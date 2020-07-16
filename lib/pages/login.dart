@@ -5,11 +5,14 @@ import 'package:freelancer_flutter/theme/constants.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:freelancer_flutter/utilities/Account.dart';
 
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -76,7 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response != null) {
         trueEmail = "YE";
         truePass = "YP";
-        StorageUtil.setStringItem("email", response.email);
+        print(response);
+        print(response["email"]);
+        Account.saveUserInfo(response);
       }
     } catch (e) {
       print("error name or password");
