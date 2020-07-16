@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
+
 class ProjDetails extends StatefulWidget {
   State<StatefulWidget> createState() {
     final width = window.physicalSize.width;
@@ -15,6 +16,7 @@ class ProjDetails extends StatefulWidget {
     }
   }
 }
+
 
 class LargeScreen extends State<ProjDetails>
     with SingleTickerProviderStateMixin {
