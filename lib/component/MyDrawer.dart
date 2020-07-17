@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 
-class UserInfo extends StatefulWidget {
+class MyDrawer extends StatefulWidget {
   @override
-  _UserInfoState createState() => _UserInfoState();
+  _MyDrawerState createState() => _MyDrawerState();
 }
-
-class _UserInfoState extends State<UserInfo> {
+class _MyDrawerState extends State<MyDrawer> {
   String username;
 
   String email;
@@ -41,8 +40,7 @@ class _UserInfoState extends State<UserInfo> {
     getUser();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget UserInfo() {
     // TODO: implement build
     return Container(
         width: MediaQuery.of(context).size.width * 0.85,
@@ -84,9 +82,7 @@ class _UserInfoState extends State<UserInfo> {
           ),
         ));
   }
-}
 
-class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Drawer(
@@ -121,7 +117,7 @@ class MyDrawer extends StatelessWidget {
               color: Colors.black,
             ),
             onTap: () {
-              Navigator.pushNamed(context, '/profile');
+              !isLog?Navigator.pushNamed(context, '/login'):Navigator.pushNamed(context, '/profile');
             },
           ),
           Divider(
@@ -175,7 +171,7 @@ class MyDrawer extends StatelessWidget {
           ),
           ListTile(
             title: Text(
-              "Logout",
+              !isLog?"Login":"Logout",
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             ),
             leading: Icon(
@@ -184,7 +180,7 @@ class MyDrawer extends StatelessWidget {
             ),
             onTap: () {
               Account.delUserInfo();
-              Navigator.pushNamed(context, '/home');
+              !isLog?Navigator.pushNamed(context, '/login'):Navigator.pushNamed(context, '/home');
             },
           ),
         ],

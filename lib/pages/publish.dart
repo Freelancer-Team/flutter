@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/component/SkillChooseModal.dart';
-
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 class PublishPage extends StatefulWidget {
   @override
   _PublishState createState() => _PublishState();
@@ -16,6 +18,7 @@ class _PublishState extends State<PublishPage> {
 
   String _title;
   String _owner;
+  int _oid;
   String _address;
 //  String _min;
 //  String _max;
@@ -27,23 +30,55 @@ class _PublishState extends State<PublishPage> {
     final form = formKey.currentState;
     if (form.validate() && _ddl != null) {
       form.save();
-      performLogin();
+      saveJob();
     }
   }
-
-  void performLogin() {
-    final snackbar = new SnackBar(
-      content: new Text("Title: $_title, desc : $_description"),
-    );
-    scaffoldKey.currentState.showSnackBar(snackbar);
+  saveJob() async {
+    try {
+      String url = "http://localhost:8080/saveJob";
+      var res = await http.post(Uri.encodeFull(url), headers: {
+        "Accept": "application/json"
+      }, body: {
+        "skills":json.encode(selSkills),
+        "title":_title,
+        "description":_description,
+        "price":_budget,
+        "remaining_time":_ddl.toIso8601String(),
+        "employeeName":_owner,
+        "employeeId":_oid.toString(),
+      });
+      var response = json.decode(res.body);
+      if (response != null) {
+        _showToast(true);
+//        Navigator.pushNamed(context, '/home');
+      }
+    } catch (e) {
+      print(e);
+    }
   }
-
   @override
   void initState() {
     super.initState();
+    getUserInfo();
     flutterToast = FlutterToast(context);
   }
+  getUserInfo() async {
+    String email = await StorageUtil.getStringItem("email");
+    String uname = await StorageUtil.getStringItem("username");
+    String add = await StorageUtil.getStringItem("address");
+    String phone = await StorageUtil.getStringItem("phone");
+    int uid = await StorageUtil.getIntItem("uid");
 
+    if (uid != null) {
+      setState(() {
+//        _email = email;
+        _owner = uname;
+        _address = add;
+//        _tel = phone;
+        _oid=uid;
+      });
+    }
+  }
   _showToast(bool t) {
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
@@ -58,7 +93,7 @@ class _PublishState extends State<PublishPage> {
           SizedBox(
             width: 12.0,
           ),
-          Text(t?"Update Successfully":"At Most 5 Skills"),
+          Text(t?"Success":"At Most 5 Skills"),
         ],
       ),
     );
@@ -172,13 +207,15 @@ class _PublishState extends State<PublishPage> {
                     validator: (val) =>
                         val.length < 2 ? 'Please input your name' : null,
                     onSaved: (val) => _owner = val,
+                        controller: _owner==null?null:new TextEditingController(text: '$_owner'),
                   ))
                 ]),
                 new TextFormField(
                   decoration: new InputDecoration(labelText: "Address"),
                   validator: (val) =>
-                      val.length < 6 ? 'Please enter work location' : null,
+                      val.length < 4 ? 'Please enter work location' : null,
                   onSaved: (val) => _address = val,
+                  controller: _address==null?null:new TextEditingController(text: '$_address'),
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 40.0),
