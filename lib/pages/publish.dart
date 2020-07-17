@@ -58,6 +58,7 @@ class _PublishState extends State<PublishPage> {
       print(e);
     }
   }
+
   @override
   void initState() {
     super.initState();

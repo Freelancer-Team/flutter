@@ -578,7 +578,7 @@ class RecomendedPage extends State<HomePage> {
                         style: TextStyle(fontSize: 26),
                       ),
                       onPressed: () {
-                        isLog?Navigator.pushNamed(context, "/profile"): Navigator.pushNamed(context, "/login");
+                        isLog?Navigator.pushNamed(context, "/jobList"): Navigator.pushNamed(context, "/login");
                       },
                     ),
                   ),
