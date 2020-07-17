@@ -24,7 +24,7 @@ class LargeScreen extends State<ProjDetails>
   LargeScreen(this.ID);
   var ID;
   bool isEdit = false;
-  bool isManager = true;
+  bool isManager = false;
   TabController mController;
   List<String> tabTitles;
   final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
@@ -47,7 +47,7 @@ class LargeScreen extends State<ProjDetails>
     ['name4', 'price4', 'message4']
   ];
   List<String> skills = new List();
-  List EmployerInfo =['id','address','phone'];
+  List EmployerInfo =['id','name','address','phone'];
 
   var array;
   var array2;
@@ -65,6 +65,7 @@ class LargeScreen extends State<ProjDetails>
       ProjInfo[3] = array['price'];
       ProjInfo[6] = array['remaining_time'];
       EmployerInfo[0] = array['employerId'].toString();
+      EmployerInfo[1] = array['employerName'];
       UserInfo[0] = array['employeeId'].toString();
       for (int i = 0; i < array['skills'].length; i++) {
         skills.add(array['skills'][i].toString());
@@ -76,8 +77,8 @@ class LargeScreen extends State<ProjDetails>
     final data2 = json.decode(response.body);
     setState(() {
       array2 = data2;
-      EmployerInfo[1] = array2['address'];
-      EmployerInfo[2] = array2['phone'];
+      EmployerInfo[2] = array2['address'];
+      EmployerInfo[3] = array2['phone'];
       ProjInfo[4] = array2['address'];
       ProjInfo[7] = array2['phone'];
     });
@@ -392,7 +393,9 @@ class LargeScreen extends State<ProjDetails>
                                                 style: TextStyle(fontSize: 22),
                                               ),
 //                                Image(),
-                                              Text('name')
+                                              Text('${EmployerInfo[1]}'),
+                                              Text('${EmployerInfo[2]}'),
+                                              Text('${EmployerInfo[3]}'),
                                             ],
                                           ));
                                     else if (index == 1)
