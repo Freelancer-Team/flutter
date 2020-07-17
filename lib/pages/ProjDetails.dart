@@ -7,10 +7,11 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
-
 class ProjDetails extends StatefulWidget {
   ProjDetails(this.id);
+
   var id;
+
   State<StatefulWidget> createState() {
     final width = window.physicalSize.width;
     if (width > 1080) {
@@ -21,11 +22,12 @@ class ProjDetails extends StatefulWidget {
   }
 }
 
-
 class LargeScreen extends State<ProjDetails>
     with SingleTickerProviderStateMixin {
   LargeScreen(this.ID);
-  var ID ;
+
+  var ID;
+
   bool isEdit = false;
   bool isManager = false;
   TabController mController;
@@ -51,12 +53,12 @@ class LargeScreen extends State<ProjDetails>
   ];
   List<String> skills = new List();
 
-  var array ;
+  var array;
+
   Future<http.Response> fetchPost() async {
-    var url = "http://localhost:8080/getJob?id="+ID;
-    var response = await http.post(Uri.encodeFull(url), headers: {
-      "Accept": "application/json"
-    });
+    var url = "http://localhost:8080/getJob?id=" + ID;
+    var response = await http
+        .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     final data = json.decode(response.body);
     setState(() {
       array = data;
@@ -65,18 +67,18 @@ class LargeScreen extends State<ProjDetails>
       ProjInfo[2] = array['description'];
       ProjInfo[3] = array['price'];
       ProjInfo[6] = array['remaining_time'];
-        for (int i = 0; i < array['skills'].length; i++) {
-          skills.add(array['skills'][i].toString());
-        }
+      for (int i = 0; i < array['skills'].length; i++) {
+        skills.add(array['skills'][i].toString());
+      }
     });
     return response;
   }
 
   savePost() async {
     var url = "http://localhost:8080/saveJob";
-    var response = await http.post(url, headers: {
-      "content-type": "application/json"
-    }, body: json.encode(array));
+    var response = await http.post(url,
+        headers: {"content-type": "application/json"},
+        body: json.encode(array));
   }
 
   @override
@@ -151,7 +153,14 @@ class LargeScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ApplyPage(
+                                              ProjInfo[0],
+                                              ProjInfo[1],
+                                              ProjInfo[3],
+                                              skills)));
                                 },
                               ),
                             ),
@@ -217,9 +226,8 @@ class LargeScreen extends State<ProjDetails>
                                             padding: const EdgeInsets.fromLTRB(
                                                 16, 4, 8, 4),
                                             alignment: Alignment.centerLeft,
-                                            constraints: BoxConstraints(
-                                              minHeight: 68
-                                            ),
+                                            constraints:
+                                                BoxConstraints(minHeight: 68),
 //                                            height: 68,
                                             child: Row(
                                               children: [
@@ -235,49 +243,52 @@ class LargeScreen extends State<ProjDetails>
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: Stack(
-                                                    children: [
-                                                      Offstage(
-                                                        offstage: !isEdit,
-                                                        child: TextFormField(
-                                                          autofocus: true,
-                                                          controller:
-                                                          TextEditingController()
-                                                            ..text =
-                                                                '${ProjInfo[index + 1]}',
-                                                          decoration: InputDecoration(
-                                                            disabledBorder:
-                                                            InputBorder.none,
-                                                            focusedBorder:
-                                                            OutlineInputBorder(
-                                                                borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                    5.0),
-                                                                borderSide:
-                                                                BorderSide(
-                                                                  width: 0.5,
-                                                                )),
-                                                          ),
-                                                          enabled: isEdit,
-                                                          textAlignVertical:
-                                                          TextAlignVertical
-                                                              .center,
-                                                          onFieldSubmitted: (value) {
-                                                            ProjInfo[index + 1] =
-                                                                value;
-                                                          },
+                                                    child: Stack(
+                                                  children: [
+                                                    Offstage(
+                                                      offstage: !isEdit,
+                                                      child: TextFormField(
+                                                        autofocus: true,
+                                                        controller:
+                                                            TextEditingController()
+                                                              ..text =
+                                                                  '${ProjInfo[index + 1]}',
+                                                        decoration:
+                                                            InputDecoration(
+                                                          disabledBorder:
+                                                              InputBorder.none,
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              5.0),
+                                                                  borderSide:
+                                                                      BorderSide(
+                                                                    width: 0.5,
+                                                                  )),
                                                         ),
+                                                        enabled: isEdit,
+                                                        textAlignVertical:
+                                                            TextAlignVertical
+                                                                .center,
+                                                        onFieldSubmitted:
+                                                            (value) {
+                                                          ProjInfo[index + 1] =
+                                                              value;
+                                                        },
                                                       ),
-                                                      Offstage(
-                                                        offstage: isEdit,
-                                                        child: Text('${ProjInfo[index + 1]}',
-                                                            style:TextStyle(fontSize: 16),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  )
-                                                )
+                                                    ),
+                                                    Offstage(
+                                                      offstage: isEdit,
+                                                      child: Text(
+                                                        '${ProjInfo[index + 1]}',
+                                                        style: TextStyle(
+                                                            fontSize: 16),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ))
                                               ],
                                             ));
                                       },
@@ -480,10 +491,12 @@ class LargeScreen extends State<ProjDetails>
 class SmallScreen extends State<ProjDetails>
     with SingleTickerProviderStateMixin {
   SmallScreen(this.ID);
-  var ID ;
+
+  var ID;
+
   bool isEdit = false;
   bool isManager = false;
-  bool isLog=false;
+  bool isLog = false;
   TabController mController;
   List<String> tabTitles;
   final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
@@ -507,16 +520,17 @@ class SmallScreen extends State<ProjDetails>
   ];
   List<String> skills = new List();
 
-  var array ;
+  var array;
+
   Future<http.Response> fetchPost() async {
     int uid = await StorageUtil.getIntItem("uid");
-    if(uid!=null) setState(() {
-      isLog=true;
-    });
-    var url = "http://localhost:8080/getJob?id="+ID;
-    var response = await http.post(Uri.encodeFull(url), headers: {
-      "Accept": "application/json"
-    });
+    if (uid != null)
+      setState(() {
+        isLog = true;
+      });
+    var url = "http://localhost:8080/getJob?id=" + ID;
+    var response = await http
+        .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     final data = json.decode(response.body);
     setState(() {
       array = data;
@@ -534,9 +548,9 @@ class SmallScreen extends State<ProjDetails>
 
   savePost() async {
     var url = "http://localhost:8080/saveJob";
-    var response = await http.post(url, headers: {
-      "content-type": "application/json"
-    }, body: json.encode(array));
+    var response = await http.post(url,
+        headers: {"content-type": "application/json"},
+        body: json.encode(array));
   }
 
   @override
@@ -610,7 +624,16 @@ class SmallScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  !isLog?Navigator.pushNamed(context, "/login"): Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
+                                  !isLog
+                                      ? Navigator.pushNamed(context, "/login")
+                                      : Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => ApplyPage(
+                                                  ProjInfo[0],
+                                                  ProjInfo[1],
+                                                  ProjInfo[3],
+                                                  skills)));
                                 },
                               ),
                             ),
@@ -676,75 +699,77 @@ class SmallScreen extends State<ProjDetails>
                                             padding: const EdgeInsets.fromLTRB(
                                                 16, 4, 8, 4),
                                             alignment: Alignment.centerLeft,
-                                            constraints: BoxConstraints(
-                                                minHeight: 68
-                                            ),
+                                            constraints:
+                                                BoxConstraints(minHeight: 68),
 //                                            height: 68,
                                             child: Row(
                                               children: [
                                                 Container(
                                                   width: 100,
                                                   alignment:
-                                                  AlignmentDirectional
-                                                      .center,
+                                                      AlignmentDirectional
+                                                          .center,
                                                   child: Text(
                                                     '${entries[index]}：',
                                                     style:
-                                                    TextStyle(fontSize: 18),
+                                                        TextStyle(fontSize: 18),
                                                   ),
                                                 ),
                                                 Expanded(
                                                     child: Stack(
-                                                      children: [
-                                                        Offstage(
-                                                          offstage: !isEdit,
-                                                          child: TextFormField(
-                                                            autofocus: true,
-                                                            controller:
+                                                  children: [
+                                                    Offstage(
+                                                      offstage: !isEdit,
+                                                      child: TextFormField(
+                                                        autofocus: true,
+                                                        controller:
                                                             TextEditingController()
                                                               ..text =
                                                                   '${ProjInfo[index + 1]}',
-                                                            decoration: InputDecoration(
-                                                              disabledBorder:
+                                                        decoration:
+                                                            InputDecoration(
+                                                          disabledBorder:
                                                               InputBorder.none,
-                                                              focusedBorder:
+                                                          focusedBorder:
                                                               OutlineInputBorder(
                                                                   borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                      5.0),
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              5.0),
                                                                   borderSide:
-                                                                  BorderSide(
+                                                                      BorderSide(
                                                                     width: 0.5,
                                                                   )),
-                                                            ),
-                                                            enabled: isEdit,
-                                                            textAlignVertical:
+                                                        ),
+                                                        enabled: isEdit,
+                                                        textAlignVertical:
                                                             TextAlignVertical
                                                                 .center,
-                                                            onFieldSubmitted: (value) {
-                                                              ProjInfo[index + 1] =
-                                                                  value;
-                                                            },
-                                                          ),
-                                                        ),
-                                                        Offstage(
-                                                          offstage: isEdit,
-                                                          child: Text('${ProjInfo[index + 1]}',
-                                                            style:TextStyle(fontSize: 16),
-                                                          ),
-                                                        )
-                                                      ],
+                                                        onFieldSubmitted:
+                                                            (value) {
+                                                          ProjInfo[index + 1] =
+                                                              value;
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Offstage(
+                                                      offstage: isEdit,
+                                                      child: Text(
+                                                        '${ProjInfo[index + 1]}',
+                                                        style: TextStyle(
+                                                            fontSize: 16),
+                                                      ),
                                                     )
-                                                )
+                                                  ],
+                                                ))
                                               ],
                                             ));
                                       },
                                       separatorBuilder:
                                           (BuildContext context, int index) =>
-                                          Container(
-                                              height: 1.0,
-                                              color: Colors.grey),
+                                              Container(
+                                                  height: 1.0,
+                                                  color: Colors.grey),
                                     );
                                   else
                                     return ListView.separated(
@@ -782,9 +807,9 @@ class SmallScreen extends State<ProjDetails>
                                       },
                                       separatorBuilder:
                                           (BuildContext context, int index) =>
-                                          Container(
-                                              height: 1.0,
-                                              color: Colors.grey),
+                                              Container(
+                                                  height: 1.0,
+                                                  color: Colors.grey),
                                     );
                                 }).toList(),
                               ),
@@ -832,7 +857,7 @@ class SmallScreen extends State<ProjDetails>
                                               Text('认证信息'),
                                               Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                                    MainAxisAlignment.center,
                                                 children: [
                                                   Icon(Icons.accessibility),
                                                   Icon(Icons.home),
@@ -853,8 +878,8 @@ class SmallScreen extends State<ProjDetails>
                                   },
                                   separatorBuilder:
                                       (BuildContext context, int index) =>
-                                      Container(
-                                          height: 1.0, color: Colors.grey),
+                                          Container(
+                                              height: 1.0, color: Colors.grey),
                                 ),
                               ),
                             ],
@@ -893,17 +918,17 @@ class SmallScreen extends State<ProjDetails>
                                               Expanded(
                                                   child: ListView.builder(
                                                       padding:
-                                                      const EdgeInsets.all(
-                                                          8),
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       itemCount:
-                                                      entries2.length,
+                                                          entries2.length,
                                                       itemBuilder:
                                                           (BuildContext context,
-                                                          int index) {
+                                                              int index) {
                                                         return Container(
                                                           height: 20,
                                                           alignment:
-                                                          Alignment.center,
+                                                              Alignment.center,
                                                           child: Text(
                                                               '${entries2[index]}: ${UserInfo[index]}'),
                                                         );
@@ -920,8 +945,8 @@ class SmallScreen extends State<ProjDetails>
                                   },
                                   separatorBuilder:
                                       (BuildContext context, int index) =>
-                                      Container(
-                                          height: 1.0, color: Colors.grey),
+                                          Container(
+                                              height: 1.0, color: Colors.grey),
                                 ),
                               ),
                             ],
