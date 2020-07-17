@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/pages/apply.dart';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
@@ -150,7 +151,7 @@ class LargeScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],array['employer'],skills)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
                                 },
                               ),
                             ),
@@ -482,6 +483,7 @@ class SmallScreen extends State<ProjDetails>
   var ID ;
   bool isEdit = false;
   bool isManager = false;
+  bool isLog=false;
   TabController mController;
   List<String> tabTitles;
   final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
@@ -507,6 +509,10 @@ class SmallScreen extends State<ProjDetails>
 
   var array ;
   Future<http.Response> fetchPost() async {
+    int uid = await StorageUtil.getIntItem("uid");
+    if(uid!=null) setState(() {
+      isLog=true;
+    });
     var url = "http://localhost:8080/getJob?id="+ID;
     var response = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
@@ -604,7 +610,7 @@ class SmallScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],array['employer'],skills)));
+                                  !isLog?Navigator.pushNamed(context, "/login"): Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
                                 },
                               ),
                             ),

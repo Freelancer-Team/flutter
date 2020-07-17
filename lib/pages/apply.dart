@@ -1,35 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 class Skill {
   String skill;
   bool isSelected;
 }
 
 class ApplyPage extends StatefulWidget {
-  ApplyPage(this._jid,this._title,this._owner,this._budget,this._neededSkills);
+  ApplyPage(this._jid,this._title,this._budget,this._neededSkills);
   //从父组件传来
   String _jid;
   String _title = 'KILL BILL';
-  String _owner;
   String _budget;
   List<String> _neededSkills = new List();
 
   @override
-  _ApplyState createState() => _ApplyState(_jid,_title,_owner,_budget,_neededSkills);
+  _ApplyState createState() => _ApplyState(_jid,_title,_budget,_neededSkills);
 }
 
 class _ApplyState extends State<ApplyPage> {
-  _ApplyState(this._jid,this._title,this._owner,this._budget,this._neededSkills);
+  _ApplyState(this._jid,this._title,this._budget,this._neededSkills);
 
   double width;
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
+  FlutterToast flutterToast;
 
   //若有用户信息则自动填写
   String _email;
   String _name;
+  int _uid;
   int _age;
   String _gender;
   String _personalAddress;
@@ -38,8 +41,7 @@ class _ApplyState extends State<ApplyPage> {
 
   //从父组件传来
   String _jid;
-  String _title = 'KILL BILL';
-  String _owner;
+  String _title;
   String _budget;
   List<String> _neededSkills = new List();
 
@@ -52,22 +54,76 @@ class _ApplyState extends State<ApplyPage> {
     final form = formKey.currentState;
     if (form.validate() && selSkills != null) {
       form.save();
-      performLogin();
+      saveAuction();
+      saveSkills(_personalSkills);
+    }
+  }
+  saveSkills(skills) async {
+    try {
+      String url = "http://localhost:8080/updateSkills?userId=" + _uid.toString();
+      print(url);print(skills);
+      var res = await http.post(Uri.encodeFull(url),
+          headers: {"content-type": "application/json"},
+          body:  json.encode(skills));
+      var response = json.decode(res.body);
+      if (response != null) {
+        Account.saveUserSkill(response);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+  saveAuction() async {
+    try {
+      String url = "http://localhost:8080/applyJob";
+      var res = await http.post(Uri.encodeFull(url), headers: {
+        "Accept": "application/json;charset=UTF-8"
+      }, body: {
+        "userId":_uid.toString(),
+        "jobId":_jid,
+        "description":_application,
+        "price":_offer,
+      });
+      var response = json.decode(res.body);
+      if (response != null) {
+        _showToast();
+//        Navigator.pushNamed(context, '/home');
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
-  void performLogin() {
-    final snackbar = new SnackBar(
-      content: new Text("Title: $_title, desc : $_application"),
+  _showToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black12,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("Apply Successfully"),
+        ],
+      ),
     );
-    scaffoldKey.currentState.showSnackBar(snackbar);
+    flutterToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 2),
+    );
   }
 
   @override
   void initState() {
     // TODO: implement initState
     getUserInfo();
-    addSkills();
+    flutterToast = FlutterToast(context);
   }
 
   getUserInfo() async {
@@ -77,6 +133,7 @@ class _ApplyState extends State<ApplyPage> {
     String g = await StorageUtil.getStringItem("gender");
     String phone = await StorageUtil.getStringItem("phone");
     int age = await StorageUtil.getIntItem("age");
+    int uid = await StorageUtil.getIntItem("uid");
     List<String> skills = await StorageUtil.getStringListItem("skills");
 
     if (email != null) {
@@ -87,23 +144,14 @@ class _ApplyState extends State<ApplyPage> {
         _tel = phone;
         _gender = g;
         _age = age;
+        _uid=uid;
         print(skills);
-        if (skills != null) _personalSkills = skills;
+        if (skills != null) {_personalSkills = skills;addSkills();}
       });
     }
   }
 
   void addSkills() {
-//    //用于测试
-//    Skill a = new Skill();
-//    a.isSelected = true;
-//    a.skill = '好吃懒做';
-//    Skill b = new Skill();
-//    b.isSelected = false;
-//    b.skill = '混吃等死';
-//    selSkills.add(a);
-//    selSkills.add(b);
-    //实际
     int l = _neededSkills.length;
     for (int i = 0; i < l; i++) {
       Skill a = new Skill();
@@ -168,7 +216,7 @@ class _ApplyState extends State<ApplyPage> {
                             decoration: new InputDecoration(labelText: "Gender(F/M)"),
                             validator: (val) => val.length < 1
                                 ? 'Please input your gender'
-                                : ((val.trim() == 'F' || val.trim() == 'M')
+                                : (!(val.trim() == 'F' || val.trim() == 'M')
                                 ? 'invalid gender'
                                 : null),
                             onSaved: (val) => _gender = val.trim(),
@@ -247,9 +295,9 @@ class _ApplyState extends State<ApplyPage> {
                     ]),
                     new TextFormField(
                       decoration: new InputDecoration(
-                          labelText: "Offer (Expected to be paid $_budget)"),
+                          labelText: "Offer (Expected to be paid $_budget )"),
                       validator: (val) =>
-                      val.length < 6 ? 'Please enter your target salary' : null,
+                      val.length < 1 ? 'Please enter your target salary' : null,
                       onSaved: (val) => _offer = val,
                     ),
                     new Padding(
