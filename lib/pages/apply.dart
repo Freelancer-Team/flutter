@@ -92,7 +92,7 @@ class _ApplyState extends State<ApplyPage> {
     b.skill = '混吃等死';
     selSkills.add(a);
     selSkills.add(b);
-//实际
+    //实际
     int l = _neededSkills.length;
     for (int i = 0; i < l; i++) {
       Skill a = new Skill();
@@ -138,7 +138,7 @@ class _ApplyState extends State<ApplyPage> {
                   validator: (val) =>
                       val.length < 2 ? 'Please input your name' : null,
                   onSaved: (val) => _name = val,
-                  controller: new TextEditingController(text: '$_name'),
+                  controller: _name==null?null:new TextEditingController(text: '$_name'),
                 ),
                 Row(children: <Widget>[
                   new Expanded(
@@ -147,7 +147,7 @@ class _ApplyState extends State<ApplyPage> {
                     validator: (val) =>
                         val.length < 1 ? 'Please input your age' : null,
                     onSaved: (val) => _age = int.parse(val),
-                    controller: new TextEditingController(text: '$_age'),
+                    controller: _age==null?null:new TextEditingController(text: '$_age'),
                   )),
                   new Text('  '),
                   new Expanded(
@@ -159,7 +159,7 @@ class _ApplyState extends State<ApplyPage> {
                             ? 'invalid gender'
                             : null),
                     onSaved: (val) => _gender = val.trim(),
-                    controller: new TextEditingController(text: '$_gender'),
+                    controller:_gender==null?null: new TextEditingController(text: '$_gender'),
                   ))
                 ]),
                 Row(children: <Widget>[
@@ -170,7 +170,7 @@ class _ApplyState extends State<ApplyPage> {
                         ? 'Please input your telephone number'
                         : null,
                     onSaved: (val) => _tel = val.trim(),
-                    controller: new TextEditingController(text: '$_tel'),
+                    controller: _tel!=null?new TextEditingController(text: '$_tel'):null,
                   )),
                   new Text('  '),
                   new Expanded(
@@ -179,7 +179,7 @@ class _ApplyState extends State<ApplyPage> {
                     validator: (val) =>
                         !val.contains('@') ? 'Invalid Email' : null,
                     onSaved: (val) => _email = val,
-                    controller: new TextEditingController(text: '$_email'),
+                    controller: _email!=null?new TextEditingController(text: '$_email'):null,
                   ))
                 ]),
                 new TextFormField(
@@ -188,7 +188,7 @@ class _ApplyState extends State<ApplyPage> {
                       val.length < 6 ? 'Please input your address' : null,
                   onSaved: (val) => _personalAddress = val,
                   controller:
-                      new TextEditingController(text: '$_personalAddress'),
+                  _personalAddress==null?null: new TextEditingController(text: '$_personalAddress'),
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 20.0),
