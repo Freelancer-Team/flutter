@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/component/quad_clipper.dart';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
+import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:freelancer_flutter/theme/light_color.dart';
 import 'package:freelancer_flutter/component/Lists.dart';
+import 'package:http/http.dart'as http;
+import 'dart:async';
+import 'dart:convert';
 
-class RecomendedPage extends StatelessWidget {
-  RecomendedPage({Key key}) : super(key: key);
+class HomePage extends StatefulWidget{
+  State<StatefulWidget> createState(){
+    return RecomendedPage();
+  }
+}
+
+class RecomendedPage extends State<HomePage> {
+//  RecomendedPage({Key key}) : super(key: key);
 
   double width;
 
@@ -13,6 +23,52 @@ class RecomendedPage extends StatelessWidget {
     Lists(text: '我要工作'),
     Lists(text: '我要雇人'),
   ];
+
+  List RecA =[['1','1','1'],['2','2','2'],['3','3','3'],['4','4','4']];
+  List RecB =[['1','1','1'],['2','2','2'],['3','3','3'],['4','4','4']];
+
+  var array = [] ;
+  Future<http.Response> fetchPost() async {
+    var url = "http://localhost:8080/getJobs";
+    var response = await http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json"
+    });
+    final data = json.decode(response.body);
+    setState(() {
+      array = data;
+      RecA[0][0] = array[0]['title'];
+      RecA[0][1] = array[0]['price'];
+      RecA[0][2] = array[0]['id'];
+      RecA[1][0] = array[1]['title'];
+      RecA[1][1] = array[1]['price'];
+      RecA[1][2] = array[1]['id'];
+      RecA[2][0] = array[2]['title'];
+      RecA[2][1] = array[2]['price'];
+      RecA[2][2] = array[2]['id'];
+      RecA[3][0] = array[3]['title'];
+      RecA[3][1] = array[3]['price'];
+      RecA[3][2] = array[3]['id'];
+      RecB[0][0] = array[4]['title'];
+      RecB[0][1] = array[4]['price'];
+      RecB[0][2] = array[4]['id'];
+      RecB[1][0] = array[5]['title'];
+      RecB[1][1] = array[5]['price'];
+      RecB[1][2] = array[5]['id'];
+      RecB[2][0] = array[6]['title'];
+      RecB[2][1] = array[6]['price'];
+      RecB[2][2] = array[6]['id'];
+      RecB[3][0] = array[7]['title'];
+      RecB[3][1] = array[7]['price'];
+      RecB[3][2] = array[7]['id'];
+    });
+    return response;
+  }
+
+  void initState() {
+    super.initState();
+    fetchPost();
+  }
+
 
   Widget _circularContainer(double height, Color color,
       {Color borderColor = Colors.transparent, double borderWidth = 2}) {
@@ -43,7 +99,7 @@ class RecomendedPage extends StatelessWidget {
             style: TextStyle(
                 color: LightColor.titleTextColor, fontWeight: FontWeight.bold),
           ),
-          _chip("See all", primary)
+//          _chip("See all", primary)
         ],
       ),
     );
@@ -57,42 +113,62 @@ class RecomendedPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            _card(
-                primary: LightColor.orange,
-                backWidget:
-                    _decorationContainerA(LightColor.lightOrange, 50, -30),
-                chipColor: LightColor.orange,
-                chipText1: "Find the right degree for you",
-                chipText2: "8 Cources",
-                isPrimaryCard: true,
-                imgPath:
-                    "https://jshopping.in/images/detailed/591/ibboll-Fashion-Mens-Optical-Glasses-Frames-Classic-Square-Wrap-Frame-Luxury-Brand-Men-Clear-Eyeglasses-Frame.jpg"),
-            _card(
-                primary: Colors.white,
-                chipColor: LightColor.seeBlue,
-                backWidget: _decorationContainerB(Colors.white, 90, -40),
-                chipText1: "Become a data scientist",
-                chipText2: "8 Cources",
-                imgPath:
-                    "https://hips.hearstapps.com/esquireuk.cdnds.net/16/39/980x980/square-1475143834-david-gandy.jpg?resize=480:*"),
-            _card(
-                primary: Colors.white,
-                chipColor: LightColor.lightOrange,
-                backWidget: _decorationContainerC(Colors.white, 50, -30),
-                chipText1: "Become a digital marketer",
-                chipText2: "8 Cources",
-                imgPath:
-                    "https://www.visafranchise.com/wp-content/uploads/2019/05/patrick-findaro-visa-franchise-square.jpg"),
-            _card(
-                primary: Colors.white,
-                chipColor: LightColor.seeBlue,
-                backWidget: _decorationContainerD(LightColor.seeBlue, -50, 30,
-                    secondary: LightColor.lightseeBlue,
-                    secondaryAccent: LightColor.darkseeBlue),
-                chipText1: "Become a machine learner",
-                chipText2: "8 Cources",
-                imgPath:
-                    "https://d1mo3tzxttab3n.cloudfront.net/static/img/shop/560x580/vint0080.jpg"),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecA[0][2])));
+              },
+             child:  _card(
+                  primary: LightColor.orange,
+                  backWidget:
+                  _decorationContainerA(LightColor.lightOrange, 50, -30),
+                  chipColor: LightColor.orange,
+                  chipText1: RecA[0][0],
+                  chipText2: RecA[0][1],
+                  isPrimaryCard: true,
+                  imgPath:
+                  "https://jshopping.in/images/detailed/591/ibboll-Fashion-Mens-Optical-Glasses-Frames-Classic-Square-Wrap-Frame-Luxury-Brand-Men-Clear-Eyeglasses-Frame.jpg"),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecA[1][2])));
+              },
+              child:   _card(
+                  primary: Colors.white,
+                  chipColor: LightColor.seeBlue,
+                  backWidget: _decorationContainerB(Colors.white, 90, -40),
+                  chipText1: RecA[1][0],
+                  chipText2: RecA[1][1],
+                  imgPath:
+                  "https://hips.hearstapps.com/esquireuk.cdnds.net/16/39/980x980/square-1475143834-david-gandy.jpg?resize=480:*"),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecA[2][2])));
+              },
+              child:  _card(
+                  primary: Colors.white,
+                  chipColor: LightColor.lightOrange,
+                  backWidget: _decorationContainerC(Colors.white, 50, -30),
+                  chipText1: RecA[2][0],
+                  chipText2: RecA[2][1],
+                  imgPath:
+                  "https://www.visafranchise.com/wp-content/uploads/2019/05/patrick-findaro-visa-franchise-square.jpg"),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecA[3][2])));
+              },
+              child:   _card(
+                  primary: Colors.white,
+                  chipColor: LightColor.seeBlue,
+                  backWidget: _decorationContainerD(LightColor.seeBlue, -50, 30,
+                      secondary: LightColor.lightseeBlue,
+                      secondaryAccent: LightColor.darkseeBlue),
+                  chipText1: RecA[3][0],
+                  chipText2: RecB[3][1],
+                  imgPath:
+                  "https://d1mo3tzxttab3n.cloudfront.net/static/img/shop/560x580/vint0080.jpg"),
+            ),
           ],
         ),
       ),
@@ -107,53 +183,73 @@ class RecomendedPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            _card(
-                primary: LightColor.seeBlue,
-                chipColor: LightColor.seeBlue,
-                backWidget: _decorationContainerD(
-                    LightColor.darkseeBlue, -100, -65,
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecB[0][2])));
+              },
+              child:   _card(
+                  primary: LightColor.seeBlue,
+                  chipColor: LightColor.seeBlue,
+                  backWidget: _decorationContainerD(
+                      LightColor.darkseeBlue, -100, -65,
+                      secondary: LightColor.lightseeBlue,
+                      secondaryAccent: LightColor.seeBlue),
+                  chipText1: RecB[0][0],
+                  chipText2: RecB[0][1],
+                  isPrimaryCard: true,
+                  imgPath:
+                  "https://www.reiss.com/media/product/946/218/silk-paisley-printed-pocket-square-mens-morocco-in-pink-red-20.jpg?format=jpeg&auto=webp&quality=85&width=1200&height=1200&fit=bounds"),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecB[1][2])));
+              },
+              child:   _card(
+                  primary: Colors.white,
+                  chipColor: LightColor.lightpurple,
+                  backWidget: _decorationContainerE(
+                    LightColor.lightpurple,
+                    90,
+                    -40,
                     secondary: LightColor.lightseeBlue,
-                    secondaryAccent: LightColor.seeBlue),
-                chipText1: "English for career development ",
-                chipText2: "8 Cources",
-                isPrimaryCard: true,
-                imgPath:
-                    "https://www.reiss.com/media/product/946/218/silk-paisley-printed-pocket-square-mens-morocco-in-pink-red-20.jpg?format=jpeg&auto=webp&quality=85&width=1200&height=1200&fit=bounds"),
-            _card(
-                primary: Colors.white,
-                chipColor: LightColor.lightpurple,
-                backWidget: _decorationContainerE(
-                  LightColor.lightpurple,
-                  90,
-                  -40,
-                  secondary: LightColor.lightseeBlue,
-                ),
-                chipText1: "Bussiness foundation",
-                chipText2: "8 Cources",
-                imgPath:
-                    "https://i.dailymail.co.uk/i/pix/2016/08/05/19/36E9139400000578-3725856-image-a-58_1470422921868.jpg"),
-            _card(
-                primary: Colors.white,
-                chipColor: LightColor.lightOrange,
-                backWidget: _decorationContainerF(
-                    LightColor.lightOrange, LightColor.orange, 50, -30),
-                chipText1: "Excel skill for business",
-                chipText2: "8 Cources",
-                imgPath:
-                    "https://www.reiss.com/media/product/945/066/03-2.jpg?format=jpeg&auto=webp&quality=85&width=632&height=725&fit=bounds"),
-            _card(
-                primary: Colors.white,
-                chipColor: LightColor.seeBlue,
-                backWidget: _decorationContainerA(
-                  Colors.white,
-                  -50,
-                  30,
-                ),
-                chipText1: "Beacame a data analyst",
-                chipText2: "8 Cources",
-                imgPath:
-                    "https://img.alicdn.com/imgextra/i4/52031722/O1CN0165X68s1OaiaYCEX6U_!!52031722.jpg"),
-          ],
+                  ),
+                  chipText1: RecB[1][0],
+                  chipText2: RecB[1][1],
+                  imgPath:
+                  "https://i.dailymail.co.uk/i/pix/2016/08/05/19/36E9139400000578-3725856-image-a-58_1470422921868.jpg"),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecB[2][2])));
+              },
+              child:   _card(
+                  primary: Colors.white,
+                  chipColor: LightColor.lightOrange,
+                  backWidget: _decorationContainerF(
+                      LightColor.lightOrange, LightColor.orange, 50, -30),
+                  chipText1: RecB[2][0],
+                  chipText2: RecB[2][1],
+                  imgPath:
+                  "https://www.reiss.com/media/product/945/066/03-2.jpg?format=jpeg&auto=webp&quality=85&width=632&height=725&fit=bounds"),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecB[3][2])));
+              },
+              child:   _card(
+                  primary: Colors.white,
+                  chipColor: LightColor.seeBlue,
+                  backWidget: _decorationContainerA(
+                    Colors.white,
+                    -50,
+                    30,
+                  ),
+                  chipText1: RecB[3][0],
+                  chipText2: RecB[3][1],
+                  imgPath:
+                  "https://img.alicdn.com/imgextra/i4/52031722/O1CN0165X68s1OaiaYCEX6U_!!52031722.jpg"),
+            ),
+            ],
         ),
       ),
     );
@@ -217,6 +313,7 @@ class RecomendedPage extends StatelessWidget {
             padding: EdgeInsets.only(right: 10),
             width: width * .32,
             alignment: Alignment.topCenter,
+
             child: Text(
               title,
               style: TextStyle(
