@@ -4,6 +4,7 @@ import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:freelancer_flutter/theme/light_color.dart';
 import 'package:freelancer_flutter/component/Lists.dart';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:http/http.dart'as http;
 import 'dart:async';
 import 'dart:convert';
@@ -18,6 +19,7 @@ class RecomendedPage extends State<HomePage> {
 //  RecomendedPage({Key key}) : super(key: key);
 
   double width;
+  bool isLog=false;
 
   List<Lists> categories = [
     Lists(text: '我要工作'),
@@ -29,6 +31,10 @@ class RecomendedPage extends State<HomePage> {
 
   var array = [] ;
   Future<http.Response> fetchPost() async {
+    int uid = await StorageUtil.getIntItem("uid");
+    if(uid!=null) setState(() {
+      isLog=true;
+    });
     var url = "http://localhost:8080/getJobs";
     var response = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
@@ -556,7 +562,7 @@ class RecomendedPage extends State<HomePage> {
                         style: TextStyle(fontSize: 26),
                       ),
                       onPressed: () {
-                        Navigator.pushNamed(context, "/login");
+                       isLog?Navigator.pushNamed(context, "/publish"): Navigator.pushNamed(context, "/login");
                       },
                     ),
                   ),
@@ -572,7 +578,7 @@ class RecomendedPage extends State<HomePage> {
                         style: TextStyle(fontSize: 26),
                       ),
                       onPressed: () {
-                        Navigator.pushNamed(context, "/login");
+                        isLog?Navigator.pushNamed(context, "/profile"): Navigator.pushNamed(context, "/login");
                       },
                     ),
                   ),

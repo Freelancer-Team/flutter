@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/pages/apply.dart';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
@@ -22,7 +23,7 @@ class ProjDetails extends StatefulWidget {
 class LargeScreen extends State<ProjDetails>
     with SingleTickerProviderStateMixin {
   LargeScreen(this.ID);
-  var ID;
+  var ID ;
   bool isEdit = false;
   bool isManager = false;
   TabController mController;
@@ -173,15 +174,7 @@ class LargeScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ApplyPage(
-                                              ProjInfo[0],
-                                              ProjInfo[1],
-                                              array['employerName'],
-                                              ProjInfo[3],
-                                              skills)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
                                 },
                               ),
                             ),
@@ -480,7 +473,7 @@ class LargeScreen extends State<ProjDetails>
                                                           alignment:
                                                               Alignment.center,
                                                           child: Text(
-                                                              '${entries2[index]}: ${UserInfo[index+1]}'),
+                                                              '${entries2[index]}: ${UserInfo[index]}'),
                                                         );
                                                       })),
                                             ],
@@ -542,9 +535,14 @@ class SmallScreen extends State<ProjDetails>
 
   var array;
   Future<http.Response> fetchPost() async {
-    var url = "http://localhost:8080/getJob?id=" + ID;
-    var response = await http
-        .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    int uid = await StorageUtil.getIntItem("uid");
+    if(uid!=null) setState(() {
+      isLog=true;
+    });
+    var url = "http://localhost:8080/getJob?id="+ID;
+    var response = await http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json"
+    });
     final data = json.decode(response.body);
     setState(() {
       array = data;
@@ -638,15 +636,7 @@ class SmallScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ApplyPage(
-                                              ProjInfo[0],
-                                              ProjInfo[1],
-                                              ProjInfo[3],
-                                              array['employer'],
-                                              skills)));
+                                  !isLog?Navigator.pushNamed(context, "/login"): Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
                                 },
                               ),
                             ),

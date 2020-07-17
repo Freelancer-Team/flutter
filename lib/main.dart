@@ -6,6 +6,7 @@ import 'package:freelancer_flutter/pages/profile.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:freelancer_flutter/pages/login.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
+import 'package:freelancer_flutter/pages/jobList.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
 //        '/category' : (context) => Category(),
         '/profile': (context) => ProfilePage(),
         '/publish': (context) => PublishPage(),
+        '/jobList':(context) => JobListPage(),
 //        '/apply': (context) => HomePage(),
       },
     );
