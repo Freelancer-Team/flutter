@@ -26,6 +26,7 @@ class LargeScreen extends State<ProjDetails>
   var ID ;
   bool isEdit = false;
   bool isManager = false;
+  bool isLog = false;
   TabController mController;
   List<String> tabTitles;
   final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
@@ -174,7 +175,7 @@ class LargeScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
+                                  !isLog?Navigator.pushNamed(context, "/login"): Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],skills)));
                                 },
                               ),
                             ),
@@ -510,6 +511,7 @@ class SmallScreen extends State<ProjDetails>
   var ID;
   bool isEdit = false;
   bool isManager = false;
+  bool isLog = false;
   TabController mController;
   List<String> tabTitles;
   final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
