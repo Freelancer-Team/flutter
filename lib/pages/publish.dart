@@ -4,6 +4,8 @@ import 'package:freelancer_flutter/component/SkillChooseModal.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'ProjDetails.dart';
 class PublishPage extends StatefulWidget {
   @override
   _PublishState createState() => _PublishState();
@@ -49,8 +51,8 @@ class _PublishState extends State<PublishPage> {
       }));
       var response = json.decode(res.body);
       if (response != null) {
-        _showToast(true);
-//        Navigator.pushNamed(context, '/home');
+        await _showToast(true);
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(response["id"])));
       }
     } catch (e) {
       print(e);

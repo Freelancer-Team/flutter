@@ -4,6 +4,8 @@ import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'ProjDetails.dart';
 class Skill {
   String skill;
   bool isSelected;
@@ -86,8 +88,8 @@ class _ApplyState extends State<ApplyPage> {
       });
       var response = json.decode(res.body);
       if (response != null) {
-        _showToast();
-//        Navigator.pushNamed(context, '/home');
+        await _showToast();
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(_jid)));
       }
     } catch (e) {
       print(e);
