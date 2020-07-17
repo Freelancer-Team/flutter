@@ -7,10 +7,12 @@ import 'dart:convert';
 
 
 class ProjDetails extends StatefulWidget {
+  ProjDetails(this.id);
+  var id;
   State<StatefulWidget> createState() {
     final width = window.physicalSize.width;
     if (width > 1080) {
-      return LargeScreen();
+      return LargeScreen(id);
     } else {
       return SmallScreen();
     }
@@ -20,6 +22,8 @@ class ProjDetails extends StatefulWidget {
 
 class LargeScreen extends State<ProjDetails>
     with SingleTickerProviderStateMixin {
+  LargeScreen(this.ID);
+  var ID ;
   bool isEdit = false;
   bool isManager = true;
   TabController mController;
@@ -44,36 +48,29 @@ class LargeScreen extends State<ProjDetails>
     ['name4', 'price4', 'message4']
   ];
 
-  var array = [];
+  var array ;
   Future<http.Response> fetchPost() async {
-    final response = await http.get('http://localhost:8080/getJobs');
+    var url = "http://localhost:8080/getJob?id="+ID;
+    var response = await http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json"
+    });
     final data = json.decode(response.body);
     setState(() {
       array = data;
-      ProjInfo[0] = array[0]['id'];
-      ProjInfo[1] = array[0]['title'];
-      ProjInfo[2] = array[0]['description'];
-      ProjInfo[3] = array[0]['price'];
-      ProjInfo[6] = array[0]['remaining_time'];
+      ProjInfo[0] = array['id'];
+      ProjInfo[1] = array['title'];
+      ProjInfo[2] = array['description'];
+      ProjInfo[3] = array['price'];
+      ProjInfo[6] = array['remaining_time'];
     });
-    print(ProjInfo);
     return response;
   }
 
-  updatePost() async {
-    var url = "http://localhost:8080/updateJobs";
-    var response = await http.post(Uri.encodeFull(url), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "id": ProjInfo[0],
-      "price": ProjInfo[3],
-      "description": ProjInfo[2],
-      "remaining_time": ProjInfo[6],
-      "title": ProjInfo[1],
-      "address": ProjInfo[4],
-      "people": ProjInfo[5],
-      "phone": ProjInfo[7],
-    });
+  savePost() async {
+    var url = "http://localhost:8080/saveJob";
+    var response = await http.post(url, headers: {
+      "content-type": "application/json"
+    }, body: json.encode(array));
   }
 
   @override
@@ -170,6 +167,13 @@ class LargeScreen extends State<ProjDetails>
                                     setState(() {
                                       this.isEdit = false;
                                     });
+                                    array['id'] = ProjInfo[0];
+                                    array['title'] = ProjInfo[1];
+                                    array['description'] = ProjInfo[2];
+                                    array['price'] = ProjInfo[3];
+                                    array['remaining_time'] = ProjInfo[6];
+                                    print(array);
+                                    savePost();
                                   },
                                 ))
                           ],
@@ -205,9 +209,12 @@ class LargeScreen extends State<ProjDetails>
                                           (BuildContext context, int index) {
                                         return Container(
                                             padding: const EdgeInsets.fromLTRB(
-                                                16, 8, 8, 8),
+                                                16, 4, 8, 4),
                                             alignment: Alignment.centerLeft,
-                                            height: 60,
+                                            constraints: BoxConstraints(
+                                              minHeight: 68
+                                            ),
+//                                            height: 68,
                                             child: Row(
                                               children: [
                                                 Container(
@@ -222,32 +229,48 @@ class LargeScreen extends State<ProjDetails>
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: TextFormField(
-                                                    controller:
-                                                        TextEditingController()
-                                                          ..text =
-                                                              '${ProjInfo[index + 1]}',
-                                                    decoration: InputDecoration(
-                                                      disabledBorder:
-                                                          InputBorder.none,
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5.0),
-                                                              borderSide:
-                                                                  BorderSide()),
-                                                    ),
-                                                    enabled: isEdit,
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
-                                                    onFieldSubmitted: (value) {
-                                                      ProjInfo[index + 1] =
-                                                          value;
-                                                    },
-                                                  ),
+                                                  child: Stack(
+                                                    children: [
+                                                      Offstage(
+                                                        offstage: !isEdit,
+                                                        child: TextFormField(
+                                                          autofocus: true,
+                                                          controller:
+                                                          TextEditingController()
+                                                            ..text =
+                                                                '${ProjInfo[index + 1]}',
+                                                          decoration: InputDecoration(
+                                                            disabledBorder:
+                                                            InputBorder.none,
+                                                            focusedBorder:
+                                                            OutlineInputBorder(
+                                                                borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                    5.0),
+                                                                borderSide:
+                                                                BorderSide(
+                                                                  width: 0.5,
+                                                                )),
+                                                          ),
+                                                          enabled: isEdit,
+                                                          textAlignVertical:
+                                                          TextAlignVertical
+                                                              .center,
+                                                          onFieldSubmitted: (value) {
+                                                            ProjInfo[index + 1] =
+                                                                value;
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Offstage(
+                                                        offstage: isEdit,
+                                                        child: Text('${ProjInfo[index + 1]}',
+                                                            style:TextStyle(fontSize: 16),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )
                                                 )
                                               ],
                                             ));
