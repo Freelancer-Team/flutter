@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
 //        '/category' : (context) => Category(),
         '/profile': (context) => ProfilePage(),
         '/publish': (context) => PublishPage(),
-        '/apply': (context) => ApplyPage(),
+//        '/apply': (context) => HomePage(),
       },
     );
   }
