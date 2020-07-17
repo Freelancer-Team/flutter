@@ -1,4 +1,4 @@
-#Tue Jul 14 14:46:32 CST 2020
-base.0=E\:\\freelancer\\flutter\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\out\\classes.dex
+#Fri Jul 17 10:30:44 CST 2020
+base.0=C\:\\IntelliJ\\flutter_lyb\\lyb\\flutter\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\out\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
+import 'package:freelancer_flutter/pages/apply.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
 
 class ProjDetails extends StatefulWidget {
+  ProjDetails(this.id);
+  var id;
   State<StatefulWidget> createState() {
     final width = window.physicalSize.width;
     if (width > 1080) {
-      return LargeScreen();
+      return LargeScreen(id);
     } else {
-      return SmallScreen();
+      return SmallScreen(id);
     }
   }
 }
@@ -20,8 +23,10 @@ class ProjDetails extends StatefulWidget {
 
 class LargeScreen extends State<ProjDetails>
     with SingleTickerProviderStateMixin {
+  LargeScreen(this.ID);
+  var ID ;
   bool isEdit = false;
-  bool isManager = true;
+  bool isManager = false;
   TabController mController;
   List<String> tabTitles;
   final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
@@ -43,37 +48,34 @@ class LargeScreen extends State<ProjDetails>
     ['name3', 'price3', 'message3'],
     ['name4', 'price4', 'message4']
   ];
+  List<String> skills = new List();
 
-  var array = [];
+  var array ;
   Future<http.Response> fetchPost() async {
-    final response = await http.get('http://localhost:8080/getJobs');
+    var url = "http://localhost:8080/getJob?id="+ID;
+    var response = await http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json"
+    });
     final data = json.decode(response.body);
     setState(() {
       array = data;
-      ProjInfo[0] = array[0]['id'];
-      ProjInfo[1] = array[0]['title'];
-      ProjInfo[2] = array[0]['description'];
-      ProjInfo[3] = array[0]['price'];
-      ProjInfo[6] = array[0]['remaining_time'];
+      ProjInfo[0] = array['id'];
+      ProjInfo[1] = array['title'];
+      ProjInfo[2] = array['description'];
+      ProjInfo[3] = array['price'];
+      ProjInfo[6] = array['remaining_time'];
+        for (int i = 0; i < array['skills'].length; i++) {
+          skills.add(array['skills'][i].toString());
+        }
     });
-    print(ProjInfo);
     return response;
   }
 
-  updatePost() async {
-    var url = "http://localhost:8080/updateJobs";
-    var response = await http.post(Uri.encodeFull(url), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "id": ProjInfo[0],
-      "price": ProjInfo[3],
-      "description": ProjInfo[2],
-      "remaining_time": ProjInfo[6],
-      "title": ProjInfo[1],
-      "address": ProjInfo[4],
-      "people": ProjInfo[5],
-      "phone": ProjInfo[7],
-    });
+  savePost() async {
+    var url = "http://localhost:8080/saveJob";
+    var response = await http.post(url, headers: {
+      "content-type": "application/json"
+    }, body: json.encode(array));
   }
 
   @override
@@ -148,7 +150,7 @@ class LargeScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/apply');
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],array['employer'],skills)));
                                 },
                               ),
                             ),
@@ -170,6 +172,13 @@ class LargeScreen extends State<ProjDetails>
                                     setState(() {
                                       this.isEdit = false;
                                     });
+                                    array['id'] = ProjInfo[0];
+                                    array['title'] = ProjInfo[1];
+                                    array['description'] = ProjInfo[2];
+                                    array['price'] = ProjInfo[3];
+                                    array['remaining_time'] = ProjInfo[6];
+                                    print(array);
+                                    savePost();
                                   },
                                 ))
                           ],
@@ -205,9 +214,12 @@ class LargeScreen extends State<ProjDetails>
                                           (BuildContext context, int index) {
                                         return Container(
                                             padding: const EdgeInsets.fromLTRB(
-                                                16, 8, 8, 8),
+                                                16, 4, 8, 4),
                                             alignment: Alignment.centerLeft,
-                                            height: 60,
+                                            constraints: BoxConstraints(
+                                              minHeight: 68
+                                            ),
+//                                            height: 68,
                                             child: Row(
                                               children: [
                                                 Container(
@@ -222,32 +234,48 @@ class LargeScreen extends State<ProjDetails>
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: TextFormField(
-                                                    controller:
-                                                        TextEditingController()
-                                                          ..text =
-                                                              '${ProjInfo[index + 1]}',
-                                                    decoration: InputDecoration(
-                                                      disabledBorder:
-                                                          InputBorder.none,
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5.0),
-                                                              borderSide:
-                                                                  BorderSide()),
-                                                    ),
-                                                    enabled: isEdit,
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
-                                                    onFieldSubmitted: (value) {
-                                                      ProjInfo[index + 1] =
-                                                          value;
-                                                    },
-                                                  ),
+                                                  child: Stack(
+                                                    children: [
+                                                      Offstage(
+                                                        offstage: !isEdit,
+                                                        child: TextFormField(
+                                                          autofocus: true,
+                                                          controller:
+                                                          TextEditingController()
+                                                            ..text =
+                                                                '${ProjInfo[index + 1]}',
+                                                          decoration: InputDecoration(
+                                                            disabledBorder:
+                                                            InputBorder.none,
+                                                            focusedBorder:
+                                                            OutlineInputBorder(
+                                                                borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                    5.0),
+                                                                borderSide:
+                                                                BorderSide(
+                                                                  width: 0.5,
+                                                                )),
+                                                          ),
+                                                          enabled: isEdit,
+                                                          textAlignVertical:
+                                                          TextAlignVertical
+                                                              .center,
+                                                          onFieldSubmitted: (value) {
+                                                            ProjInfo[index + 1] =
+                                                                value;
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Offstage(
+                                                        offstage: isEdit,
+                                                        child: Text('${ProjInfo[index + 1]}',
+                                                            style:TextStyle(fontSize: 16),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )
                                                 )
                                               ],
                                             ));
@@ -450,8 +478,10 @@ class LargeScreen extends State<ProjDetails>
 
 class SmallScreen extends State<ProjDetails>
     with SingleTickerProviderStateMixin {
+  SmallScreen(this.ID);
+  var ID ;
   bool isEdit = false;
-  bool isManager = true;
+  bool isManager = false;
   TabController mController;
   List<String> tabTitles;
   final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
@@ -473,37 +503,34 @@ class SmallScreen extends State<ProjDetails>
     ['name3', 'price3', 'message3'],
     ['name4', 'price4', 'message4']
   ];
+  List<String> skills = new List();
 
-  var array = [];
+  var array ;
   Future<http.Response> fetchPost() async {
-    final response = await http.get('http://localhost:8080/getJobs');
+    var url = "http://localhost:8080/getJob?id="+ID;
+    var response = await http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json"
+    });
     final data = json.decode(response.body);
     setState(() {
       array = data;
-      ProjInfo[0] = array[0]['id'];
-      ProjInfo[1] = array[0]['title'];
-      ProjInfo[2] = array[0]['description'];
-      ProjInfo[3] = array[0]['price'];
-      ProjInfo[6] = array[0]['remaining_time'];
+      ProjInfo[0] = array['id'];
+      ProjInfo[1] = array['title'];
+      ProjInfo[2] = array['description'];
+      ProjInfo[3] = array['price'];
+      ProjInfo[6] = array['remaining_time'];
+      for (int i = 0; i < array['skills'].length; i++) {
+        skills.add(array['skills'][i].toString());
+      }
     });
-    print(ProjInfo);
     return response;
   }
 
-  updatePost() async {
-    var url = "http://localhost:8080/updateJobs";
-    var response = await http.post(Uri.encodeFull(url), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "id": ProjInfo[0],
-      "price": ProjInfo[3],
-      "description": ProjInfo[2],
-      "remaining_time": ProjInfo[6],
-      "title": ProjInfo[1],
-      "address": ProjInfo[4],
-      "people": ProjInfo[5],
-      "phone": ProjInfo[7],
-    });
+  savePost() async {
+    var url = "http://localhost:8080/saveJob";
+    var response = await http.post(url, headers: {
+      "content-type": "application/json"
+    }, body: json.encode(array));
   }
 
   @override
@@ -559,7 +586,7 @@ class SmallScreen extends State<ProjDetails>
           child: Column(
             children: <Widget>[
               Container(
-                  height: 600,
+                  height: 700,
                   padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                   child: Card(
                     child: Scaffold(
@@ -577,7 +604,7 @@ class SmallScreen extends State<ProjDetails>
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/apply');
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>ApplyPage(ProjInfo[0],ProjInfo[1],ProjInfo[3],array['employer'],skills)));
                                 },
                               ),
                             ),
@@ -599,6 +626,13 @@ class SmallScreen extends State<ProjDetails>
                                     setState(() {
                                       this.isEdit = false;
                                     });
+                                    array['id'] = ProjInfo[0];
+                                    array['title'] = ProjInfo[1];
+                                    array['description'] = ProjInfo[2];
+                                    array['price'] = ProjInfo[3];
+                                    array['remaining_time'] = ProjInfo[6];
+                                    print(array);
+                                    savePost();
                                   },
                                 ))
                           ],
@@ -634,58 +668,77 @@ class SmallScreen extends State<ProjDetails>
                                           (BuildContext context, int index) {
                                         return Container(
                                             padding: const EdgeInsets.fromLTRB(
-                                                16, 8, 8, 8),
+                                                16, 4, 8, 4),
                                             alignment: Alignment.centerLeft,
-                                            height: 60,
+                                            constraints: BoxConstraints(
+                                                minHeight: 68
+                                            ),
+//                                            height: 68,
                                             child: Row(
                                               children: [
                                                 Container(
                                                   width: 100,
                                                   alignment:
-                                                      AlignmentDirectional
-                                                          .center,
+                                                  AlignmentDirectional
+                                                      .center,
                                                   child: Text(
                                                     '${entries[index]}：',
                                                     style:
-                                                        TextStyle(fontSize: 18),
+                                                    TextStyle(fontSize: 18),
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: TextFormField(
-                                                    controller:
-                                                        TextEditingController()
-                                                          ..text =
-                                                              '${ProjInfo[index + 1]}',
-                                                    decoration: InputDecoration(
-                                                      disabledBorder:
-                                                          InputBorder.none,
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
+                                                    child: Stack(
+                                                      children: [
+                                                        Offstage(
+                                                          offstage: !isEdit,
+                                                          child: TextFormField(
+                                                            autofocus: true,
+                                                            controller:
+                                                            TextEditingController()
+                                                              ..text =
+                                                                  '${ProjInfo[index + 1]}',
+                                                            decoration: InputDecoration(
+                                                              disabledBorder:
+                                                              InputBorder.none,
+                                                              focusedBorder:
+                                                              OutlineInputBorder(
+                                                                  borderRadius:
                                                                   BorderRadius
                                                                       .circular(
-                                                                          5.0),
-                                                              borderSide:
-                                                                  BorderSide()),
-                                                    ),
-                                                    enabled: isEdit,
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
-                                                    onFieldSubmitted: (value) {
-                                                      ProjInfo[index + 1] =
-                                                          value;
-                                                    },
-                                                  ),
+                                                                      5.0),
+                                                                  borderSide:
+                                                                  BorderSide(
+                                                                    width: 0.5,
+                                                                  )),
+                                                            ),
+                                                            enabled: isEdit,
+                                                            textAlignVertical:
+                                                            TextAlignVertical
+                                                                .center,
+                                                            onFieldSubmitted: (value) {
+                                                              ProjInfo[index + 1] =
+                                                                  value;
+                                                            },
+                                                          ),
+                                                        ),
+                                                        Offstage(
+                                                          offstage: isEdit,
+                                                          child: Text('${ProjInfo[index + 1]}',
+                                                            style:TextStyle(fontSize: 16),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    )
                                                 )
                                               ],
                                             ));
                                       },
                                       separatorBuilder:
                                           (BuildContext context, int index) =>
-                                              Container(
-                                                  height: 1.0,
-                                                  color: Colors.grey),
+                                          Container(
+                                              height: 1.0,
+                                              color: Colors.grey),
                                     );
                                   else
                                     return ListView.separated(
@@ -696,13 +749,13 @@ class SmallScreen extends State<ProjDetails>
                                         return Container(
                                             alignment: Alignment.centerLeft,
                                             padding: EdgeInsets.fromLTRB(
-                                                20, 8, 0, 8),
+                                                100, 8, 0, 8),
                                             height: 100,
                                             child: Row(
                                               children: [
                                                 Container(
                                                   padding: EdgeInsets.fromLTRB(
-                                                      0, 0, 20, 0),
+                                                      0, 0, 50, 0),
                                                   child: Image(
                                                     image: AssetImage(
                                                         "assets/notFind.jpeg"),
@@ -723,9 +776,9 @@ class SmallScreen extends State<ProjDetails>
                                       },
                                       separatorBuilder:
                                           (BuildContext context, int index) =>
-                                              Container(
-                                                  height: 1.0,
-                                                  color: Colors.grey),
+                                          Container(
+                                              height: 1.0,
+                                              color: Colors.grey),
                                     );
                                 }).toList(),
                               ),
@@ -734,7 +787,7 @@ class SmallScreen extends State<ProjDetails>
                         )),
                   )),
               Container(
-                  height: 400,
+                  height: 500,
                   padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                   child: Stack(
                     children: [
@@ -773,7 +826,7 @@ class SmallScreen extends State<ProjDetails>
                                               Text('认证信息'),
                                               Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                MainAxisAlignment.center,
                                                 children: [
                                                   Icon(Icons.accessibility),
                                                   Icon(Icons.home),
@@ -794,8 +847,8 @@ class SmallScreen extends State<ProjDetails>
                                   },
                                   separatorBuilder:
                                       (BuildContext context, int index) =>
-                                          Container(
-                                              height: 1.0, color: Colors.grey),
+                                      Container(
+                                          height: 1.0, color: Colors.grey),
                                 ),
                               ),
                             ],
@@ -834,17 +887,17 @@ class SmallScreen extends State<ProjDetails>
                                               Expanded(
                                                   child: ListView.builder(
                                                       padding:
-                                                          const EdgeInsets.all(
-                                                              8),
+                                                      const EdgeInsets.all(
+                                                          8),
                                                       itemCount:
-                                                          entries2.length,
+                                                      entries2.length,
                                                       itemBuilder:
                                                           (BuildContext context,
-                                                              int index) {
+                                                          int index) {
                                                         return Container(
                                                           height: 20,
                                                           alignment:
-                                                              Alignment.center,
+                                                          Alignment.center,
                                                           child: Text(
                                                               '${entries2[index]}: ${UserInfo[index]}'),
                                                         );
@@ -861,8 +914,8 @@ class SmallScreen extends State<ProjDetails>
                                   },
                                   separatorBuilder:
                                       (BuildContext context, int index) =>
-                                          Container(
-                                              height: 1.0, color: Colors.grey),
+                                      Container(
+                                          height: 1.0, color: Colors.grey),
                                 ),
                               ),
                             ],
