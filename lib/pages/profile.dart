@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/component/SkillChooseModal.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -115,24 +116,44 @@ class UserInfo extends StatefulWidget {
 }
 
 class _UserInfoState extends State<UserInfo> {
-  //假数据在这里
-  List<String> _skills = ["Java", "C++", "JavaScript", "Dart", "Python"];
-  String email = "s";
+  List<String> _skills =
+      []; //= ["Java", "C++", "JavaScript", "Dart", "Python"];
+  String email, username, desc;
+  String date, address, gender, tel;
+  int uid, age;
 
   FlutterToast flutterToast;
 
   getToken() async {
     String email = await StorageUtil.getStringItem("email");
-//    List<String> user = await StorageUtil.getStringListItem("user");
-    print("aaa");
+    String uname = await StorageUtil.getStringItem("username");
+    String time = await StorageUtil.getStringItem("time");
+    String add = await StorageUtil.getStringItem("address");
+    String g = await StorageUtil.getStringItem("gender");
+    String phone = await StorageUtil.getStringItem("phone");
+    String des = await StorageUtil.getStringItem("desc");
+    int userid = await StorageUtil.getIntItem("uid");
+    int age = await StorageUtil.getIntItem("age");
+    List<String> skills = await StorageUtil.getStringListItem("skills");
+
     if (email != null) {
       // 跳转到首页print(user);
 //      print(user[0]);
       setState(() {
         this.email = email;
+        uid = userid;
+        username = uname;
+        date = time;
+        address = add;
+        tel = phone;
+        gender = g;
+        desc = des;
+        this.age = age;
+        print(skills);
+        if (skills != null) _skills = skills;
       });
-    }
-    else print('bbb');
+    } else
+      print('bbb');
   }
 
   @override
@@ -170,11 +191,15 @@ class _UserInfoState extends State<UserInfo> {
 
   saveSkills(skills) async {
     try {
-      String url = "http://localhost:8080/updateSkills?id=1";
+      String url = "http://localhost:8080/updateSkills?userId=" + uid.toString();
+      print(url);print(skills);
       var res = await http.post(Uri.encodeFull(url),
-          headers: {"Accept": "application/json"}, body: {"skills": skills});
+          headers: {"content-type": "application/json"},
+          body:  json.encode(skills));
       var response = json.decode(res.body);
-      if (response != null) {}
+      if (response != null) {
+        Account.saveUserSkill(response);
+      }
     } catch (e) {
       print(e);
     }
@@ -260,28 +285,29 @@ class _UserInfoState extends State<UserInfo> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Text(
-                    "Username",
+                    "$username",
                     style: TextStyle(
                       fontSize: 30.0,
                       fontFamily: "Courier",
                     ),
                   ),
-                  Text("年龄"),
-                  Text("性别"),
-                  Text("邮箱 $email"),
-                  Text("电话"),
-                  Text("地区")
+                  Text("年龄：$age"),
+                  Text("性别：$gender"),
+                  Text("邮箱：$email"),
+                  Text("电话：$tel"),
+                  Text("地区：$address")
                 ],
               ),
             )
           ],
         ),
-        Text("加入日期"),
-        Text("技能点"),
+        Text("加入日期：$date"),
+        Text("技能点："),
         Wrap(
           children: skillManageList,
         ),
-        Text("个人描述"),
+        Text("个人描述："),
+        Text("$desc"),
       ]),
     ));
   }

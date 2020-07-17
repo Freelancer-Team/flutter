@@ -17,8 +17,9 @@ class _PublishState extends State<PublishPage> {
   String _title;
   String _owner;
   String _address;
-  String _min;
-  String _max;
+//  String _min;
+//  String _max;
+  String _budget;
   String _description;
   DateTime _ddl;
 
@@ -182,6 +183,15 @@ class _PublishState extends State<PublishPage> {
                 new Padding(
                   padding: const EdgeInsets.only(top: 40.0),
                 ),
+                new TextFormField(
+                  decoration: new InputDecoration(labelText: "Budget"),
+                  validator: (val) =>
+                  val.length < 1 ? 'Please enter your budget' : null,
+                  onSaved: (val) => _budget = val,
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                ),
                 new Align(
                     alignment: new FractionalOffset(0.0, 0.0),
                     child: new Text('Choose Needed Skills')),
@@ -190,26 +200,24 @@ class _PublishState extends State<PublishPage> {
                     child: Wrap(
                       children: skillManageList,
                     )),
-                new Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                ),
-                new Align(
-                    alignment: new FractionalOffset(0.0, 0.0),
-                    child:
-                        new Text('Budget：若不填写max，则默认无上限，不填写min，则默认下限为0，均不填则为面议')),
-                Row(children: <Widget>[
-                  new Expanded(
-                      child: TextFormField(
-                    decoration: new InputDecoration(labelText: "Min"),
-                    onSaved: (val) => _min = val,
-                  )),
-                  new Text('  '),
-                  new Expanded(
-                      child: TextFormField(
-                    decoration: new InputDecoration(labelText: "Max"),
-                    onSaved: (val) => _max = val,
-                  ))
-                ]),
+
+//                new Align(
+//                    alignment: new FractionalOffset(0.0, 0.0),
+//                    child:
+//                        new Text('Budget：若不填写max，则默认无上限，不填写min，则默认下限为0，均不填则为面议')),
+//                Row(children: <Widget>[
+//                  new Expanded(
+//                      child: TextFormField(
+//                    decoration: new InputDecoration(labelText: "Min"),
+//                    onSaved: (val) => _min = val,
+//                  )),
+//                  new Text('  '),
+//                  new Expanded(
+//                      child: TextFormField(
+//                    decoration: new InputDecoration(labelText: "Max"),
+//                    onSaved: (val) => _max = val,
+//                  ))
+//                ]),
                 new Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                 ),
