@@ -37,16 +37,16 @@ class _PublishState extends State<PublishPage> {
     try {
       String url = "http://localhost:8080/saveJob";
       var res = await http.post(Uri.encodeFull(url), headers: {
-        "Accept": "application/json"
-      }, body: {
-        "skills":json.encode(selSkills),
+        "content-type": "application/json"
+      }, body: json.encode({
+        "skills":selSkills,
         "title":_title,
         "description":_description,
         "price":_budget,
         "remaining_time":_ddl.toIso8601String(),
         "employeeName":_owner,
         "employeeId":_oid.toString(),
-      });
+      }));
       var response = json.decode(res.body);
       if (response != null) {
         _showToast(true);
@@ -56,6 +56,7 @@ class _PublishState extends State<PublishPage> {
       print(e);
     }
   }
+
   @override
   void initState() {
     super.initState();
