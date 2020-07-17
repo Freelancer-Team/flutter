@@ -80,6 +80,12 @@
       "languageVersion": "2.7"
     },
     {
+      "name": "font_awesome_flutter",
+      "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/font_awesome_flutter-8.8.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
+    },
+    {
       "name": "http",
       "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/http-0.12.1",
       "packageUri": "lib/",
@@ -152,6 +158,12 @@
       "languageVersion": "2.0"
     },
     {
+      "name": "provider",
+      "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/provider-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
+    },
+    {
       "name": "shared_preferences",
       "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/shared_preferences-0.5.8",
       "packageUri": "lib/",
@@ -186,6 +198,12 @@
       "rootUri": "file:///D:/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "1.11"
+    },
+    {
+      "name": "smooth_star_rating",
+      "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/smooth_star_rating-1.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.7"
     },
     {
       "name": "source_span",
@@ -224,10 +242,22 @@
       "languageVersion": "2.7"
     },
     {
+      "name": "toggle_switch",
+      "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/toggle_switch-0.1.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
+    },
+    {
       "name": "typed_data",
       "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/typed_data-1.2.0",
       "packageUri": "lib/",
       "languageVersion": "2.4"
+    },
+    {
+      "name": "unicorndial",
+      "rootUri": "file:///D:/flutter/.pub-cache/hosted/pub.flutter-io.cn/unicorndial-1.1.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
     },
     {
       "name": "vector_math",
@@ -248,7 +278,7 @@
       "languageVersion": "2.7"
     }
   ],
-  "generated": "2020-07-17T02:47:10.525141Z",
+  "generated": "2020-07-17T05:19:51.763205Z",
   "generator": "pub",
   "generatorVersion": "2.9.0-20.0.dev.flutter-69aba23371"
 }
