@@ -163,7 +163,7 @@ class _MyDrawerState extends State<MyDrawer> {
               Icons.search,
               color: Colors.black,
             ),
-            onTap: () {},
+            onTap: () {Navigator.pushNamed(context, '/jobList');},
           ),
           Divider(
             height: 10.0,
