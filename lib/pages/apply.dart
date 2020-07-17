@@ -4,6 +4,8 @@ import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'ProjDetails.dart';
 class Skill {
   String skill;
   bool isSelected;
@@ -28,6 +30,7 @@ class _ApplyState extends State<ApplyPage> {
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
   FlutterToast flutterToast;
+  bool flag=false;
 
   //若有用户信息则自动填写
   String _email;
@@ -52,11 +55,15 @@ class _ApplyState extends State<ApplyPage> {
 
   void onSubmit() {
     final form = formKey.currentState;
-    if (form.validate() && selSkills != null) {
+    for(int i=0;i<selSkills.length;i++){
+      if(selSkills[i].isSelected) {flag=true;break;}
+    }
+    if (form.validate() && flag) {
       form.save();
       saveAuction();
       saveSkills(_personalSkills);
     }
+    if(!flag) _showToast(false);
   }
   saveSkills(skills) async {
     try {
@@ -86,15 +93,15 @@ class _ApplyState extends State<ApplyPage> {
       });
       var response = json.decode(res.body);
       if (response != null) {
-        _showToast();
-//        Navigator.pushNamed(context, '/home');
+        await _showToast(true);
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(_jid)));
       }
     } catch (e) {
       print(e);
     }
   }
 
-  _showToast() {
+  _showToast(bool f) {
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
@@ -104,11 +111,11 @@ class _ApplyState extends State<ApplyPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check),
+          f?Icon(Icons.check):Icon(Icons.clear),
           SizedBox(
             width: 12.0,
           ),
-          Text("Apply Successfully"),
+          f?Text("Apply Successfully"):Text("At least 1 skill"),
         ],
       ),
     );
