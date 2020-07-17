@@ -167,7 +167,7 @@ class MyDrawer extends StatelessWidget {
               Icons.search,
               color: Colors.black,
             ),
-            onTap: () {},
+            onTap: () {Navigator.pushNamed(context, '/jobList');},
           ),
           Divider(
             height: 10.0,

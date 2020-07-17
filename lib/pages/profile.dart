@@ -8,6 +8,8 @@ import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:toggle_switch/toggle_switch.dart';
+import 'package:freelancer_flutter/component/ProjectTables.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -321,13 +323,225 @@ class ProjectInfo extends StatefulWidget {
 }
 
 class _ProjectInfoState extends State<ProjectInfo> {
+  String chooseView = 'employer';
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: new ListTile(
-        leading: Icon(Icons.assignment),
-        title: Text("我的项目"),
-      ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ListTile(
+                          leading: Icon(Icons.assessment),
+                          title: Text("我的项目"),
+                          contentPadding: EdgeInsets.only(left: 0.0),
+                        ),
+                      ),
+                      ToggleSwitch(
+                          minWidth: 90.0,
+                          cornerRadius: 20,
+                          activeBgColor: Colors.blue,
+                          activeTextColor: Colors.white,
+                          inactiveBgColor: Colors.grey,
+                          inactiveTextColor: Colors.white,
+                          labels: ['雇主', '雇员'],
+                          icons: [Icons.language, Icons.group],
+                          onToggle: (index) {
+                            if(index == 1) setState(() {
+                              chooseView = 'employee';
+                            });
+                            else setState(() {
+                              chooseView = 'employer';
+                            });
+                          }),
+                    ],
+                  ),
+                ),
+                (chooseView == 'employer') ? EmployerView() : EmployeeView()
+              ]
+          ),
+        )
     );
+  }
+}
+
+class EmployerView extends StatefulWidget {
+  @override
+  _EmployerViewState createState() => _EmployerViewState();
+}
+
+class _EmployerViewState extends State<EmployerView> with SingleTickerProviderStateMixin {
+
+  TabController mController;
+  List<String> tabTitles;
+
+  @override
+  void initState() {
+    super.initState();
+    tabTitles = [
+      "进行中",
+      "已完成",
+      "竞标中",
+    ];
+    mController = TabController(
+      length: tabTitles.length,
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    mController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Column(
+          children: <Widget>[
+            Container(
+                height: 38.0,
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                    border: Border(bottom:BorderSide(width: 0.7,color: Colors.blue) )
+                ),
+                child: Row(
+                  children: [
+                    TabBar(
+                      isScrollable: true,
+                      //是否可以滚动
+                      controller: mController,
+                      labelColor: Colors.blue,
+                      unselectedLabelColor: Color(0xff666666),
+                      labelStyle: TextStyle(fontSize: 16.0),
+                      tabs: tabTitles.map((item) {
+                        return Tab(
+                          text: item,
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                )
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: mController,
+                children: tabTitles.map((item) {
+                  if (item == "进行中")
+                    return DataTableDemo(
+                      columnNames: ["项目名称","雇员","佣金","截止日期","违约金"],
+                      tableKind: "employerProceeding",
+                    );
+                  else if(item == "已完成")
+                    return DataTableDemo(
+                      columnNames: ["项目名称","雇员","佣金","完成日期","雇员评分"],
+                      tableKind: "employerComplete",
+                    );
+//                  else if(item == "竞标中")
+//                    return DataTableDemo(
+//                      columnNames: ["项目名称","最低竞价","平均竞价","截止日期","状态"],
+//                      tableKind: "employerBid",
+//                    );
+                  else return Text("竞标还没写");
+                }).toList(),
+              ),
+            ),
+          ],
+        ));
+  }
+}
+
+class EmployeeView extends StatefulWidget {
+  @override
+  _EmployeeViewState createState() => _EmployeeViewState();
+}
+
+class _EmployeeViewState extends State<EmployeeView> with SingleTickerProviderStateMixin {
+
+  TabController mController;
+  List<String> tabTitles;
+
+  @override
+  void initState() {
+    super.initState();
+    tabTitles = [
+      "进行中",
+      "已完成",
+      "竞标中",
+    ];
+    mController = TabController(
+      length: tabTitles.length,
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    mController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Column(
+          children: <Widget>[
+            Container(
+                height: 38.0,
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                    border: Border(bottom:BorderSide(width: 0.7,color: Colors.blue) )
+                ),
+                child: Row(
+                  children: [
+                    TabBar(
+                      isScrollable: true,
+                      //是否可以滚动
+                      controller: mController,
+                      labelColor: Colors.blue,
+                      unselectedLabelColor: Color(0xff666666),
+                      labelStyle: TextStyle(fontSize: 16.0),
+                      tabs: tabTitles.map((item) {
+                        return Tab(
+                          text: item,
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                )
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: mController,
+                children: tabTitles.map((item) {
+                  if (item == "进行中")
+                    return DataTableDemo(
+                      columnNames: ["项目名称","雇主","佣金","截止日期","违约金"],
+                      tableKind: "employeeProceeding",
+                    );
+                  else if(item == "已完成")
+                    return DataTableDemo(
+                      columnNames: ["项目名称","雇主","佣金","完成日期","雇主评分"],
+                      tableKind: "employeeComplete",
+                    );
+//                  else if(item == "竞标中")
+//                    return DataTableDemo(
+//                      columnNames: ["项目名称","最低竞价","平均竞价","截止日期","状态"],
+//                      tableKind: "employerBid",
+//                    );
+                  else return Text("竞标还没写");
+                }).toList(),
+              ),
+            ),
+          ],
+        ));
   }
 }
