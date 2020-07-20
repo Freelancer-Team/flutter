@@ -68,7 +68,10 @@ class EntryItem extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 typedef void SkillChangedCallback(var skills);
 
 class SkillDialog extends StatefulWidget{

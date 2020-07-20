@@ -98,7 +98,10 @@ class ChoiceCard extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 
 class UserInfo extends StatefulWidget {
   UserInfo({Key key}) : super(key: key);
