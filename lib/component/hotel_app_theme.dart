@@ -1,4 +1,3 @@
-import 'package:best_flutter_ui_templates/main.dart';
 import 'package:flutter/material.dart';
 
 class HotelAppTheme {
@@ -50,5 +49,17 @@ class HotelAppTheme {
       accentTextTheme: _buildTextTheme(base.accentTextTheme),
       platform: TargetPlatform.iOS,
     );
+  }
+}
+
+class HexColor extends Color {
+  HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
+
+  static int _getColorFromHex(String hexColor) {
+    hexColor = hexColor.toUpperCase().replaceAll('#', '');
+    if (hexColor.length == 6) {
+      hexColor = 'FF' + hexColor;
+    }
+    return int.parse(hexColor, radix: 16);
   }
 }

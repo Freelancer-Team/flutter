@@ -1,20 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:freelancer_flutter/component/constants.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:freelancer_flutter/theme/constants.dart';
 import 'package:freelancer_flutter/pages/login.dart';
 
-//import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class signUPScreen extends StatefulWidget {
+class signUpScreen extends StatefulWidget {
   @override
-  _signUPScreenState createState() => _signUPScreenState();
+  _signUpScreenState createState() => _signUpScreenState();
 }
 
-class _signUPScreenState extends State<signUPScreen> {
-  bool getAccess = false;
-
+class _signUpScreenState extends State<signUpScreen> {
+  bool getAccess = true;
+  FlutterToast flutterToast;
   Color emailTextColor = Color(0xFF6CA8F1);
   Color passTextColor = Color(0xFF6CA8F1);
   Color phoneTextColor = Color(0xFF6CA8F1);
@@ -22,80 +23,109 @@ class _signUPScreenState extends State<signUPScreen> {
   Color nameTextColor = Color(0xFF6CA8F1);
 
   TextEditingController emailAddressControl = TextEditingController();
+
   String get emailAddress => emailAddressControl.text;
 
   TextEditingController passwordControl = TextEditingController();
+
   String get password => passwordControl.text;
 
   TextEditingController districtControl = TextEditingController();
+
   String get district => districtControl.text;
 
   TextEditingController numberControl = TextEditingController();
+
   String get phoneNum => numberControl.text;
 
   TextEditingController nameControl = TextEditingController();
+
   String get name => nameControl.text;
 
   checkAllFilled() {
     setState(() {
-      if (emailAddressControl.text == '') {
-        print("asa");
-        emailTextColor = Colors.red[300];
+      if (emailAddressControl.text == '' ||
+          !emailAddressControl.text.contains('@')) {
+        emailTextColor = Color(0xDFB0C4DE); //red[300];
         getAccess = false;
       } else {
         emailTextColor = Color(0xFF6CA8F1);
       }
       if (passwordControl.text == '') {
-        passTextColor = Colors.red[300];
+        passTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         passTextColor = Color(0xFF6CA8F1);
       }
-      if (nameControl.text == '') {
-        nameTextColor = Colors.red[300];
+      if (nameControl.text == '' || nameControl.text.length < 2) {
+        nameTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         nameTextColor = Color(0xFF6CA8F1);
       }
-      if (districtControl.text == '') {
-        disTextColor = Colors.red[300];
+      if (districtControl.text == '' || districtControl.text.length < 6) {
+        disTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         disTextColor = Color(0xFF6CA8F1);
       }
-      if (numberControl.text == '') {
-        phoneTextColor = Colors.red[300];
+      if (numberControl.text == '' || numberControl.text.length != 11) {
+        phoneTextColor = Color(0xDFB0C4DE);
         getAccess = false;
       } else {
         phoneTextColor = Color(0xFF6CA8F1);
       }
-
-      if(numberControl.text != '' && emailAddressControl.text != '' && passwordControl.text != '' && districtControl.text != '' && nameControl.text != ''){
-        getAccess = true;
-      }
     });
 
-    if(getAccess == true){
+    if (getAccess == true) {
       insertData();
-
     }
-
+    getAccess = true;
   }
-
+  @override
+  void initState() {
+    super.initState();
+    flutterToast = FlutterToast(context);
+  }
   insertData() async {
-    String url = "https://worky-flutter.000webhostapp.com/insertSignUpdata.php";
+    String url = "http://localhost:8080/signup";
     var res = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     }, body: {
-      "Email": emailAddress,
-      "Password": password,
-      "District": district,
-      "Number": phoneNum,
-      "Name": name,
+      "email": emailAddress,
+      "password": password,
+      "address": district,
+      "phone": phoneNum,
+      "name": name,
     });
+    _showToast();
+    Navigator.of(context).push(
+        CupertinoPageRoute(builder: (BuildContext context) => LoginScreen()));
+  }
 
-    Navigator.of(context).push(CupertinoPageRoute(
-        builder: (BuildContext context) => LoginScreen()));
+  _showToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black12,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("Sign up Successfully"),
+        ],
+      ),
+    );
+    flutterToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 2),
+    );
   }
 
   Widget _buildEmailTF() {
@@ -181,7 +211,7 @@ class _signUPScreenState extends State<signUPScreen> {
                 Icons.perm_identity,
                 color: Colors.white,
               ),
-              hintText: 'Enter your name',
+              hintText: 'Enter your name (more than 2 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -195,7 +225,7 @@ class _signUPScreenState extends State<signUPScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'District',
+          'Address',
           style: kLabelStyle,
         ),
         SizedBox(height: 10.0),
@@ -227,7 +257,7 @@ class _signUPScreenState extends State<signUPScreen> {
                 Icons.add_location,
                 color: Colors.white,
               ),
-              hintText: 'Enter your district',
+              hintText: 'Enter your address (more than 6 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -273,7 +303,7 @@ class _signUPScreenState extends State<signUPScreen> {
                 Icons.lock,
                 color: Colors.white,
               ),
-              hintText: 'Enter your Password',
+              hintText: 'Enter your Password (more than 6 letters)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -318,7 +348,7 @@ class _signUPScreenState extends State<signUPScreen> {
                 Icons.phone,
                 color: Colors.white,
               ),
-              hintText: 'Enter your phone number',
+              hintText: 'Enter your phone number (need 11 numbers)',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -350,6 +380,37 @@ class _signUPScreenState extends State<signUPScreen> {
             fontWeight: FontWeight.bold,
             fontFamily: 'OpenSans',
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginBtn() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(CupertinoPageRoute(
+            builder: (BuildContext context) => LoginScreen()));
+      },
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: 'Already have an Account? ',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.0,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            TextSpan(
+              text: 'Sign In',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -387,7 +448,7 @@ class _signUPScreenState extends State<signUPScreen> {
                   physics: AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.symmetric(
                     horizontal: 30.0,
-                    vertical: 80.0,
+                    vertical: 30.0,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -413,6 +474,8 @@ class _signUPScreenState extends State<signUPScreen> {
                       _buildCityName(),
                       SizedBox(height: 10.0),
                       _buildCreateAccountBtn(),
+                      SizedBox(height: 10.0),
+                      _buildLoginBtn(),
                     ],
                   ),
                 ),

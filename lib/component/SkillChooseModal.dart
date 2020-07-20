@@ -1,37 +1,11 @@
+//import 'dart:html';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-
-// One entry in the multilevel list displayed by this app.
-class Entry {
-  Entry(this.title, [this.children = const <Entry>[]]);
-  final String title;
-  final List<Entry> children;
-}
-
+import 'package:freelancer_flutter/utilities/Skill.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 // The entire multilevel list displayed by this app.
-final List<Entry> data = <Entry>[
-  new Entry('Chapter A',
-    <Entry>[
-      new Entry('Section A0'),
-      new Entry('Section A1'),
-      new Entry('Section A2'),
-    ],
-  ),
-  new Entry('Chapter B',
-    <Entry>[
-      new Entry('Section B0'),
-      new Entry('Section B1'),
-    ],
-  ),
-  new Entry('Chapter C',
-    <Entry>[
-      new Entry('Section C0'),
-      new Entry('Section C1'),
-      new Entry('Section C2',),
-    ],
-  ),
-];
-
 
 typedef void AddSkillCallback(var skill);
 
@@ -47,16 +21,17 @@ class EntryItem extends StatelessWidget {
   const EntryItem(this.entry, this.onAddSkill, this.skills);
 
   Widget _buildTiles(Entry root) {
-    if (root.children.isEmpty)
-      return new ListTile(title: new Text(root.title));
+    if (root.children.isEmpty) return new ListTile(title: new Text(root.title));
     return new ExpansionTile(
       key: new PageStorageKey<Entry>(root),
       title: new Text(root.title),
-      children: root.children.map((child){
+      children: root.children.map((child) {
         return CheckboxListTile(
-          title: Text(child.title),
-          value: this.skills.contains(child.title),
-          onChanged: (bool value) {onAddSkill(child.title);},
+          title: Text(child),
+          value: this.skills.contains(child),
+          onChanged: (bool value) {
+            onAddSkill(child);
+          },
         );
       }).toList(),
     );
@@ -68,18 +43,14 @@ class EntryItem extends StatelessWidget {
   }
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> master
 typedef void SkillChangedCallback(var skills);
 
-class SkillDialog extends StatefulWidget{
+class SkillDialog extends StatefulWidget {
   final List<String> skillChoose;
-
   final SkillChangedCallback onSkillChanged;
 
-  SkillDialog({Key key, this.skillChoose, this.onSkillChanged}) : super(key: key);
+  SkillDialog({Key key, this.skillChoose, this.onSkillChanged})
+      : super(key: key);
 
   @override
   _SkillDialogState createState() => new _SkillDialogState();
@@ -87,10 +58,14 @@ class SkillDialog extends StatefulWidget{
 
 class _SkillDialogState extends State<SkillDialog> {
   List<String> skillChoose = [];
+  List<Entry> data = <Entry>[
+    new Entry(" ", <String>[" "])
+  ];
 
   @override
   void initState() {
     super.initState();
+    getData();
     skillChoose = widget.skillChoose;
   }
 
@@ -100,7 +75,7 @@ class _SkillDialogState extends State<SkillDialog> {
     this.dispose();
   }
 
-  void addOrDeleteSkill(skill){
+  void addOrDeleteSkill(skill) {
     setState(() {
       if (skillChoose.contains(skill)) {
         skillChoose.remove(skill);
@@ -108,6 +83,49 @@ class _SkillDialogState extends State<SkillDialog> {
         skillChoose.add(skill);
       }
     });
+  }
+
+  getData() async {
+    try {
+      String url = "http://localhost:8080/getSkills";
+      var res = await http
+          .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+      var response = json.decode(res.body);
+      int l = response.length;
+      int i = 0;
+      data.clear();
+      String cname = response[0]["category"]["name"];
+      List<String> newchild;
+      int k=0;
+      bool flag=false;
+      while (i < l) {
+        flag=false;
+        cname = response[i]["category"]["name"];
+        for(k=0;k<data.length;k++){
+          if(data[k].title==cname)
+            {flag=true;break;}
+        }
+        if(!flag){
+        while (i < l && response[i]["category"]["name"] == cname) {
+          newchild = new List();
+          newchild.add(response[i]["name"]);
+          i++;
+        }
+        Entry newc = new Entry(cname, newchild);
+        data.add(newc);}
+        else{
+          while (i < l && response[i]["category"]["name"] == cname) {
+            data[k].children.add(response[i]["name"]);
+            i++;
+          }
+        }
+      }
+      setState(() {
+        data = data;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -118,40 +136,50 @@ class _SkillDialogState extends State<SkillDialog> {
           height: 200,
           child: SingleChildScrollView(
             child: Column(
-              children: data.map((e) => EntryItem(e, addOrDeleteSkill, skillChoose)).toList(),
+              children: data
+                  .map((e) => EntryItem(e, addOrDeleteSkill, skillChoose))
+                  .toList(),
             ),
           ),
         ),
         Wrap(
-          children: skillChoose.map((skill) => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-            margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25.0),
-              color: Colors.lightGreenAccent,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(skill,
-                  style: TextStyle(height: 1),
-                ),
-                SizedBox(
-                  width: 6.0,
-                ),
-                SizedOverflowBox(
-                  size: Size(14,14),
-                  alignment: Alignment.center,
-                  child: IconButton( // action button
-                    icon: new Icon(Icons.close),
-                    iconSize: 14,
-                    padding: const EdgeInsets.all(0),
-                    onPressed: () { addOrDeleteSkill(skill); },
-                  ),
-                ),
-              ],
-            ),
-          )).toList(),
+          children: skillChoose
+              .map((skill) => Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0, vertical: 4.0),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 4.0, vertical: 4.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25.0),
+                      color: Colors.black12,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          skill,
+                          style: TextStyle(height: 1),
+                        ),
+                        SizedBox(
+                          width: 6.0,
+                        ),
+                        SizedOverflowBox(
+                          size: Size(14, 14),
+                          alignment: Alignment.center,
+                          child: IconButton(
+                            // action button
+                            icon: new Icon(Icons.close),
+                            iconSize: 14,
+                            padding: const EdgeInsets.all(0),
+                            onPressed: () {
+                              addOrDeleteSkill(skill);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ))
+              .toList(),
         ),
         FlatButton(
           onPressed: () {
