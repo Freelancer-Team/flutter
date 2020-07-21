@@ -8,6 +8,7 @@ import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:http/http.dart'as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:freelancer_flutter/component/config.dart';
 
 class HomePage extends StatefulWidget{
   State<StatefulWidget> createState(){
@@ -35,7 +36,7 @@ class RecomendedPage extends State<HomePage> {
     if(uid!=null) setState(() {
       isLog=true;
     });
-    var url = "http://localhost:8080/getJobs";
+    var url = "${Url.url_prefix}/getJobs";
     var response = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     });

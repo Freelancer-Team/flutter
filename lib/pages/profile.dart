@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:freelancer_flutter/component/ProjectTables.dart';
+import 'package:freelancer_flutter/component/config.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -192,7 +193,7 @@ class _UserInfoState extends State<UserInfo> {
 
   saveSkills(skills) async {
     try {
-      String url = "http://localhost:8080/updateSkills?userId=" + uid.toString();
+      String url = "${Url.url_prefix}/updateSkills?userId=" + uid.toString();
       print(url);print(skills);
       var res = await http.post(Uri.encodeFull(url),
           headers: {"content-type": "application/json"},
@@ -347,9 +348,9 @@ class _ProjectInfoState extends State<ProjectInfo> {
                           minWidth: 90.0,
                           cornerRadius: 20,
                           activeBgColor: Colors.blue,
-                          activeTextColor: Colors.white,
+                          activeFgColor: Colors.white,
                           inactiveBgColor: Colors.grey,
-                          inactiveTextColor: Colors.white,
+                          inactiveFgColor: Colors.white,
                           labels: ['雇主', '雇员'],
                           icons: [Icons.language, Icons.group],
                           onToggle: (index) {

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/utilities/Skill.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:freelancer_flutter/component/config.dart';
 // The entire multilevel list displayed by this app.
 
 typedef void AddSkillCallback(var skill);
@@ -87,7 +88,7 @@ class _SkillDialogState extends State<SkillDialog> {
 
   getData() async {
     try {
-      String url = "http://localhost:8080/getSkills";
+      String url = "${Url.url_prefix}/getSkills";
       var res = await http
           .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
       var response = json.decode(res.body);
