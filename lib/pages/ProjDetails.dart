@@ -9,6 +9,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:freelancer_flutter/component/RatingBar.dart';
+import 'package:freelancer_flutter/component/config.dart';
 
 class ProjDetails extends StatefulWidget {
   ProjDetails(this.ID);
@@ -64,7 +65,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
         isLog = true;
         _uid = uid;
       });
-    var url = "http://localhost:8080/getJob?id=" + ID;
+    var url = "${Url.url_prefix}/getJob?id=" +ID;
     var response = await http
         .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     final data = json.decode(response.body);
@@ -85,7 +86,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
         isManager = true;
       }
     });
-    url = "http://localhost:8080/getUser?id=" + EmployerInfo[0];
+    url = "${Url.url_prefix}/getUser?id=" + EmployerInfo[0];
     response = await http
         .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     final data2 = json.decode(response.body);
@@ -96,7 +97,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       ProjInfo[4] = array2['address'];
       ProjInfo[7] = array2['phone'];
     });
-    url = "http://localhost:8080/getUser?id=" + UserInfo[0];
+    url = "${Url.url_prefix}/getUser?id=" + UserInfo[0];
     response = await http
         .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     final data3 = json.decode(response.body);
@@ -109,7 +110,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   }
 
   savePost() async {
-    var url = "http://localhost:8080/saveJob";
+    var url = "${Url.url_prefix}/saveJob";
     var response = await http.post(url,
         headers: {"content-type": "application/json"},
         body: json.encode(array));

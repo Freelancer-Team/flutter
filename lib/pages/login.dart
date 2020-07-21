@@ -6,13 +6,11 @@ import 'package:freelancer_flutter/pages/signup.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
-
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:freelancer_flutter/component/config.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -68,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   authentication() async {
     try {
-      String url = "http://localhost:8080/login";
+      String url = "${Url.url_prefix}/login";
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json;charset=UTF-8"
       }, body: {
