@@ -4,6 +4,7 @@ import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:freelancer_flutter/component/config.dart';
 
 import 'ProjDetails.dart';
 class Skill {
@@ -67,7 +68,7 @@ class _ApplyState extends State<ApplyPage> {
   }
   saveSkills(skills) async {
     try {
-      String url = "http://localhost:8080/updateSkills?userId=" + _uid.toString();
+      String url = "${Url.url_prefix}/updateSkills?userId=" + _uid.toString();
       print(url);print(skills);
       var res = await http.post(Uri.encodeFull(url),
           headers: {"content-type": "application/json"},
@@ -82,7 +83,7 @@ class _ApplyState extends State<ApplyPage> {
   }
   saveAuction() async {
     try {
-      String url = "http://localhost:8080/applyJob";
+      String url = "${Url.url_prefix}/applyJob";
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json;charset=UTF-8"
       }, body: {

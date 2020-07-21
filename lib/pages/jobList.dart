@@ -6,6 +6,7 @@ import 'package:freelancer_flutter/component/hotel_list_view.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:freelancer_flutter/component/config.dart';
 
 class JobListPage extends StatefulWidget {
   @override
@@ -30,7 +31,7 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
 
 //  var array = [];
 ////  Future<http.Response> fetchPost() async {
-////    final response = await http.get('http://localhost:8080/getJobs');
+////    final response = await http.get('${Url.url_prefix}/getJobs');
 ////    final data = json.decode(response.body);
 ////    setState(() {
 ////      array = data;
@@ -40,7 +41,7 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
   getJobs() async {
     List<Job> jobs = [];
     var response = [];
-      final res = await http.get('http://localhost:8080/getJobs');
+      final res = await http.get('${Url.url_prefix}/getJobs');
       final data = json.decode(res.body);
       response = data;
       for(int i = 0; i < response.length; ++i){
