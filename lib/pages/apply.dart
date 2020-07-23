@@ -185,6 +185,7 @@ class _ApplyState extends State<ApplyPage> {
         appBar: AppBar(
           title: Text(
             'Apply for $_title',
+            key: Key('applyTitle'),
             style: TextStyle(
               fontSize: 30.0,
             ),
@@ -305,6 +306,7 @@ class _ApplyState extends State<ApplyPage> {
                           }).toList())
                     ]),
                     new TextFormField(
+                      key: Key('offer'),
                       decoration: new InputDecoration(
                           labelText: "Offer (Expected to be paid $_budget )"),
                       validator: (val) =>
@@ -315,6 +317,7 @@ class _ApplyState extends State<ApplyPage> {
                       padding: const EdgeInsets.only(top: 20.0),
                     ),
                     new TextFormField(
+                      key: Key('applyDes'),
                       decoration: new InputDecoration(labelText: "Description"),
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
@@ -326,6 +329,7 @@ class _ApplyState extends State<ApplyPage> {
                       padding: const EdgeInsets.only(top: 20.0),
                     ),
                     new RaisedButton(
+                      key: Key('applySubmit'),
                       child: new Text(
                         "Submit",
                         style: new TextStyle(color: Colors.white),

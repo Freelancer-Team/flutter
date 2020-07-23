@@ -11,13 +11,14 @@ import 'dart:convert';
 import 'package:freelancer_flutter/component/config.dart';
 
 class HomePage extends StatefulWidget{
+  HomePage({Key key}) : super(key: key);
+
   State<StatefulWidget> createState(){
     return RecomendedPage();
   }
 }
 
 class RecomendedPage extends State<HomePage> {
-//  RecomendedPage({Key key}) : super(key: key);
 
   double width;
   bool isLog=false;
@@ -120,6 +121,7 @@ class RecomendedPage extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             GestureDetector(
+              key: Key('suggestOne'),
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(RecA[0][2])));
               },
@@ -530,6 +532,7 @@ class RecomendedPage extends State<HomePage> {
         appBar: AppBar(
           title: Text(
             'Freelancer',
+            key: Key('title'),
             style: TextStyle(
               fontSize: 30.0,
             ),
@@ -553,12 +556,14 @@ class RecomendedPage extends State<HomePage> {
                   Container(
                     height: 100,
                     child: MaterialButton(
+                      key: Key('hirebutton'),
                       color: Colors.blue,
                       textColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18)),
                       child: Text(
                         '我要雇人',
+                        key: Key('hiretext'),
                         style: TextStyle(fontSize: 26),
                       ),
                       onPressed: () {
@@ -569,12 +574,14 @@ class RecomendedPage extends State<HomePage> {
                   Container(
                     height: 100,
                     child: MaterialButton(
+                      key: Key('workbutton'),
                       color: Colors.blue,
                       textColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18)),
                       child: Text(
                         '我要工作',
+                        key: Key('worktext'),
                         style: TextStyle(fontSize: 26),
                       ),
                       onPressed: () {

@@ -254,6 +254,7 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
+                  key: Key('back'),
                   borderRadius: const BorderRadius.all(
                     Radius.circular(32.0),
                   ),
@@ -271,6 +272,7 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
               child: Center(
                 child: Text(
                   '项目列表',
+                  key: Key("joblist"),
                   style: TextStyle(
                     fontSize: 30,
                     color: Colors.white

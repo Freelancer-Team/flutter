@@ -28,7 +28,7 @@ class _PublishState extends State<PublishPage> {
 //  String _max;
   String _budget;
   String _description;
-  DateTime _ddl;
+  DateTime _ddl = new DateTime.now().add(new Duration(days: 30));
 
   void onSubmit() {
     final form = formKey.currentState;
@@ -181,6 +181,7 @@ class _PublishState extends State<PublishPage> {
         appBar: AppBar(
           title: Text(
             'Publish A Project',
+            key: Key('publishTitle'),
             style: TextStyle(
               fontSize: 30.0,
             ),
@@ -202,6 +203,7 @@ class _PublishState extends State<PublishPage> {
                 Row(children: <Widget>[
                   new Expanded(
                       child: new TextFormField(
+                        key: Key('newJobTitle'),
                     decoration: new InputDecoration(labelText: "Title"),
                     validator: (val) =>
                         val.length < 2 ? 'Title too short' : null,
@@ -228,6 +230,7 @@ class _PublishState extends State<PublishPage> {
                   padding: const EdgeInsets.only(top: 40.0),
                 ),
                 new TextFormField(
+                  key: Key('newJobBudget'),
                   decoration: new InputDecoration(labelText: "Budget"),
                   validator: (val) =>
                   val.length < 1 ? 'Please enter your budget' : null,
@@ -271,6 +274,7 @@ class _PublishState extends State<PublishPage> {
                 Row(children: <Widget>[
                   chosenTime(context),
                   new MaterialButton(
+                    key: Key('chooseTime'),
                     child: new Text(
                       'Choose',
 //                      style: new TextStyle(color: Colors.white),
@@ -300,6 +304,7 @@ class _PublishState extends State<PublishPage> {
                   )
                 ]),
                 new TextFormField(
+                  key: Key('newJobDescription'),
                   decoration: new InputDecoration(labelText: "Description"),
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
@@ -312,6 +317,7 @@ class _PublishState extends State<PublishPage> {
                   padding: const EdgeInsets.only(top: 20.0),
                 ),
                 new RaisedButton(
+                  key: Key('publish'),
                   child: new Text(
                     "Submit",
                     style: new TextStyle(color: Colors.white),
