@@ -127,6 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           height: 40.0,
           child: TextField(
+            key: Key('email'),
             controller: emailAddressControl,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(
@@ -173,6 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           height: 40.0,
           child: TextField(
+            key: Key('password'),
             controller: passwordControl,
             obscureText: true,
             style: TextStyle(
@@ -241,6 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: EdgeInsets.symmetric(vertical: 25.0),
       width: double.infinity,
       child: RaisedButton(
+        key: Key('login'),
         elevation: 5.0,
         onPressed: () {
           authentication();
@@ -402,6 +405,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: <Widget>[
                       Text(
                         'Sign In',
+                        key: Key('signin'),
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: 'OpenSans',
