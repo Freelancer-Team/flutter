@@ -68,7 +68,6 @@ class RecomendedPage extends State<HomePage> {
       RecB[3][1] = array[7]['price'];
       RecB[3][2] = array[7]['id'];
     });
-    return response;
   }
 
   void initState() {

@@ -13,6 +13,7 @@ class PublishPage extends StatefulWidget {
 }
 
 class _PublishState extends State<PublishPage> {
+  String token;
   double width;
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
@@ -40,7 +41,8 @@ class _PublishState extends State<PublishPage> {
     try {
       String url = "${Url.url_prefix}/saveJob";
       var res = await http.post(Uri.encodeFull(url), headers: {
-        "content-type": "application/json"
+        "content-type": "application/json",
+        "Authorization": "$token"
       }, body: json.encode({
         "skills":selSkills,
         "title":_title,
@@ -67,6 +69,7 @@ class _PublishState extends State<PublishPage> {
     flutterToast = FlutterToast(context);
   }
   getUserInfo() async {
+    token = await StorageUtil.getStringItem("token");
     String email = await StorageUtil.getStringItem("email");
     String uname = await StorageUtil.getStringItem("username");
     String add = await StorageUtil.getStringItem("address");

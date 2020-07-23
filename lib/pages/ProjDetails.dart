@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:ui';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/pages/apply.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'package:freelancer_flutter/component/SkillChooseModal.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
@@ -12,6 +14,7 @@ import 'package:freelancer_flutter/component/RatingBar.dart';
 import 'package:freelancer_flutter/component/config.dart';
 
 class ProjDetails extends StatefulWidget {
+
   ProjDetails(this.ID);
   var ID;
 
@@ -28,23 +31,24 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   var ID;
   var isLarge;
   var _uid;
+  String token;
   bool isEdit = false;
-  bool isEmproyer = false;
-  bool isEmproyee = false;
+  bool isEmployer = false;
+  bool isEmployee = false;
   bool isLog = false;
-  bool hasEmproyee = false;
+  bool hasEmployee = false;
   TabController mController;
   List<String> tabTitles = ["详情", "竞价", "进度"];
-  final List entries = ['名称', '描述', '薪资', '地址', '人数', '剩余时间', '联系方式'];
+  final List entries = ['名称', '描述', '薪资', '地址', '技能点', '剩余时间', '联系方式'];
   List ProjInfo = [
     'ID',
     '床上睡觉',
     '这是一个钱多事少离家近的好项目',
     '有多少给多少',
-    '床',
+    'address',
     '1',
     '1314',
-    '54749110'
+    'phone'
   ];
   var avgPrice;
   var lowestPrice;
@@ -53,6 +57,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   List AuctionInfo = [];
   List<String> skills = new List();
   List EmployerInfo = ['id', 'name', 'address', 'phone'];
+  List rating = ['暂无', '暂无'];
 
   var array;
   var array2;
@@ -60,6 +65,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   var array4;
   Future<http.Response> fetchPost() async {
     int uid = await StorageUtil.getIntItem("uid");
+    token = await StorageUtil.getStringItem('token');
     if (uid != null)
       setState(() {
         isLog = true;
@@ -67,7 +73,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       });
     var url = "${Url.url_prefix}/getJob?id=" + ID;
     var response = await http
-        .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+        .post(url, headers: {"Accept": "application/json"});
     final data = json.decode(response.body);
     setState(() {
       array = data;
@@ -84,13 +90,13 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       for (int i = 0; i < array['skills'].length; i++) {
         skills.add(array['skills'][i].toString());
       }
-      if (_uid != array['employerId']) {
-        isEmproyer = true;
+      if (_uid == array['employerId']) {
+        isEmployer = true;
       }
     });
     url = "${Url.url_prefix}/getUser?id=" + EmployerInfo[0];
     response = await http
-        .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+        .post(Uri.encodeFull(url), headers: {"Accept": "application/json","Authorization": "$token"});
     final data2 = json.decode(response.body);
     setState(() {
       array2 = data2;
@@ -98,53 +104,57 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       EmployerInfo[3] = array2['phone'];
       ProjInfo[4] = array2['address'];
       ProjInfo[7] = array2['phone'];
+      if (array2['employerRate'] != null && array2['employerRate'] != 'NaN') {
+        rating[0] = array2['employerRate'];
+      }
     });
-    if (UserInfo[0] != "0") {
+    if (UserInfo[0] != "0" && isEmployer) {
       url = "${Url.url_prefix}/getUser?id=" + UserInfo[0];
       response = await http
-          .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+          .post(Uri.encodeFull(url), headers: {"Accept": "application/json","Authorization": "$token"});
       final data3 = json.decode(response.body);
       setState(() {
-        hasEmproyee = true;
+        hasEmployee = true;
         array3 = data3;
         UserInfo[1] = array3['name'];
         UserInfo[2] = array3['phone'];
         UserInfo[3] = array3['email'];
+        if (array3['employeeRate'] != null && array3['employeeRate'] != 'NaN') {
+          rating[1] = array3['employeeRate'];
+        }
       });
     }
-    url = "${Url.url_prefix}/getAuction?jobId=" + ID;
-    response = await http
-        .post(Uri.encodeFull(url), headers: {"Accept": "application/json"});
-    final data4 = json.decode(response.body);
-    setState(() {
-      array4 = data4;
-      for (int i = 0; i < array4.length; i++) {
-        AuctionInfo.add([
-          array4[i]['userName'],
-          array4[i]['price'],
-          array4[i]['description'],
-          array4[i]['userId']
-        ]);
-      }
-    });
+    if (isEmployer) {
+      url = "${Url.url_prefix}/getAuction?jobId=" + ID;
+      response = await http
+          .post(Uri.encodeFull(url), headers: {"Accept": "application/json","Authorization": "$token"});
+      final data4 = json.decode(response.body);
+      setState(() {
+        array4 = data4;
+        for (int i = 0; i < array4.length; i++) {
+          AuctionInfo.add([
+            array4[i]['userName'],
+            array4[i]['price'],
+            array4[i]['description'],
+            array4[i]['userId']
+          ]);
+        }
+      });
+    }
   }
 
   savePost() async {
     var url = "${Url.url_prefix}/saveJob";
     var response = await http.post(url,
-        headers: {"content-type": "application/json"},
+        headers: {"content-type": "application/json,","Authorization": "$token"},
         body: json.encode(array));
   }
 
-  assign(userId,userName) async{
+  assign(userId, userName) async {
     var url = "${Url.url_prefix}/assignJob";
-    var res = await http.post(Uri.encodeFull(url), headers: {
-      "Accept": "application/json"
-    }, body: {
-      "userId":userId,
-      "userName":userName,
-      "jobId":ID
-    });
+    var res = await http.post(Uri.encodeFull(url),
+        headers: {"Accept": "application/json","Authorization": "$token"},
+        body: {"userId": userId, "userName": userName, "jobId": ID});
   }
 
   @override
@@ -166,7 +176,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   String ratingValue;
   String value() {
     if (ratingValue == null) {
-      return '评分：9 分';
+      return '评分：4.5 分';
     } else {
       return '评分：$ratingValue  分';
     }
@@ -180,30 +190,165 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
         builder: (context) {
           return StatefulBuilder(builder:
               (BuildContext context, void Function(void Function()) setState) {
-            return SimpleDialog(title: Text('请评分'),
+            return SimpleDialog(
+                title: Text('请评分'),
                 // 这里传入一个选择器列表即可
+                contentPadding: EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 16.0),
                 children: [
-                  Center(
-                    child: RatingBar(
-                      value: 9,
-                      size: 30,
-                      padding: 5,
-                      nomalImage: 'assets/star_nomal.png',
-                      selectImage: 'assets/star.png',
-                      selectAble: true,
-                      onRatingUpdate: (value) {
-                        setState(() {
-                          ratingValue = value;
-                        });
-                      },
-                      maxRating: 10,
-                      count: 5,
-                    ),
-                  ),
-                  Text(value())
+                  Container(
+                      width: 200,
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.fromLTRB(40.0, 0, 0, 0),
+                            child: RatingBar(
+                              value: 4.5,
+                              size: 30,
+                              padding: 5,
+                              nomalImage: 'assets/star_nomal.png',
+                              selectImage: 'assets/star.png',
+                              selectAble: true,
+                              onRatingUpdate: (value) {
+                                setState(() {
+                                  ratingValue = value;
+                                });
+                              },
+                              maxRating: 5,
+                              count: 5,
+                            ),
+                          ),
+                          Text(value()),
+                          FlatButton(
+//                            color: Colors.blue,
+//                            textColor: Colors.white,
+//                            shape: RoundedRectangleBorder(
+//                                borderRadius: BorderRadius.circular(10)
+//                            ),
+                              child: new Text('确定'),
+                              onPressed: () {
+                                if (isEmployer) {
+                                  array['employerRate'] = ratingValue;
+                                }
+                                if (isEmployee) {
+                                  array['employeeRate'] = ratingValue;
+                                }
+                                savePost();
+                                Navigator.of(context).pop();
+                              }),
+                        ],
+                      )),
                 ]);
           });
         });
+  }
+
+  Widget skillBar() {
+    FlutterToast flutterToast;
+    _showToast() {
+      Widget toast = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25.0),
+          color: Colors.black12,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check),
+            SizedBox(
+              width: 12.0,
+            ),
+            Text("更新技能点成功"),
+          ],
+        ),
+      );
+
+      flutterToast.showToast(
+        child: toast,
+        gravity: ToastGravity.BOTTOM,
+        toastDuration: Duration(seconds: 2),
+      );
+    }
+
+    saveSkills(skills) async {
+//      try {
+//        String url = "${Url.url_prefix}/updateSkills?userId=" + uid.toString();
+//        print(url);print(skills);
+//        var res = await http.post(Uri.encodeFull(url),
+//            headers: {"content-type": "application/json"},
+//            body:  json.encode(skills));
+//        var response = json.decode(res.body);
+//        if (response != null) {
+//          Account.saveUserSkill(response);
+//        }
+//      } catch (e) {
+//        print(e);
+//      }
+    }
+
+    _showSimpleDialog() {
+      onSkillChange(var _skills) {
+        setState(() {
+          skills = _skills;
+        });
+        saveSkills(_skills);
+        Navigator.pop(context);
+        _showToast();
+      }
+
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => SimpleDialog(title: Text('编辑您的专业技能'),
+                  // 这里传入一个选择器列表即可
+                  children: [
+                    SkillDialog(
+                      skillChoose: this.skills,
+                      onSkillChanged: onSkillChange,
+                    ),
+                  ]));
+    }
+
+    List<Widget> skillManageList = skills
+        .map((skill) => Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25.0),
+                color: Colors.black54,
+              ),
+              child:
+                  Text(skill, style: TextStyle(height: 1, color: Colors.white)),
+            ))
+        .toList();
+    skillManageList.add(Container(
+      child: SizedOverflowBox(
+        size: Size(32, 32),
+        alignment: Alignment.center,
+        child: Offstage(
+          offstage: !isEdit,
+          child: IconButton(
+            // action button
+            icon: new Icon(Icons.add_circle),
+            padding: const EdgeInsets.all(0),
+            onPressed: () {
+              _showSimpleDialog();
+            },
+          ),
+        ),
+      ),
+    ));
+
+    return Container(
+        child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 30),
+      child: Wrap(
+        children: skillManageList,
+      ),
+    ));
   }
 
   Widget _detail() {
@@ -211,55 +356,74 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       padding: const EdgeInsets.all(8),
       itemCount: entries.length,
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-            padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-            alignment: Alignment.centerLeft,
-            constraints: BoxConstraints(minHeight: 68),
-            child: Row(
-              children: [
-                Container(
-                  width: 100,
-                  alignment: AlignmentDirectional.center,
-                  child: Text(
-                    '${entries[index]}：',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-                Expanded(
-                    child: Stack(
-                  children: [
-                    Offstage(
-                      offstage: !isEdit,
-                      child: TextFormField(
-                        autofocus: true,
-                        controller: TextEditingController()
-                          ..text = '${ProjInfo[index + 1]}',
-                        decoration: InputDecoration(
-                          disabledBorder: InputBorder.none,
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                              borderSide: BorderSide(
-                                width: 0.5,
-                              )),
-                        ),
-                        enabled: isEdit,
-                        textAlignVertical: TextAlignVertical.center,
-                        onFieldSubmitted: (value) {
-                          ProjInfo[index + 1] = value;
-                        },
-                      ),
+        if (index == 4)
+          return Container(
+              padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+              alignment: Alignment.centerLeft,
+              constraints: BoxConstraints(minHeight: 68),
+              child: Row(
+                children: [
+                  Container(
+                    width: 100,
+                    alignment: AlignmentDirectional.center,
+                    child: Text(
+                      '${entries[index]}：',
+                      style: TextStyle(fontSize: 18),
                     ),
-                    Offstage(
-                      offstage: isEdit,
-                      child: Text(
-                        '${ProjInfo[index + 1]}',
-                        style: TextStyle(fontSize: 16),
+                  ),
+                  Expanded(child: skillBar())
+                ],
+              ));
+        else
+          return Container(
+              padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+              alignment: Alignment.centerLeft,
+              constraints: BoxConstraints(minHeight: 68),
+              child: Row(
+                children: [
+                  Container(
+                    width: 100,
+                    alignment: AlignmentDirectional.center,
+                    child: Text(
+                      '${entries[index]}：',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                  Expanded(
+                      child: Stack(
+                    children: [
+                      Offstage(
+                        offstage: !isEdit,
+                        child: TextFormField(
+                          autofocus: true,
+                          controller: TextEditingController()
+                            ..text = '${ProjInfo[index + 1]}',
+                          decoration: InputDecoration(
+                            disabledBorder: InputBorder.none,
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                                borderSide: BorderSide(
+                                  width: 0.5,
+                                )),
+                          ),
+                          enabled: isEdit,
+                          textAlignVertical: TextAlignVertical.center,
+                          onFieldSubmitted: (value) {
+                            ProjInfo[index + 1] = value;
+                          },
+                        ),
                       ),
-                    )
-                  ],
-                ))
-              ],
-            ));
+                      Offstage(
+                        offstage: isEdit,
+                        child: Text(
+                          '${ProjInfo[index + 1]}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      )
+                    ],
+                  ))
+                ],
+              ));
       },
       separatorBuilder: (BuildContext context, int index) =>
           Container(height: 1.0, color: Colors.grey),
@@ -270,93 +434,116 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     return Stack(
       children: [
         Offstage(
-          offstage: !isEmproyer,
-          child: Stack(
-            children: [
-              Offstage(
-                offstage: AuctionInfo.length!=0,
-                child: Column(
-                  children: [
-                    Container(
-                      height: 200,
-                    ),
-                    Center(
-                      child: Text('暂无',style: TextStyle(fontSize: 22)),
-                    )
-                  ],
+            offstage: !isEmployer,
+            child: Stack(
+              children: [
+                Offstage(
+                  offstage: hasEmployee,
+                  child: Stack(
+                    children: [
+                      Offstage(
+                        offstage: AuctionInfo.length != 0,
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 200,
+                            ),
+                            Center(
+                              child: Text('暂无', style: TextStyle(fontSize: 22)),
+                            )
+                          ],
+                        ),
+                      ),
+                      ListView.separated(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: AuctionInfo.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                              alignment: Alignment.centerLeft,
+                              padding:
+                                  EdgeInsets.fromLTRB(0.15 * width, 8, 0, 8),
+                              height: 100,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.fromLTRB(0, 0, 0.05 * width, 0),
+                                    child: Image(
+                                      image: AssetImage("assets/notFind.jpeg"),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 0.75 * width,
+                                    child: Column(
+                                      children: [
+                                        Text('Name：${AuctionInfo[index][0]}'),
+                                        Text('Price：${AuctionInfo[index][1]}'),
+                                        Text('Message：${AuctionInfo[index][2]}')
+                                      ],
+                                    ),
+                                  ),
+                                  MaterialButton(
+                                    color: Colors.blue,
+                                    textColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Text('选Ta'),
+                                    onPressed: () {
+                                      showDialog<Null>(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return new AlertDialog(
+                                            title: new Text('确定让他接取你的工作？'),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                child: new Text('取消'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              FlatButton(
+                                                child: new Text('确定'),
+                                                onPressed: () {
+                                                  assign(
+                                                      AuctionInfo[index][3]
+                                                          .toString(),
+                                                      AuctionInfo[index][0]);
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                  )
+                                ],
+                              ));
+                        },
+                        separatorBuilder: (BuildContext context, int index) =>
+                            Container(height: 1.0, color: Colors.grey),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              ListView.separated(
-                padding: const EdgeInsets.all(8),
-                itemCount: AuctionInfo.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.fromLTRB(0.15*width, 8, 0, 8),
-                      height: 100,
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.fromLTRB(0, 0, 0.05*width, 0),
-                            child: Image(
-                              image: AssetImage("assets/notFind.jpeg"),
-                            ),
-                          ),
-                          Container(
-                            width: 0.75*width,
-                            child: Column(
-                              children: [
-                                Text('Name：${AuctionInfo[index][0]}'),
-                                Text('Price：${AuctionInfo[index][1]}'),
-                                Text('Message：${AuctionInfo[index][2]}'),
-                              ],
-                            ),
-                          ),
-                          MaterialButton(
-                            color: Colors.blue,
-                            textColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)
-                            ),
-                            child: Text('选Ta'),
-                            onPressed: (){
-                              showDialog<Null>(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (BuildContext context) {
-                                  return new AlertDialog(
-                                    title: new Text('确定让他接取你的工作？'),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                        child: new Text('取消'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      FlatButton(
-                                        child: new Text('确定'),
-                                        onPressed: () {
-                                          assign(AuctionInfo[index][3].toString(),AuctionInfo[index][0]);
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          )
-                        ],
-                      ));
-                },
-                separatorBuilder: (BuildContext context, int index) =>
-                    Container(height: 1.0, color: Colors.grey),
-              )
-            ],
-          ),
-        ),
+                Offstage(
+                  offstage: !hasEmployee,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 200,
+                      ),
+                      Center(
+                        child: Text('已有人接单', style: TextStyle(fontSize: 22)),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            )),
         Offstage(
-          offstage: isEmproyer,
+          offstage: isEmployer,
           child: Column(
             children: [
               Container(
@@ -413,11 +600,10 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
               Container(
                 height: 50,
                 child: FlatButton(
-                  color: Colors.blue,
+                    color: Colors.blue,
                     textColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)
-                    ),
+                        borderRadius: BorderRadius.circular(10)),
                     child: new Text('评分'),
                     onPressed: () {
                       _showRatingDialog();
@@ -445,7 +631,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
             centerTitle: false,
             actions: <Widget>[
               Offstage(
-                offstage: isEmproyer,
+                offstage: isEmployer,
                 child: FlatButton(
                   child: new Text(
                     '我想试试',
@@ -463,7 +649,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                 ),
               ),
               Offstage(
-                  offstage: !isEmproyer,
+                  offstage: !isEmployer,
                   child: IconButton(
                     icon: Icon(Icons.edit),
                     onPressed: () {
@@ -516,7 +702,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                     if (item == "详情")
                       return _detail();
                     else if (item == "竞价") {
-                      return _auction(0.7*width);
+                      return _auction(0.7 * width);
                     } else
                       return _process(width);
                   }).toList(),
@@ -531,7 +717,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     return Stack(
       children: [
         Offstage(
-          offstage: isEmproyer,
+          offstage: isEmployer,
           child: Card(
             child: Column(
               children: <Widget>[
@@ -546,14 +732,28 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                             height: 200,
                             child: Column(
                               children: [
-                                Text(
-                                  '发布公司/个人',
-                                  style: TextStyle(fontSize: 22),
+                                Container(
+                                  height: 50,
+                                  child: Text(
+                                    '发布公司/个人',
+                                    style: TextStyle(fontSize: 22),
+                                  ),
                                 ),
 //                                Image(),
-                                Text('${EmployerInfo[1]}'),
-                                Text('${EmployerInfo[2]}'),
-                                Text('${EmployerInfo[3]}'),
+                                Container(
+                                    height: 120,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Text('名称：${EmployerInfo[1]}',
+                                            style: TextStyle(fontSize: 16)),
+                                        Text('地址：${EmployerInfo[2]}',
+                                            style: TextStyle(fontSize: 16)),
+                                        Text('联系方式：${EmployerInfo[3]}',
+                                            style: TextStyle(fontSize: 16)),
+                                      ],
+                                    ))
                               ],
                             ));
                       else if (index == 1)
@@ -562,7 +762,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                             height: 80,
                             child: Column(
                               children: [
-                                Text('认证信息'),
+                                Text('认证信息', style: TextStyle(fontSize: 20)),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -580,7 +780,18 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                             alignment: Alignment.center,
                             height: 80,
                             child: Column(
-                              children: [Text('评分')],
+                              children: [
+                                Text('历史评分', style: TextStyle(fontSize: 20)),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  '${rating[0]}',
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
                             ));
                     },
                     separatorBuilder: (BuildContext context, int index) =>
@@ -592,79 +803,93 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
           ),
         ),
         Offstage(
-          offstage: !isEmproyer,
+          offstage: !isEmployer,
           child: Card(
-            child: Stack(
-              children: [
-                Offstage(
-                  offstage: !hasEmproyee,
-                  child: Column(
-                    children: <Widget>[
-                      Expanded(
-                        child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
-                          itemCount: 2,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (index == 0)
-                              return Container(
-                                  alignment: Alignment.center,
-                                  height: 200,
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        '接单人',
-                                        style: TextStyle(fontSize: 22),
+              child: Stack(
+            children: [
+              Offstage(
+                offstage: !hasEmployee,
+                child: Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
+                        itemCount: 2,
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == 0)
+                            return Container(
+                                alignment: Alignment.center,
+                                height: 200,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '接单人',
+                                      style: TextStyle(fontSize: 22),
+                                    ),
+                                    Container(
+                                      height: 80,
+                                      child: Image(
+                                        image:
+                                            AssetImage("assets/notFind.jpeg"),
                                       ),
-                                      Container(
-                                        height: 80,
-                                        child: Image(
-                                          image: AssetImage("assets/notFind.jpeg"),
-                                        ),
-                                      ),
-                                      Expanded(
-                                          child: ListView.builder(
-                                              padding: const EdgeInsets.all(8),
-                                              itemCount: entries2.length,
-                                              itemBuilder:
-                                                  (BuildContext context, int index) {
-                                                return Container(
-                                                  height: 20,
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                      '${entries2[index]}: ${UserInfo[index + 1]}'),
-                                                );
-                                              })),
-                                    ],
-                                  ));
-                            else
-                              return Container(
-                                  alignment: Alignment.center,
-                                  height: 80,
-                                  child: Column(
-                                    children: [Text('评分')],
-                                  ));
-                          },
-                          separatorBuilder: (BuildContext context, int index) =>
-                              Container(height: 1.0, color: Colors.grey),
-                        ),
+                                    ),
+                                    Expanded(
+                                        child: ListView.builder(
+                                            padding: const EdgeInsets.all(8),
+                                            itemCount: entries2.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return Container(
+                                                height: 20,
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                    '${entries2[index]}: ${UserInfo[index + 1]}',
+                                                    style: TextStyle(
+                                                        fontSize: 16)),
+                                              );
+                                            })),
+                                  ],
+                                ));
+                          else
+                            return Container(
+                                alignment: Alignment.center,
+                                height: 80,
+                                child: Column(
+                                  children: [
+                                    Text('历史评分',
+                                        style: TextStyle(fontSize: 20)),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Text(
+                                      '${rating[1]}',
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ));
+                        },
+                        separatorBuilder: (BuildContext context, int index) =>
+                            Container(height: 1.0, color: Colors.grey),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Offstage(
-                  offstage: hasEmproyee,
-                  child: Container(
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          Text('接单人', style: TextStyle(fontSize: 22)),
-                          Text('暂无接单人', style: TextStyle(fontSize: 20))
-                        ],
-                      )),
-                )
-              ],
-            )
-          ),
+              ),
+              Offstage(
+                offstage: hasEmployee,
+                child: Container(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Text('接单人', style: TextStyle(fontSize: 22)),
+                        Text('暂无接单人', style: TextStyle(fontSize: 20))
+                      ],
+                    )),
+              )
+            ],
+          )),
         )
       ],
     );
@@ -725,7 +950,6 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                     Container(
                         constraints:
                             BoxConstraints(minHeight: 100, maxHeight: 700),
-//                        height: 700,
                         padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                         child: _card1(width)),
                     Container(

@@ -1,6 +1,9 @@
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 
 class Account {
+  static saveToken(response) {
+    StorageUtil.setStringItem("token", response);
+  }
   static saveUserInfo(response) {
     List<String> resToSL(res) {
       int l = res.length;
