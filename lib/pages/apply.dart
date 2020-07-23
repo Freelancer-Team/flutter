@@ -25,6 +25,8 @@ class ApplyPage extends StatefulWidget {
 }
 
 class _ApplyState extends State<ApplyPage> {
+  String token;
+
   _ApplyState(this._jid,this._title,this._budget,this._neededSkills);
 
   double width;
@@ -71,7 +73,7 @@ class _ApplyState extends State<ApplyPage> {
       String url = "${Url.url_prefix}/updateSkills?userId=" + _uid.toString();
       print(url);print(skills);
       var res = await http.post(Uri.encodeFull(url),
-          headers: {"content-type": "application/json"},
+          headers: {"content-type": "application/json","Authorization": "$token"},
           body:  json.encode(skills));
       var response = json.decode(res.body);
       if (response != null) {
@@ -85,7 +87,7 @@ class _ApplyState extends State<ApplyPage> {
     try {
       String url = "${Url.url_prefix}/applyJob";
       var res = await http.post(Uri.encodeFull(url), headers: {
-        "Accept": "application/json;charset=UTF-8"
+        "Accept": "application/json;charset=UTF-8","Authorization": "$token"
       }, body: {
         "userId":_uid.toString(),
         "jobId":_jid,
@@ -135,6 +137,7 @@ class _ApplyState extends State<ApplyPage> {
   }
 
   getUserInfo() async {
+    token = await StorageUtil.getStringItem('token');
     String email = await StorageUtil.getStringItem("email");
     String uname = await StorageUtil.getStringItem("username");
     String add = await StorageUtil.getStringItem("address");

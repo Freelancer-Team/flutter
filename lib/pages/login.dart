@@ -77,9 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response != null) {
         trueEmail = "YE";
         truePass = "YP";
-        print(response);print(response["skills"]);
-
-        Account.saveUserInfo(response);
+        Account.saveUserInfo(response["user"]);
+        Account.saveToken(response["token"]);
       }
     } catch (e) {
       print("error name or password");
