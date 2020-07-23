@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/component/SkillChooseModal.dart';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'ProjDetails.dart';
+import 'package:freelancer_flutter/component/config.dart';
 
 class PublishPage extends StatefulWidget {
   @override
@@ -8,6 +13,7 @@ class PublishPage extends StatefulWidget {
 }
 
 class _PublishState extends State<PublishPage> {
+  String token;
   double width;
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
@@ -16,9 +22,11 @@ class _PublishState extends State<PublishPage> {
 
   String _title;
   String _owner;
+  int _oid;
   String _address;
-  String _min;
-  String _max;
+//  String _min;
+//  String _max;
+  String _budget;
   String _description;
   DateTime _ddl;
 
@@ -26,23 +34,58 @@ class _PublishState extends State<PublishPage> {
     final form = formKey.currentState;
     if (form.validate() && _ddl != null) {
       form.save();
-      performLogin();
+      saveJob();
     }
   }
-
-  void performLogin() {
-    final snackbar = new SnackBar(
-      content: new Text("Title: $_title, desc : $_description"),
-    );
-    scaffoldKey.currentState.showSnackBar(snackbar);
+  saveJob() async {
+    try {
+      String url = "${Url.url_prefix}/saveJob";
+      var res = await http.post(Uri.encodeFull(url), headers: {
+        "content-type": "application/json",
+        "Authorization": "$token"
+      }, body: json.encode({
+        "skills":selSkills,
+        "title":_title,
+        "description":_description,
+        "price":_budget,
+        "remaining_time":_ddl.toIso8601String(),
+        "employeeName":_owner,
+        "employeeId":_oid.toString(),
+      }));
+      var response = json.decode(res.body);
+      if (response != null) {
+        await _showToast(true);
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(response["id"])));
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    getUserInfo();
     flutterToast = FlutterToast(context);
   }
+  getUserInfo() async {
+    token = await StorageUtil.getStringItem("token");
+    String email = await StorageUtil.getStringItem("email");
+    String uname = await StorageUtil.getStringItem("username");
+    String add = await StorageUtil.getStringItem("address");
+    String phone = await StorageUtil.getStringItem("phone");
+    int uid = await StorageUtil.getIntItem("uid");
 
+    if (uid != null) {
+      setState(() {
+//        _email = email;
+        _owner = uname;
+        _address = add;
+//        _tel = phone;
+        _oid=uid;
+      });
+    }
+  }
   _showToast(bool t) {
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
@@ -57,7 +100,7 @@ class _PublishState extends State<PublishPage> {
           SizedBox(
             width: 12.0,
           ),
-          Text(t?"Update Successfully":"At Most 5 Skills"),
+          Text(t?"Success":"At Most 5 Skills"),
         ],
       ),
     );
@@ -171,16 +214,27 @@ class _PublishState extends State<PublishPage> {
                     validator: (val) =>
                         val.length < 2 ? 'Please input your name' : null,
                     onSaved: (val) => _owner = val,
+                        controller: _owner==null?null:new TextEditingController(text: '$_owner'),
                   ))
                 ]),
                 new TextFormField(
                   decoration: new InputDecoration(labelText: "Address"),
                   validator: (val) =>
-                      val.length < 6 ? 'Please enter work location' : null,
+                      val.length < 4 ? 'Please enter work location' : null,
                   onSaved: (val) => _address = val,
+                  controller: _address==null?null:new TextEditingController(text: '$_address'),
                 ),
                 new Padding(
                   padding: const EdgeInsets.only(top: 40.0),
+                ),
+                new TextFormField(
+                  decoration: new InputDecoration(labelText: "Budget"),
+                  validator: (val) =>
+                  val.length < 1 ? 'Please enter your budget' : null,
+                  onSaved: (val) => _budget = val,
+                ),
+                new Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
                 ),
                 new Align(
                     alignment: new FractionalOffset(0.0, 0.0),
@@ -190,26 +244,24 @@ class _PublishState extends State<PublishPage> {
                     child: Wrap(
                       children: skillManageList,
                     )),
-                new Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                ),
-                new Align(
-                    alignment: new FractionalOffset(0.0, 0.0),
-                    child:
-                        new Text('Budget：若不填写max，则默认无上限，不填写min，则默认下限为0，均不填则为面议')),
-                Row(children: <Widget>[
-                  new Expanded(
-                      child: TextFormField(
-                    decoration: new InputDecoration(labelText: "Min"),
-                    onSaved: (val) => _min = val,
-                  )),
-                  new Text('  '),
-                  new Expanded(
-                      child: TextFormField(
-                    decoration: new InputDecoration(labelText: "Max"),
-                    onSaved: (val) => _max = val,
-                  ))
-                ]),
+
+//                new Align(
+//                    alignment: new FractionalOffset(0.0, 0.0),
+//                    child:
+//                        new Text('Budget：若不填写max，则默认无上限，不填写min，则默认下限为0，均不填则为面议')),
+//                Row(children: <Widget>[
+//                  new Expanded(
+//                      child: TextFormField(
+//                    decoration: new InputDecoration(labelText: "Min"),
+//                    onSaved: (val) => _min = val,
+//                  )),
+//                  new Text('  '),
+//                  new Expanded(
+//                      child: TextFormField(
+//                    decoration: new InputDecoration(labelText: "Max"),
+//                    onSaved: (val) => _max = val,
+//                  ))
+//                ]),
                 new Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                 ),
