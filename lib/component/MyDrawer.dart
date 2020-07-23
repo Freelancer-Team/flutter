@@ -126,14 +126,14 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           ListTile(
             title: Text(
-              "Dashboard",
+              "SystemAdmin",
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             ),
             leading: Icon(
               Icons.dashboard,
               color: Colors.black,
             ),
-            onTap: () {},
+            onTap: () {Navigator.pushNamed(context, '/admin');},
           ),
           Divider(
             height: 12.0,

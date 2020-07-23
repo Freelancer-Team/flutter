@@ -347,9 +347,9 @@ class _ProjectInfoState extends State<ProjectInfo> {
                           minWidth: 90.0,
                           cornerRadius: 20,
                           activeBgColor: Colors.blue,
-                          activeTextColor: Colors.white,
+                          activeFgColor: Colors.white,
                           inactiveBgColor: Colors.grey,
-                          inactiveTextColor: Colors.white,
+                          inactiveFgColor: Colors.white,
                           labels: ['雇主', '雇员'],
                           icons: [Icons.language, Icons.group],
                           onToggle: (index) {

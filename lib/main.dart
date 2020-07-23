@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freelancer_flutter/pages/admin.dart';
 import 'package:freelancer_flutter/pages/apply.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:freelancer_flutter/pages/publish.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfilePage(),
         '/publish': (context) => PublishPage(),
         '/jobList':(context) => JobListPage(),
+        '/admin': (context) => AdminPage()
 //        '/apply': (context) => HomePage(),
       },
     );
