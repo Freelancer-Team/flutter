@@ -125,6 +125,7 @@ class _RatingBarState extends State<RatingBar> {
 
   Widget buildRowRating() {
     return Container(
+      alignment: AlignmentDirectional.center,
       child: Stack(
         children: <Widget>[
           Row(

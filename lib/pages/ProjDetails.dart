@@ -14,7 +14,6 @@ import 'package:freelancer_flutter/component/RatingBar.dart';
 import 'package:freelancer_flutter/component/config.dart';
 
 class ProjDetails extends StatefulWidget {
-
   ProjDetails(this.ID);
   var ID;
 
@@ -31,6 +30,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   var ID;
   var isLarge;
   var _uid;
+  var _role;
+  var jobstate = 0;
   String token;
   bool isEdit = false;
   bool isEmployer = false;
@@ -42,21 +43,23 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   final List entries = ['名称', '描述', '薪资', '地址', '技能点', '剩余时间', '联系方式'];
   List ProjInfo = [
     'ID',
-    '床上睡觉',
-    '这是一个钱多事少离家近的好项目',
-    '有多少给多少',
-    'address',
+    'Name',
+    'Description',
+    'Price',
+    '登陆后查看',
     '1',
-    '1314',
-    'phone'
+    '剩余时间',
+    '登陆后查看'
   ];
   var avgPrice;
   var lowestPrice;
+  var employerRate = -1.0;
+  var employeeRate = -1.0;
   final List entries2 = ['姓名', '联系方式', '邮箱'];
   List UserInfo = ['id', 'lyb', '54749110', '1@qq.com', '东川路800'];
   List AuctionInfo = [];
   List<String> skills = new List();
-  List EmployerInfo = ['id', 'name', 'address', 'phone'];
+  List EmployerInfo = ['id', 'name', '登陆后查看', '登陆后查看'];
   List rating = ['暂无', '暂无'];
 
   var array;
@@ -65,15 +68,18 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   var array4;
   Future<http.Response> fetchPost() async {
     int uid = await StorageUtil.getIntItem("uid");
-    token = await StorageUtil.getStringItem('token');
+    int role = await StorageUtil.getIntItem("role");
+    String _token = await StorageUtil.getStringItem('token');
     if (uid != null)
       setState(() {
         isLog = true;
         _uid = uid;
+        _role = role;
+        token = _token;
       });
     var url = "${Url.url_prefix}/getJob?id=" + ID;
-    var response = await http
-        .post(url, headers: {"Accept": "application/json"});
+    var response =
+        await http.post(url, headers: {"Accept": "application/json"});
     final data = json.decode(response.body);
     setState(() {
       array = data;
@@ -87,31 +93,47 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       UserInfo[0] = array['employeeId'].toString();
       avgPrice = array['avgPrice'];
       lowestPrice = array['lowestPrice'];
+      if (array['employerRate'] != null && array['employerRate'] != 'NaN') {
+        employerRate = array['employerRate'];
+      }
+      if (array['employeeRate'] != null && array['employeeRate'] != 'NaN') {
+        employeeRate = array['employeeRate'];
+      }
       for (int i = 0; i < array['skills'].length; i++) {
         skills.add(array['skills'][i].toString());
       }
       if (_uid == array['employerId']) {
         isEmployer = true;
       }
+      if (_uid == array['employeeId']) {
+        isEmployee = true;
+      }
+      if (UserInfo[0] != 0) {
+        hasEmployee = true;
+      }
     });
+
     url = "${Url.url_prefix}/getUser?id=" + EmployerInfo[0];
-    response = await http
-        .post(Uri.encodeFull(url), headers: {"Accept": "application/json","Authorization": "$token"});
+    response = await http.post(Uri.encodeFull(url),
+        headers: {"Accept": "application/json", "Authorization": "$token"});
     final data2 = json.decode(response.body);
     setState(() {
       array2 = data2;
-      EmployerInfo[2] = array2['address'];
-      EmployerInfo[3] = array2['phone'];
-      ProjInfo[4] = array2['address'];
-      ProjInfo[7] = array2['phone'];
+      if (array2['status'] != 500) {
+        EmployerInfo[2] = array2['address'];
+        EmployerInfo[3] = array2['phone'];
+        ProjInfo[4] = array2['address'];
+        ProjInfo[7] = array2['phone'];
+      }
       if (array2['employerRate'] != null && array2['employerRate'] != 'NaN') {
         rating[0] = array2['employerRate'];
       }
     });
-    if (UserInfo[0] != "0" && isEmployer) {
+
+    if (UserInfo[0] != "0" && (isEmployer||_role == 1)) {
       url = "${Url.url_prefix}/getUser?id=" + UserInfo[0];
-      response = await http
-          .post(Uri.encodeFull(url), headers: {"Accept": "application/json","Authorization": "$token"});
+      response = await http.post(Uri.encodeFull(url),
+          headers: {"Accept": "application/json", "Authorization": "$token"});
       final data3 = json.decode(response.body);
       setState(() {
         hasEmployee = true;
@@ -126,8 +148,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     }
     if (isEmployer) {
       url = "${Url.url_prefix}/getAuction?jobId=" + ID;
-      response = await http
-          .post(Uri.encodeFull(url), headers: {"Accept": "application/json","Authorization": "$token"});
+      response = await http.post(Uri.encodeFull(url),
+          headers: {"Accept": "application/json", "Authorization": "$token"});
       final data4 = json.decode(response.body);
       setState(() {
         array4 = data4;
@@ -146,14 +168,17 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   savePost() async {
     var url = "${Url.url_prefix}/saveJob";
     var response = await http.post(url,
-        headers: {"content-type": "application/json,","Authorization": "$token"},
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "$token"
+        },
         body: json.encode(array));
   }
 
   assign(userId, userName) async {
     var url = "${Url.url_prefix}/assignJob";
     var res = await http.post(Uri.encodeFull(url),
-        headers: {"Accept": "application/json","Authorization": "$token"},
+        headers: {"Accept": "application/json", "Authorization": "$token"},
         body: {"userId": userId, "userName": userName, "jobId": ID});
   }
 
@@ -173,7 +198,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     mController.dispose();
   }
 
-  String ratingValue;
+  var ratingValue;
   String value() {
     if (ratingValue == null) {
       return '评分：4.5 分';
@@ -220,11 +245,6 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                           ),
                           Text(value()),
                           FlatButton(
-//                            color: Colors.blue,
-//                            textColor: Colors.white,
-//                            shape: RoundedRectangleBorder(
-//                                borderRadius: BorderRadius.circular(10)
-//                            ),
                               child: new Text('确定'),
                               onPressed: () {
                                 if (isEmployer) {
@@ -467,7 +487,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                               child: Row(
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.fromLTRB(0, 0, 0.05 * width, 0),
+                                    padding: EdgeInsets.fromLTRB(
+                                        0, 0, 0.05 * width, 0),
                                     child: Image(
                                       image: AssetImage("assets/notFind.jpeg"),
                                     ),
@@ -556,11 +577,11 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                   child: Column(
                     children: [
                       Text(
-                        "当前平均价: ${avgPrice}",
+                        "当前平均价: $avgPrice",
                         style: TextStyle(fontSize: 20),
                       ),
                       Text(
-                        "当前最低价: ${lowestPrice}",
+                        "当前最低价: $lowestPrice",
                         style: TextStyle(fontSize: 20),
                       )
                     ],
@@ -576,41 +597,180 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
 
   Widget _process(width) {
     return Column(children: [
-      Container(
-        height: 300,
-        child: Center(
+      Offstage(
+          offstage: isEmployee || isEmployer,
           child: Column(
             children: [
               Container(
-                width: 0.6 * width,
-                child: LinearPercentIndicator(
-                  animation: true,
-                  animationDuration: 1000,
-                  lineHeight: 20.0,
-                  leading: new Text("7月16日"),
-                  trailing: new Text("7月26日"),
-                  percent: 0.4,
-                  center: Text('7月20日(' + (0.4 * 100).toString() + '%)'),
-                  linearStrokeCap: LinearStrokeCap.roundAll,
-                  progressColor: Colors.blue,
-                ),
+                height: 200,
               ),
-              SizedBox(
-                height: 50,
-              ),
-              Container(
-                height: 50,
-                child: FlatButton(
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    child: new Text('评分'),
-                    onPressed: () {
-                      _showRatingDialog();
-                    }),
-              ),
+              Text("无法查看", style: TextStyle(fontSize: 22))
             ],
+          )),
+      Offstage(
+        offstage: !isEmployee && !isEmployer,
+        child: Container(
+          height: 300,
+          child: Center(
+            child: Column(
+              children: [
+                Container(
+                  width: 0.6 * width,
+                  child: LinearPercentIndicator(
+                    animation: true,
+                    animationDuration: 1000,
+                    lineHeight: 20.0,
+                    leading: new Text("7月16日"),
+                    trailing: new Text("7月26日"),
+                    percent: 0.4,
+                    center: Text('7月20日(' + (0.4 * 100).toString() + '%)'),
+                    linearStrokeCap: LinearStrokeCap.roundAll,
+                    progressColor: Colors.blue,
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                Offstage(
+                  offstage: isEmployer,
+                  child: Column(
+                    children: [
+                      Offstage(
+                        offstage: employeeRate != -1.0,
+                        child: Container(
+                          height: 50,
+                          child: FlatButton(
+                              color: Colors.blue,
+                              textColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: new Text('评分'),
+                              onPressed: () {
+                                _showRatingDialog();
+                              }),
+                        ),
+                      ),
+                      Offstage(
+                          offstage: employeeRate == -1.0,
+                          child: Column(
+                            children: [
+                              Container(
+                                padding:
+                                    EdgeInsets.fromLTRB(0.4 * width, 8, 0, 8),
+                                child: RatingBar(
+                                  value: employeeRate,
+                                  size: 30,
+                                  padding: 5,
+                                  nomalImage: 'assets/star_nomal.png',
+                                  selectImage: 'assets/star.png',
+                                  selectAble: false,
+                                  maxRating: 5,
+                                  count: 5,
+                                ),
+                              ),
+                              Text("你的评分：$employeeRate分"),
+                              Offstage(
+                                offstage: employerRate == -1.0,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.fromLTRB(
+                                          0.4 * width, 8, 0, 8),
+                                      child: RatingBar(
+                                        value: employerRate,
+                                        size: 30,
+                                        padding: 5,
+                                        nomalImage: 'assets/star_nomal.png',
+                                        selectImage: 'assets/star.png',
+                                        selectAble: false,
+                                        maxRating: 5,
+                                        count: 5,
+                                      ),
+                                    ),
+                                    Text("雇主评分：$employerRate分")
+                                  ],
+                                ),
+                              ),
+                              Offstage(
+                                  offstage: employeeRate != -1.0,
+                                  child: Text("雇主未评分")
+                              )
+                            ],
+                          ))
+                    ],
+                  ),
+                ),
+                Offstage(
+                  offstage: isEmployee,
+                  child: Column(
+                    children: [
+                      Offstage(
+                        offstage: employerRate != -1.0,
+                        child: Container(
+                          height: 50,
+                          child: FlatButton(
+                              color: Colors.blue,
+                              textColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: new Text('评分'),
+                              onPressed: () {
+                                _showRatingDialog();
+                              }),
+                        ),
+                      ),
+                      Offstage(
+                          offstage: employerRate == -1.0,
+                          child: Column(
+                            children: [
+                              Container(
+                                padding:
+                                    EdgeInsets.fromLTRB(0.4 * width, 8, 0, 8),
+                                child: RatingBar(
+                                  value: employerRate,
+                                  size: 30,
+                                  padding: 5,
+                                  nomalImage: 'assets/star_nomal.png',
+                                  selectImage: 'assets/star.png',
+                                  selectAble: false,
+                                  maxRating: 5,
+                                  count: 5,
+                                ),
+                              ),
+                              Text("你的评分：$employerRate分"),
+                              Offstage(
+                                offstage: employeeRate == -1.0,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.fromLTRB(
+                                          0.4 * width, 8, 0, 8),
+                                      child: RatingBar(
+                                        value: employeeRate,
+                                        size: 30,
+                                        padding: 5,
+                                        nomalImage: 'assets/star_nomal.png',
+                                        selectImage: 'assets/star.png',
+                                        selectAble: false,
+                                        maxRating: 5,
+                                        count: 5,
+                                      ),
+                                    ),
+                                    Text("雇员评分：$employeeRate分")
+                                  ],
+                                ),
+                              ),
+                              Offstage(
+                                offstage: employeeRate != -1.0,
+                                  child: Text("雇员未评分")
+                                )
+                            ],
+                          ))
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -633,26 +793,46 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
             centerTitle: false,
             actions: <Widget>[
               Offstage(
-                offstage: isEmployer,
-                child: FlatButton(
-                  key: Key("apply"),
-                  child: new Text(
-                    '我想试试',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    !isLog
-                        ? Navigator.pushNamed(context, "/login")
-                        : Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ApplyPage(ProjInfo[0],
-                                    ProjInfo[1], ProjInfo[3], skills)));
-                  },
-                ),
-              ),
+                  offstage: isEmployer,
+                  child: Offstage(
+                    offstage: !(jobstate == 0) || isEmployee,
+                    child: FlatButton(
+                      key: Key("apply"),
+                      child: new Text(
+                        '我想试试',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        if (hasEmployee) {
+                          showDialog(
+                              context: context,
+                              builder: (context) => SimpleDialog(
+                                    title: Text('已有人接单'),
+                                    children: [
+                                      FlatButton(
+                                          child: new Text('确定'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          }),
+                                    ],
+                                  ));
+                        } else {
+                          !isLog
+                              ? Navigator.pushNamed(context, "/login")
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ApplyPage(
+                                          ProjInfo[0],
+                                          ProjInfo[1],
+                                          ProjInfo[3],
+                                          skills)));
+                        }
+                      },
+                    ),
+                  )),
               Offstage(
-                  offstage: !isEmployer,
+                  offstage: !isEmployer || hasEmployee,
                   child: IconButton(
                     key: Key('edit'),
                     icon: Icon(Icons.edit),
@@ -784,7 +964,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                       else
                         return Container(
                             alignment: Alignment.center,
-                            height: 80,
+                            height: 100,
                             child: Column(
                               children: [
                                 Text('历史评分', style: TextStyle(fontSize: 20)),
@@ -859,7 +1039,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                           else
                             return Container(
                                 alignment: Alignment.center,
-                                height: 80,
+                                height: 100,
                                 child: Column(
                                   children: [
                                     Text('历史评分',
