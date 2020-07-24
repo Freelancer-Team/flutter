@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/theme/constants.dart';
 import 'package:freelancer_flutter/pages/login.dart';
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:freelancer_flutter/component/config.dart';
 
 class signUpScreen extends StatefulWidget {
   @override
@@ -88,7 +88,7 @@ class _signUpScreenState extends State<signUpScreen> {
     flutterToast = FlutterToast(context);
   }
   insertData() async {
-    String url = "http://localhost:8080/signup";
+    String url = "${Url.url_prefix}/signup";
     var res = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     }, body: {

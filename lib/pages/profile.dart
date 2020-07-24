@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:freelancer_flutter/component/ProjectTables.dart';
+import 'package:freelancer_flutter/component/config.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -119,6 +120,7 @@ class UserInfo extends StatefulWidget {
 class _UserInfoState extends State<UserInfo> {
   List<String> _skills =
       []; //= ["Java", "C++", "JavaScript", "Dart", "Python"];
+  String token;
   String email, username, desc;
   String date, address, gender, tel;
   int uid, age;
@@ -126,6 +128,7 @@ class _UserInfoState extends State<UserInfo> {
   FlutterToast flutterToast;
 
   getToken() async {
+    token = await StorageUtil.getStringItem('token');
     String email = await StorageUtil.getStringItem("email");
     String uname = await StorageUtil.getStringItem("username");
     String time = await StorageUtil.getStringItem("time");
@@ -192,10 +195,10 @@ class _UserInfoState extends State<UserInfo> {
 
   saveSkills(skills) async {
     try {
-      String url = "http://localhost:8080/updateSkills?userId=" + uid.toString();
+      String url = "${Url.url_prefix}/updateSkills?userId=" + uid.toString();
       print(url);print(skills);
       var res = await http.post(Uri.encodeFull(url),
-          headers: {"content-type": "application/json"},
+          headers: {"content-type": "application/json","Authorization": "$token"},
           body:  json.encode(skills));
       var response = json.decode(res.body);
       if (response != null) {

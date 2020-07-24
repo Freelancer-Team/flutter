@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/utilities/Skill.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:freelancer_flutter/component/config.dart';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 // The entire multilevel list displayed by this app.
 
 typedef void AddSkillCallback(var skill);
@@ -57,6 +59,7 @@ class SkillDialog extends StatefulWidget {
 }
 
 class _SkillDialogState extends State<SkillDialog> {
+  String token;
   List<String> skillChoose = [];
   List<Entry> data = <Entry>[
     new Entry(" ", <String>[" "])
@@ -86,10 +89,11 @@ class _SkillDialogState extends State<SkillDialog> {
   }
 
   getData() async {
+    token = await StorageUtil.getStringItem('token');
     try {
-      String url = "http://localhost:8080/getSkills";
+      String url = "${Url.url_prefix}/getSkills";
       var res = await http
-          .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+          .get(Uri.encodeFull(url), headers: {"Accept": "application/json","Authorization": "$token"});
       var response = json.decode(res.body);
       int l = response.length;
       int i = 0;

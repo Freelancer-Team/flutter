@@ -6,13 +6,11 @@ import 'package:freelancer_flutter/pages/signup.dart';
 import 'package:freelancer_flutter/pages/home.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
-
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:freelancer_flutter/component/config.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -68,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   authentication() async {
     try {
-      String url = "http://localhost:8080/login";
+      String url = "${Url.url_prefix}/login";
       var res = await http.post(Uri.encodeFull(url), headers: {
         "Accept": "application/json;charset=UTF-8"
       }, body: {
@@ -79,9 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response != null) {
         trueEmail = "YE";
         truePass = "YP";
-        print(response);print(response["skills"]);
-
-        Account.saveUserInfo(response);
+        Account.saveUserInfo(response["user"]);
+        Account.saveToken(response["token"]);
       }
     } catch (e) {
       print("error name or password");
@@ -130,6 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           height: 40.0,
           child: TextField(
+            key: Key('email'),
             controller: emailAddressControl,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(
@@ -176,6 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           height: 40.0,
           child: TextField(
+            key: Key('password'),
             controller: passwordControl,
             obscureText: true,
             style: TextStyle(
@@ -244,6 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: EdgeInsets.symmetric(vertical: 25.0),
       width: double.infinity,
       child: RaisedButton(
+        key: Key('login'),
         elevation: 5.0,
         onPressed: () {
           authentication();
@@ -405,6 +405,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: <Widget>[
                       Text(
                         'Sign In',
+                        key: Key('signin'),
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: 'OpenSans',

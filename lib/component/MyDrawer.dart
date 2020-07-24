@@ -12,17 +12,16 @@ class _MyDrawerState extends State<MyDrawer> {
   String email;
 
   bool isLog = false;
-  String icon = 'unlogin.jpg';
+  String icon = 'assets/unlogin.jpg';
 
   getUser() async {
     String usern = await StorageUtil.getStringItem("username");
     String e = await StorageUtil.getStringItem("email");
-    print("aaa");
     if (usern != null && e != null) {
       setState(() {
         username = usern;
         email = e;
-        icon = 'dragon.jpg';
+        icon = 'assets/dragon.jpg';
         isLog = true;
       });
     } else

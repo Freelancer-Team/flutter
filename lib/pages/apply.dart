@@ -4,6 +4,7 @@ import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:freelancer_flutter/component/config.dart';
 
 import 'ProjDetails.dart';
 class Skill {
@@ -24,6 +25,8 @@ class ApplyPage extends StatefulWidget {
 }
 
 class _ApplyState extends State<ApplyPage> {
+  String token;
+
   _ApplyState(this._jid,this._title,this._budget,this._neededSkills);
 
   double width;
@@ -67,10 +70,10 @@ class _ApplyState extends State<ApplyPage> {
   }
   saveSkills(skills) async {
     try {
-      String url = "http://localhost:8080/updateSkills?userId=" + _uid.toString();
+      String url = "${Url.url_prefix}/updateSkills?userId=" + _uid.toString();
       print(url);print(skills);
       var res = await http.post(Uri.encodeFull(url),
-          headers: {"content-type": "application/json"},
+          headers: {"content-type": "application/json","Authorization": "$token"},
           body:  json.encode(skills));
       var response = json.decode(res.body);
       if (response != null) {
@@ -82,9 +85,9 @@ class _ApplyState extends State<ApplyPage> {
   }
   saveAuction() async {
     try {
-      String url = "http://localhost:8080/applyJob";
+      String url = "${Url.url_prefix}/applyJob";
       var res = await http.post(Uri.encodeFull(url), headers: {
-        "Accept": "application/json;charset=UTF-8"
+        "Accept": "application/json;charset=UTF-8","Authorization": "$token"
       }, body: {
         "userId":_uid.toString(),
         "jobId":_jid,
@@ -134,6 +137,7 @@ class _ApplyState extends State<ApplyPage> {
   }
 
   getUserInfo() async {
+    token = await StorageUtil.getStringItem('token');
     String email = await StorageUtil.getStringItem("email");
     String uname = await StorageUtil.getStringItem("username");
     String add = await StorageUtil.getStringItem("address");
@@ -181,6 +185,7 @@ class _ApplyState extends State<ApplyPage> {
         appBar: AppBar(
           title: Text(
             'Apply for $_title',
+            key: Key('applyTitle'),
             style: TextStyle(
               fontSize: 30.0,
             ),
@@ -301,6 +306,7 @@ class _ApplyState extends State<ApplyPage> {
                           }).toList())
                     ]),
                     new TextFormField(
+                      key: Key('offer'),
                       decoration: new InputDecoration(
                           labelText: "Offer (Expected to be paid $_budget )"),
                       validator: (val) =>
@@ -311,6 +317,7 @@ class _ApplyState extends State<ApplyPage> {
                       padding: const EdgeInsets.only(top: 20.0),
                     ),
                     new TextFormField(
+                      key: Key('applyDes'),
                       decoration: new InputDecoration(labelText: "Description"),
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
@@ -322,6 +329,7 @@ class _ApplyState extends State<ApplyPage> {
                       padding: const EdgeInsets.only(top: 20.0),
                     ),
                     new RaisedButton(
+                      key: Key('applySubmit'),
                       child: new Text(
                         "Submit",
                         style: new TextStyle(color: Colors.white),

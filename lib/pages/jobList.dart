@@ -7,6 +7,7 @@ import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
+import 'package:freelancer_flutter/component/config.dart';
 
 class JobListPage extends StatefulWidget {
   @override
@@ -47,14 +48,14 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
   getJobs() async {
     List<Job> jobs = [];
     var response = [];
-    final res = await http.get('http://localhost:8080/getJobs');
-    final data = json.decode(res.body);
-    response = data;
-    for(int i = 0; i < response.length; ++i){
-      List<String> skills = [];
-      for(int j = 0; j < response[i]['skills'].length; ++j){
-        skills.add(response[i]['skills'][j].toString());
-      }
+      final res = await http.get('${Url.url_prefix}/getJobs');
+      final data = json.decode(res.body);
+      response = data;
+      for(int i = 0; i < response.length; ++i){
+        List<String> skills = [];
+        for(int j = 0; j < response[i]['skills'].length; ++j){
+          skills.add(response[i]['skills'][j].toString());
+        }
       jobs.add(Job(response[i]['id'], response[i]['title'], response[i]['description'], skills, getPriceTypeRandom(), getMinPriceRandom(), getMaxPriceRandom(), getDeadline()));
     }
     setState(() {
