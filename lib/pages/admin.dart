@@ -10,6 +10,10 @@ import 'package:freelancer_flutter/component/StatisticView.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'package:freelancer_flutter/component/config.dart';
+
+
 
 class AdminPage extends StatefulWidget {
   @override
@@ -142,7 +146,8 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
     List<Job> jobs = [];
     List<Job> chooseJobs = [];
     var response = [];
-    final res = await http.get('http://localhost:8080/getJobs');
+    String url = "${Url.url_prefix}/getJobs";
+    final res = await http.get(url);
     final data = json.decode(res.body);
     response = data;
     for(int i = 0; i < response.length; ++i){
@@ -642,7 +647,9 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
   getUsers() async {
     List<User> users = [];
     var response = [];
-    final res = await http.get('http://localhost:8080/getUsers');
+    String url = "${Url.url_prefix}/getUsers";
+    String token = await StorageUtil.getStringItem('token');
+    final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
     final data = json.decode(res.body);
     response = data;
     for(int i = 0; i < response.length; ++i){
