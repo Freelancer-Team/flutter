@@ -415,6 +415,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                       Offstage(
                         offstage: !isEdit,
                         child: TextFormField(
+                          key: Key('info'),
                           autofocus: true,
                           controller: TextEditingController()
                             ..text = '${ProjInfo[index + 1]}',
@@ -786,8 +787,9 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
+            key: Key('bar'),
             toolbarHeight: 50,
-            title: Text('${ProjInfo[1]}'),
+            title: Text('${ProjInfo[1]}',key: Key('projectTitle')),
             centerTitle: false,
             actions: <Widget>[
               Offstage(
@@ -795,6 +797,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                   child: Offstage(
                     offstage: !(jobstate == 0) || isEmployee,
                     child: FlatButton(
+                      key: Key("apply"),
                       child: new Text(
                         '我想试试',
                         style: TextStyle(color: Colors.white),
@@ -831,6 +834,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
               Offstage(
                   offstage: !isEmployer || hasEmployee,
                   child: IconButton(
+                    key: Key('edit'),
                     icon: Icon(Icons.edit),
                     onPressed: () {
                       setState(() {
@@ -841,6 +845,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
               Offstage(
                   offstage: !isEdit,
                   child: IconButton(
+                    key: Key('save'),
                     icon: Icon(Icons.check),
                     onPressed: () {
                       setState(() {
@@ -926,7 +931,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        Text('名称：${EmployerInfo[1]}',
+                                        Text(
+                                            '名称：${EmployerInfo[1]}',
                                             style: TextStyle(fontSize: 16)),
                                         Text('地址：${EmployerInfo[2]}',
                                             style: TextStyle(fontSize: 16)),
@@ -1097,6 +1103,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
             child: Container(
               child: Text(
                 '项目详情',
+                key: Key('detailTitle'),
                 style: TextStyle(color: Colors.white),
               ),
             ),
