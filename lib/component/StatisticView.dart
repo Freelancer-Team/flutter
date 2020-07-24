@@ -1,11 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:freelancer_flutter/component/UserStatisticTable.dart';
 import 'dart:ui';
 import 'hotel_app_theme.dart';
-import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:freelancer_flutter/component/ProjectStatisticTable.dart';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
+import 'config.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 
 class StatisticView extends StatefulWidget {
@@ -19,13 +22,19 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
 
   AnimationController animationController;
 
+  final ScrollController _scrollController = ScrollController();
+  final width = window.physicalSize.width;
+
+  bool isProjectView = true;
+
   List<StatisticJob> originJobList = [];
   List<StatisticJob> jobList = [];
   String searchCondition;
   String chooseJobState = "待审阅";
 
-  final ScrollController _scrollController = ScrollController();
-  final width = window.physicalSize.width;
+  List<StatisticUser> originUserList = [];
+  List<StatisticUser> userList = [];
+  String chooseUserRole = "所有用户";
 
   @override
   void initState() {
@@ -33,6 +42,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
         duration: const Duration(milliseconds: 1000), vsync: this);
     super.initState();
     getJobs();
+    getUsers();
   }
 
   //假数据随机数
@@ -53,7 +63,8 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
     List<StatisticJob> jobs = [];
     List<StatisticJob> chooseJobs = [];
     var response = [];
-    final res = await http.get('http://localhost:8080/getJobs');
+    String url = "${Url.url_prefix}/getJobs";
+    final res = await http.get(url);
     final data = json.decode(res.body);
     response = data;
     for(int i = 0; i < response.length; ++i){
@@ -74,13 +85,49 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
     });
   }
 
-  executeSearch() {
+  /*得到随机数*/
+  int getRandom() {
+    return new Random().nextInt(4) - 2;
+  }
+
+  getUsers() async {
+    List<StatisticUser> users = [];
+    var response = [];
+    String url = "${Url.url_prefix}/getUsers";
+    String token = await StorageUtil.getStringItem('token');
+    final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
+    final data = json.decode(res.body);
+    response = data;
+    for(int i = 0; i < response.length; ++i){
+      List<String> skills = [];
+      for(int j = 0; j < response[i]['skills'].length; ++j){
+        skills.add(response[i]['skills'][j].toString());
+      }
+      users.add(StatisticUser(response[i]['id'], response[i]['name'], getRandom(), getCandidateNumber(), getCandidateNumber()));
+    }
+    setState(() {
+      originUserList = users;
+      userList = users;
+    });
+  }
+
+  executeJobSearch() {
     List<StatisticJob> jobs = [];
     for(int i = 0; i < originJobList.length; ++i){
       if(originJobList[i].projectName.contains(searchCondition)) jobs.add(originJobList[i]);
     }
     setState(() {
       jobList = jobs;
+    });
+  }
+
+  executeUserSearch() {
+    List<StatisticUser> users = [];
+    for(int i = 0; i < originJobList.length; ++i){
+      if(originUserList[i].name.contains(searchCondition)) users.add(originUserList[i]);
+    }
+    setState(() {
+      userList = users;
     });
   }
 
@@ -130,7 +177,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
                   },
                   body: Padding(
                     padding: EdgeInsets.all(16),
-                    child: ProjectStatisticTable(jobList),
+                    child: isProjectView ? ProjectStatisticTable(jobList) : UserStatisticTable(userList),
                   )
                 ),
               )
@@ -203,7 +250,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
                 ),
                 onTap: () {
                   FocusScope.of(context).requestFocus(FocusNode());
-                  executeSearch();
+                  isProjectView ? executeJobSearch() : executeUserSearch();
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -255,20 +302,34 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '${jobList.length} jobs found',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w100,
-                        fontSize: 16,
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ToggleSwitch(
+                            minWidth: 120.0,
+                            cornerRadius: 20,
+                            activeBgColor: HexColor('#54D3C2'),
+                            activeFgColor: Colors.white,
+                            inactiveBgColor: Colors.grey.withOpacity(0.6),
+                            inactiveFgColor: Colors.white,
+                            labels: ['项目数据', '用户数据'],
+                            icons: [Icons.desktop_windows, Icons.group],
+                            onToggle: (index) {
+                              if(index == 1) setState(() {
+                                isProjectView = false;
+                              });
+                              else setState(() {
+                                isProjectView = true;
+                              });
+                            }),
                       ),
-                    ),
-                  ),
+                    ],
+                  )
                 ),
                 Padding(
                   padding: EdgeInsets.only(right: 10),
-                  child: getDropDownMenu(),
+                  child: isProjectView ? getJobDropDownMenu() : getUserDropDownMenu(),
                 ),
                 Material(
                   color: Colors.transparent,
@@ -313,7 +374,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
     );
   }
 
-  Widget getDropDownMenu() {
+  Widget getJobDropDownMenu() {
     return DropdownButton<String>(
       value: chooseJobState,
       icon: Icon(Icons.arrow_drop_down, color: HexColor('#54D3C2'),),
@@ -331,6 +392,32 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
         executeChooseJobState();
       },
       items: <String>['所有项目', '待审阅', '竞标中', '已过期', '禁用的', '关闭的', '进行中', '已完成']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget getUserDropDownMenu() {
+    return DropdownButton<String>(
+      value: chooseUserRole,
+      icon: Icon(Icons.arrow_drop_down, color: HexColor('#54D3C2'),),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(fontWeight: FontWeight.w100, color: Colors.black),
+      underline: Container(
+        height: 1,
+        color: Colors.grey.withOpacity(0.6),
+      ),
+      onChanged: (String newValue) {
+        setState(() {
+          chooseUserRole = newValue;
+        });
+      },
+      items: <String>['所有用户', '待核验', '已核验', '已封禁', '管理员']
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
