@@ -32,7 +32,7 @@ class _PublishState extends State<PublishPage> {
   String _budget;
   int _low;
   int _high;
-  bool _isRange = true;
+  bool _isTime = false;
   String _description;
   DateTime _ddl = new DateTime.now().add(new Duration(days: 30));
 
@@ -45,7 +45,7 @@ class _PublishState extends State<PublishPage> {
   }
 
   void packPrice(){
-    if(_isRange){
+    if(!_isTime){
       _budget='\$'+_low.toString();
       if(_low!=_high)
         _budget+=' - \$'+_high.toString();
@@ -74,7 +74,7 @@ class _PublishState extends State<PublishPage> {
             "price": _budget,
             "low": _low,
             "high": _high,
-            "type": _isRange ? 0 : 1,
+            "type": _isTime ? 1 : 0,
             "deadline": _ddl.toIso8601String(),
             "state": -3,
             "employeeName": _owner,
@@ -283,13 +283,13 @@ class _PublishState extends State<PublishPage> {
                             labels: ['薪酬', '时薪'],
                             icons: [Icons.attach_money, Icons.access_time],
                             onToggle: (index) {
-                              if (index == 1)
+                              if (index == 0)
                                 setState(() {
-                                  _isRange = false;
+                                  _isTime = false;
                                 });
                               else
                                 setState(() {
-                                  _isRange = true;
+                                  _isTime = true;
                                 });
                             }),
                       ],
@@ -297,10 +297,11 @@ class _PublishState extends State<PublishPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        new Text(' \$ '),
                         new Expanded(
                             child: new TextFormField(
-//                            decoration: new InputDecoration(labelText: "Min"),
+                            decoration: new InputDecoration(labelText: "Min",
+                              prefixText: '\$',
+                              suffix: Text(_isTime ? ' / hr' : ' '),),
                           keyboardType: TextInputType.number, //限定数字键盘
                           inputFormatters: <TextInputFormatter>[
                             WhitelistingTextInputFormatter.digitsOnly
@@ -309,17 +310,18 @@ class _PublishState extends State<PublishPage> {
                               val.length < 1 ? 'Need your min target' : null,
                           onSaved: (val) => _low = int.parse(val),
                         )),
-                        new Text(_isRange ? '    to  \$ ' : ' / hr    to  \$ '),
+                        new Text('   to   '),
                         new Expanded(
                             child: new TextFormField(
-//                            decoration: new InputDecoration(labelText: "Max"),
+                            decoration: new InputDecoration(labelText: "Max",
+                              prefixText: '\$',
+                              suffix: Text(_isTime ? ' / hr' : ' '),),
                           validator: (val) =>
                               val.length < 1 || _low > int.parse(val)
                                   ? 'Need your max target'
                                   : null,
                           onSaved: (val) => _high = int.parse(val),
                         )),
-                        new Text(_isRange ? '   ' : ' / hr  '),
                       ],
                     ),
                   ],

@@ -318,14 +318,12 @@ class _ApplyState extends State<ApplyPage> {
                                     //保存已选中的
                                     if (f.isSelected) {
                                       if (!_personalSkills.contains(f.skill)) {
-//                                    selSkills.add(f);
                                         _personalSkills.add(f.skill);
                                       }
                                     } //删除
                                     else {
                                       if (_personalSkills != null &&
                                           _personalSkills.contains(f.skill)) {
-//                                    selSkills.remove(f);
                                         _personalSkills.remove(f.skill);
                                       }
                                     }
@@ -341,26 +339,22 @@ class _ApplyState extends State<ApplyPage> {
                         );
                       }).toList())
                     ]),
-                    new Row(
-                      children: <Widget>[
-                        new Expanded(
-                            child: new TextFormField(
-                          key: Key('offer'),
-                          keyboardType: TextInputType.number,
-                          //限定数字键盘
-                          inputFormatters: <TextInputFormatter>[
-                            WhitelistingTextInputFormatter.digitsOnly
-                          ],
-                          decoration: new InputDecoration(
-                              labelText:
-                                  "Offer (Expected to be paid $_budget )"),
-                          validator: (val) => val.length < 1
-                              ? 'Please enter your target salary'
-                              : null,
-                          onSaved: (val) => _offer = int.parse(val),
-                        )),
-                        new Text(_type == 1 ? ' / hr' : ' '),
+                    new TextFormField(
+                      key: Key('offer'),
+                      keyboardType: TextInputType.number,
+                      //限定数字键盘
+                      inputFormatters: <TextInputFormatter>[
+                        WhitelistingTextInputFormatter.digitsOnly
                       ],
+                      decoration: new InputDecoration(
+                        labelText: "Offer (Expected to be paid $_budget )",
+                        prefixText: '\$',
+                        suffix: Text(_type == 1 ? ' / hr' : ' '),
+                      ),
+                      validator: (val) => val.length < 1
+                          ? 'Please enter your target salary'
+                          : null,
+                      onSaved: (val) => _offer = int.parse(val),
                     ),
                     new Padding(
                       padding: const EdgeInsets.only(top: 20.0),
