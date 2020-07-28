@@ -110,7 +110,7 @@ class _ApplyState extends State<ApplyPage> {
         "userId": _uid.toString(),
         "jobId": _jid,
         "description": _application,
-        "price": _offer,
+        "price": _offer.toString(),
       });
       var response = json.decode(res.body);
       if (response != null) {
@@ -341,9 +341,10 @@ class _ApplyState extends State<ApplyPage> {
                         );
                       }).toList())
                     ]),
-                    Row(
+                    new Row(
                       children: <Widget>[
-                        new TextFormField(
+                        new Expanded(
+                            child: new TextFormField(
                           key: Key('offer'),
                           keyboardType: TextInputType.number,
                           //限定数字键盘
@@ -357,8 +358,8 @@ class _ApplyState extends State<ApplyPage> {
                               ? 'Please enter your target salary'
                               : null,
                           onSaved: (val) => _offer = int.parse(val),
-                        ),
-                        Text(_type == 1 ? ' / hr' : null),
+                        )),
+                        new Text(_type == 1 ? ' / hr' : ' '),
                       ],
                     ),
                     new Padding(

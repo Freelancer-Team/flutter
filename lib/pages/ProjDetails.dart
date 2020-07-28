@@ -114,8 +114,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       if (_uid == array['employeeId']) {
         isEmployee = true;
       }
-      if (UserInfo[0] != 0) {
-        hasEmployee = true;
+      if (UserInfo[0] != '0') {
+        hasEmployee = false;
       }
     });
 
