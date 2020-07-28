@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
@@ -7,33 +8,39 @@ import 'dart:convert';
 import 'package:freelancer_flutter/component/config.dart';
 
 import 'ProjDetails.dart';
+
 class Skill {
   String skill;
   bool isSelected;
 }
 
 class ApplyPage extends StatefulWidget {
-  ApplyPage(this._jid,this._title,this._budget,this._neededSkills);
+  ApplyPage(
+      this._jid, this._title, this._budget, this._neededSkills, this._type);
+
   //从父组件传来
   String _jid;
   String _title = 'KILL BILL';
   String _budget;
+  int _type;
   List<String> _neededSkills = new List();
 
   @override
-  _ApplyState createState() => _ApplyState(_jid,_title,_budget,_neededSkills);
+  _ApplyState createState() =>
+      _ApplyState(_jid, _title, _budget, _neededSkills, _type);
 }
 
 class _ApplyState extends State<ApplyPage> {
   String token;
 
-  _ApplyState(this._jid,this._title,this._budget,this._neededSkills);
+  _ApplyState(
+      this._jid, this._title, this._budget, this._neededSkills, this._type);
 
   double width;
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = new GlobalKey<FormState>();
   FlutterToast flutterToast;
-  bool flag=false;
+  bool flag = false;
 
   //若有用户信息则自动填写
   String _email;
@@ -49,32 +56,41 @@ class _ApplyState extends State<ApplyPage> {
   String _jid;
   String _title;
   String _budget;
+  int _type;
   List<String> _neededSkills = new List();
 
   //必填项
   List<Skill> selSkills = new List();
-  String _offer;
+  int _offer;
   String _application;
 
   void onSubmit() {
     final form = formKey.currentState;
-    for(int i=0;i<selSkills.length;i++){
-      if(selSkills[i].isSelected) {flag=true;break;}
+    for (int i = 0; i < selSkills.length; i++) {
+      if (selSkills[i].isSelected) {
+        flag = true;
+        break;
+      }
     }
     if (form.validate() && flag) {
       form.save();
       saveAuction();
       saveSkills(_personalSkills);
     }
-    if(!flag) _showToast(false);
+    if (!flag) _showToast(false);
   }
+
   saveSkills(skills) async {
     try {
       String url = "${Url.url_prefix}/updateSkills?userId=" + _uid.toString();
-      print(url);print(skills);
+      print(url);
+      print(skills);
       var res = await http.post(Uri.encodeFull(url),
-          headers: {"content-type": "application/json","Authorization": "$token"},
-          body:  json.encode(skills));
+          headers: {
+            "content-type": "application/json",
+            "Authorization": "$token"
+          },
+          body: json.encode(skills));
       var response = json.decode(res.body);
       if (response != null) {
         Account.saveUserSkill(response);
@@ -83,21 +99,24 @@ class _ApplyState extends State<ApplyPage> {
       print(e);
     }
   }
+
   saveAuction() async {
     try {
       String url = "${Url.url_prefix}/applyJob";
       var res = await http.post(Uri.encodeFull(url), headers: {
-        "Accept": "application/json;charset=UTF-8","Authorization": "$token"
+        "Accept": "application/json;charset=UTF-8",
+        "Authorization": "$token"
       }, body: {
-        "userId":_uid.toString(),
-        "jobId":_jid,
-        "description":_application,
-        "price":_offer,
+        "userId": _uid.toString(),
+        "jobId": _jid,
+        "description": _application,
+        "price": _offer,
       });
       var response = json.decode(res.body);
       if (response != null) {
         await _showToast(true);
-        Navigator.push(context, MaterialPageRoute(builder: (context) =>ProjDetails(_jid)));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ProjDetails(_jid)));
       }
     } catch (e) {
       print(e);
@@ -114,11 +133,11 @@ class _ApplyState extends State<ApplyPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          f?Icon(Icons.check):Icon(Icons.clear),
+          f ? Icon(Icons.check) : Icon(Icons.clear),
           SizedBox(
             width: 12.0,
           ),
-          f?Text("Apply Successfully"):Text("At least 1 skill"),
+          f ? Text("Apply Successfully") : Text("At least 1 skill"),
         ],
       ),
     );
@@ -155,9 +174,12 @@ class _ApplyState extends State<ApplyPage> {
         _tel = phone;
         _gender = g;
         _age = age;
-        _uid=uid;
+        _uid = uid;
         print(skills);
-        if (skills != null) {_personalSkills = skills;addSkills();}
+        if (skills != null) {
+          _personalSkills = skills;
+          addSkills();
+        }
       });
     }
   }
@@ -209,59 +231,72 @@ class _ApplyState extends State<ApplyPage> {
                     new TextFormField(
                       decoration: new InputDecoration(labelText: "Name"),
                       validator: (val) =>
-                      val.length < 2 ? 'Please input your name' : null,
+                          val.length < 2 ? 'Please input your name' : null,
                       onSaved: (val) => _name = val,
-                      controller: _name==null?null:new TextEditingController(text: '$_name'),
+                      controller: _name == null
+                          ? null
+                          : new TextEditingController(text: '$_name'),
                     ),
                     Row(children: <Widget>[
                       new Expanded(
                           child: new TextFormField(
-                            decoration: new InputDecoration(labelText: "Age"),
-                            validator: (val) =>
+                        decoration: new InputDecoration(labelText: "Age"),
+                        validator: (val) =>
                             val.length < 1 ? 'Please input your age' : null,
-                            onSaved: (val) => _age = int.parse(val),
-                            controller: _age==null?null:new TextEditingController(text: '$_age'),
-                          )),
+                        onSaved: (val) => _age = int.parse(val),
+                        controller: _age == null
+                            ? null
+                            : new TextEditingController(text: '$_age'),
+                      )),
                       new Text('  '),
                       new Expanded(
                           child: new TextFormField(
-                            decoration: new InputDecoration(labelText: "Gender(F/M)"),
-                            validator: (val) => val.length < 1
-                                ? 'Please input your gender'
-                                : (!(val.trim() == 'F' || val.trim() == 'M')
+                        decoration:
+                            new InputDecoration(labelText: "Gender(F/M)"),
+                        validator: (val) => val.length < 1
+                            ? 'Please input your gender'
+                            : (!(val.trim() == 'F' || val.trim() == 'M')
                                 ? 'invalid gender'
                                 : null),
-                            onSaved: (val) => _gender = val.trim(),
-                            controller:_gender==null?null: new TextEditingController(text: '$_gender'),
-                          ))
+                        onSaved: (val) => _gender = val.trim(),
+                        controller: _gender == null
+                            ? null
+                            : new TextEditingController(text: '$_gender'),
+                      ))
                     ]),
                     Row(children: <Widget>[
                       new Expanded(
                           child: new TextFormField(
-                            decoration: new InputDecoration(labelText: "Phone"),
-                            validator: (val) => val.trim().length != 11
-                                ? 'Please input your telephone number'
-                                : null,
-                            onSaved: (val) => _tel = val.trim(),
-                            controller: _tel!=null?new TextEditingController(text: '$_tel'):null,
-                          )),
+                        decoration: new InputDecoration(labelText: "Phone"),
+                        validator: (val) => val.trim().length != 11
+                            ? 'Please input your telephone number'
+                            : null,
+                        onSaved: (val) => _tel = val.trim(),
+                        controller: _tel != null
+                            ? new TextEditingController(text: '$_tel')
+                            : null,
+                      )),
                       new Text('  '),
                       new Expanded(
                           child: new TextFormField(
-                            decoration: new InputDecoration(labelText: "Email"),
-                            validator: (val) =>
+                        decoration: new InputDecoration(labelText: "Email"),
+                        validator: (val) =>
                             !val.contains('@') ? 'Invalid Email' : null,
-                            onSaved: (val) => _email = val,
-                            controller: _email!=null?new TextEditingController(text: '$_email'):null,
-                          ))
+                        onSaved: (val) => _email = val,
+                        controller: _email != null
+                            ? new TextEditingController(text: '$_email')
+                            : null,
+                      ))
                     ]),
                     new TextFormField(
                       decoration: new InputDecoration(labelText: "Address"),
                       validator: (val) =>
-                      val.length < 6 ? 'Please input your address' : null,
+                          val.length < 6 ? 'Please input your address' : null,
                       onSaved: (val) => _personalAddress = val,
-                      controller:
-                      _personalAddress==null?null: new TextEditingController(text: '$_personalAddress'),
+                      controller: _personalAddress == null
+                          ? null
+                          : new TextEditingController(
+                              text: '$_personalAddress'),
                     ),
                     new Padding(
                       padding: const EdgeInsets.only(top: 20.0),
@@ -272,46 +307,59 @@ class _ApplyState extends State<ApplyPage> {
                     new Column(children: <Widget>[
                       Column(
                           children: selSkills.map((f) {
-                            return Column(
-                              children: <Widget>[
-                                Container(
-                                  child: CheckboxListTile(
-                                    value: f.isSelected,
-                                    onChanged: (bool) {
-                                      setState(() {
-                                        f.isSelected = !f.isSelected;
-                                        //保存已选中的
-                                        if (f.isSelected) {
-                                          if (!_personalSkills.contains(f.skill)) {
+                        return Column(
+                          children: <Widget>[
+                            Container(
+                              child: CheckboxListTile(
+                                value: f.isSelected,
+                                onChanged: (bool) {
+                                  setState(() {
+                                    f.isSelected = !f.isSelected;
+                                    //保存已选中的
+                                    if (f.isSelected) {
+                                      if (!_personalSkills.contains(f.skill)) {
 //                                    selSkills.add(f);
-                                            _personalSkills.add(f.skill);
-                                          }
-                                        } //删除
-                                        else {
-                                          if (_personalSkills != null &&
-                                              _personalSkills.contains(f.skill)) {
+                                        _personalSkills.add(f.skill);
+                                      }
+                                    } //删除
+                                    else {
+                                      if (_personalSkills != null &&
+                                          _personalSkills.contains(f.skill)) {
 //                                    selSkills.remove(f);
-                                            _personalSkills.remove(f.skill);
-                                          }
-                                        }
-                                      });
-                                    },
-                                    title: Text(f.skill),
-                                    controlAffinity: ListTileControlAffinity.platform,
-                                    activeColor: Colors.blue,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList())
+                                        _personalSkills.remove(f.skill);
+                                      }
+                                    }
+                                  });
+                                },
+                                title: Text(f.skill),
+                                controlAffinity:
+                                    ListTileControlAffinity.platform,
+                                activeColor: Colors.blue,
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList())
                     ]),
-                    new TextFormField(
-                      key: Key('offer'),
-                      decoration: new InputDecoration(
-                          labelText: "Offer (Expected to be paid $_budget )"),
-                      validator: (val) =>
-                      val.length < 1 ? 'Please enter your target salary' : null,
-                      onSaved: (val) => _offer = val,
+                    Row(
+                      children: <Widget>[
+                        new TextFormField(
+                          key: Key('offer'),
+                          keyboardType: TextInputType.number,
+                          //限定数字键盘
+                          inputFormatters: <TextInputFormatter>[
+                            WhitelistingTextInputFormatter.digitsOnly
+                          ],
+                          decoration: new InputDecoration(
+                              labelText:
+                                  "Offer (Expected to be paid $_budget )"),
+                          validator: (val) => val.length < 1
+                              ? 'Please enter your target salary'
+                              : null,
+                          onSaved: (val) => _offer = int.parse(val),
+                        ),
+                        Text(_type == 1 ? ' / hr' : null),
+                      ],
                     ),
                     new Padding(
                       padding: const EdgeInsets.only(top: 20.0),
@@ -322,7 +370,7 @@ class _ApplyState extends State<ApplyPage> {
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       validator: (val) =>
-                      val.length < 20 ? 'Description too short' : null,
+                          val.length < 20 ? 'Description too short' : null,
                       onSaved: (val) => _application = val,
                     ),
                     new Padding(
@@ -340,8 +388,6 @@ class _ApplyState extends State<ApplyPage> {
                   ],
                 ),
               ),
-            )
-        )
-        );
+            )));
   }
 }

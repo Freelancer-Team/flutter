@@ -48,7 +48,7 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
   getJobs() async {
     List<Job> jobs = [];
     var response = [];
-      final res = await http.get('${Url.url_prefix}/getJobs');
+      final res = await http.get('${Url.url_prefix}/getCurrentJobs');
       final data = json.decode(res.body);
       response = data;
       for(int i = 0; i < response.length; ++i){

@@ -266,13 +266,6 @@ class _PublishState extends State<PublishPage> {
                 new Padding(
                   padding: const EdgeInsets.only(top: 40.0),
                 ),
-//                new TextFormField(
-//                  key: Key('newJobBudget'),
-//                  decoration: new InputDecoration(labelText: "Budget"),
-//                  validator: (val) =>
-//                      val.length < 1 ? 'Please enter your budget' : null,
-//                  onSaved: (val) => _budget = val,
-//                ),
                 Column(
 //                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
