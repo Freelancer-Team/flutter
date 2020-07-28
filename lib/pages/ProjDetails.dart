@@ -15,6 +15,7 @@ import 'package:freelancer_flutter/component/config.dart';
 
 class ProjDetails extends StatefulWidget {
   ProjDetails(this.ID);
+
   var ID;
 
   State<StatefulWidget> createState() {
@@ -26,7 +27,9 @@ class ProjDetails extends StatefulWidget {
 
 class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   ValueNotifier<double> W = ValueNotifier<double>(window.physicalSize.width);
+
   Screen(this.ID, this.isLarge);
+
   var ID;
   var isLarge;
   var _uid;
@@ -40,7 +43,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   bool hasEmployee = false;
   TabController mController;
   List<String> tabTitles = ["详情", "竞价", "进度"];
-  final List entries = ['名称', '描述', '薪资', '地址', '技能点', '剩余时间', '联系方式'];
+  final List entries = ['名称', '描述', '薪资', '地址', '技能点', '截止时间', '联系方式'];
   List ProjInfo = [
     'ID',
     'Name',
@@ -48,13 +51,14 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     'Price',
     '登陆后查看',
     '1',
-    '剩余时间',
+    '截止时间',
     '登陆后查看'
   ];
   var avgPrice;
   var lowestPrice;
   var employerRate = -1.0;
   var employeeRate = -1.0;
+  var _type;
   final List entries2 = ['姓名', '联系方式', '邮箱'];
   List UserInfo = ['id', 'lyb', '54749110', '1@qq.com', '东川路800'];
   List AuctionInfo = [];
@@ -66,6 +70,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   var array2;
   var array3;
   var array4;
+
   Future<http.Response> fetchPost() async {
     int uid = await StorageUtil.getIntItem("uid");
     int role = await StorageUtil.getIntItem("role");
@@ -87,7 +92,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       ProjInfo[1] = array['title'];
       ProjInfo[2] = array['description'];
       ProjInfo[3] = array['price'];
-      ProjInfo[6] = array['remaining_time'];
+      ProjInfo[6] = array['deadline'];
+      _type = array['type'];
       EmployerInfo[0] = array['employerId'].toString();
       EmployerInfo[1] = array['employerName'];
       UserInfo[0] = array['employeeId'].toString();
@@ -108,8 +114,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       if (_uid == array['employeeId']) {
         isEmployee = true;
       }
-      if (UserInfo[0] != 0) {
-        hasEmployee = true;
+      if (UserInfo[0] != '0') {
+        hasEmployee = false;
       }
     });
 
@@ -130,7 +136,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       }
     });
 
-    if (UserInfo[0] != "0" && (isEmployer||_role == 1)) {
+    if (UserInfo[0] != "0" && (isEmployer || _role == 1)) {
       url = "${Url.url_prefix}/getUser?id=" + UserInfo[0];
       response = await http.post(Uri.encodeFull(url),
           headers: {"Accept": "application/json", "Authorization": "$token"});
@@ -199,6 +205,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   }
 
   var ratingValue;
+
   String value() {
     if (ratingValue == null) {
       return '评分：4.5 分';
@@ -693,8 +700,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                               ),
                               Offstage(
                                   offstage: employeeRate != -1.0,
-                                  child: Text("雇主未评分")
-                              )
+                                  child: Text("雇主未评分"))
                             ],
                           ))
                     ],
@@ -761,9 +767,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                               Offstage(
-                                offstage: employeeRate != -1.0,
-                                  child: Text("雇员未评分")
-                                )
+                                  offstage: employeeRate != -1.0,
+                                  child: Text("雇员未评分"))
                             ],
                           ))
                     ],
@@ -789,7 +794,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
           appBar: AppBar(
             key: Key('bar'),
             toolbarHeight: 50,
-            title: Text('${ProjInfo[1]}',key: Key('projectTitle')),
+            title: Text('${ProjInfo[1]}', key: Key('projectTitle')),
             centerTitle: false,
             actions: <Widget>[
               Offstage(
@@ -826,7 +831,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                           ProjInfo[0],
                                           ProjInfo[1],
                                           ProjInfo[3],
-                                          skills)));
+                                          skills,
+                                          _type)));
                         }
                       },
                     ),
@@ -931,8 +937,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        Text(
-                                            '名称：${EmployerInfo[1]}',
+                                        Text('名称：${EmployerInfo[1]}',
                                             style: TextStyle(fontSize: 16)),
                                         Text('地址：${EmployerInfo[2]}',
                                             style: TextStyle(fontSize: 16)),
