@@ -30,14 +30,14 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   var ID;
   var isLarge;
   var _uid;
-  var _role;
+  var _role = 0;
   var jobstate = 0;
   String token;
   bool isEdit = false;
   bool isEmployer = false;
   bool isEmployee = false;
-  bool isLog = false;
   bool hasEmployee = false;
+  bool isLog = false;
   TabController mController;
   List<String> tabTitles = ["详情", "竞价", "进度"];
   final List entries = ['名称', '描述', '薪资', '地址', '技能点', '剩余时间', '联系方式'];
@@ -93,12 +93,9 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       UserInfo[0] = array['employeeId'].toString();
       avgPrice = array['avgPrice'];
       lowestPrice = array['lowestPrice'];
-      if (array['employerRate'] != null && array['employerRate'] != 'NaN') {
-        employerRate = array['employerRate'];
-      }
-      if (array['employeeRate'] != null && array['employeeRate'] != 'NaN') {
-        employeeRate = array['employeeRate'];
-      }
+      jobstate = array['state'];
+      employerRate = array['employerRate'];
+      employeeRate = array['employeeRate'];
       for (int i = 0; i < array['skills'].length; i++) {
         skills.add(array['skills'][i].toString());
       }
@@ -108,7 +105,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       if (_uid == array['employeeId']) {
         isEmployee = true;
       }
-      if (UserInfo[0] != 0) {
+      if(array['employeeId'] != 0){
         hasEmployee = true;
       }
     });
@@ -130,13 +127,12 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       }
     });
 
-    if (UserInfo[0] != "0" && (isEmployer||_role == 1)) {
+    if (hasEmployee && (isEmployer||_role == 1)) {
       url = "${Url.url_prefix}/getUser?id=" + UserInfo[0];
       response = await http.post(Uri.encodeFull(url),
           headers: {"Accept": "application/json", "Authorization": "$token"});
       final data3 = json.decode(response.body);
       setState(() {
-        hasEmployee = true;
         array3 = data3;
         UserInfo[1] = array3['name'];
         UserInfo[2] = array3['phone'];
@@ -158,8 +154,15 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
             array4[i]['userName'],
             array4[i]['price'],
             array4[i]['description'],
+            array4[i]['type'],
             array4[i]['userId']
           ]);
+          if(array4[i]['type'] == 0){
+            AuctionInfo[i][3] ='时薪';
+          }
+          else {
+            AuctionInfo[i][3] ='全部';
+          }
         }
       });
     }
@@ -208,7 +211,6 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   }
 
   void _showRatingDialog() {
-    // We use the built in showDialog function to show our Rating Dialog
     showDialog(
         context: context,
         barrierDismissible: true, // set to false if you want to force a rating
@@ -217,7 +219,6 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
               (BuildContext context, void Function(void Function()) setState) {
             return SimpleDialog(
                 title: Text('请评分'),
-                // 这里传入一个选择器列表即可
                 contentPadding: EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 16.0),
                 children: [
                   Container(
@@ -291,28 +292,12 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       );
     }
 
-    saveSkills(skills) async {
-//      try {
-//        String url = "${Url.url_prefix}/updateSkills?userId=" + uid.toString();
-//        print(url);print(skills);
-//        var res = await http.post(Uri.encodeFull(url),
-//            headers: {"content-type": "application/json"},
-//            body:  json.encode(skills));
-//        var response = json.decode(res.body);
-//        if (response != null) {
-//          Account.saveUserSkill(response);
-//        }
-//      } catch (e) {
-//        print(e);
-//      }
-    }
-
     _showSimpleDialog() {
       onSkillChange(var _skills) {
         setState(() {
           skills = _skills;
+          array['skills'] =skills;
         });
-        saveSkills(_skills);
         Navigator.pop(context);
         _showToast();
       }
@@ -410,13 +395,14 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                     ),
                   ),
                   Expanded(
-                      child: Stack(
+                      child: Column(
                     children: [
                       Offstage(
                         offstage: !isEdit,
                         child: TextFormField(
                           key: Key('info'),
                           autofocus: true,
+                          maxLines: 1,
                           controller: TextEditingController()
                             ..text = '${ProjInfo[index + 1]}',
                           decoration: InputDecoration(
@@ -498,7 +484,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                     child: Column(
                                       children: [
                                         Text('Name：${AuctionInfo[index][0]}'),
-                                        Text('Price：${AuctionInfo[index][1]}'),
+                                        Text('Price：${AuctionInfo[index][3]}:${AuctionInfo[index][1]}'),
                                         Text('Message：${AuctionInfo[index][2]}')
                                       ],
                                     ),
@@ -795,7 +781,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
               Offstage(
                   offstage: isEmployer,
                   child: Offstage(
-                    offstage: !(jobstate == 0) || isEmployee,
+                    offstage:  isEmployee,
                     child: FlatButton(
                       key: Key("apply"),
                       child: new Text(
@@ -1081,6 +1067,159 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     );
   }
 
+  Widget _card3() {
+    return Card(
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
+                  itemCount: 3,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index == 0)
+                      return Container(
+                          alignment: Alignment.center,
+                          height: 200,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: 50,
+                                child: Text(
+                                  '发布公司/个人',
+                                  style: TextStyle(fontSize: 22),
+                                ),
+                              ),
+//                                Image(),
+                              Container(
+                                  height: 120,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Text(
+                                          '名称：${EmployerInfo[1]}',
+                                          style: TextStyle(fontSize: 16)),
+                                      Text('地址：${EmployerInfo[2]}',
+                                          style: TextStyle(fontSize: 16)),
+                                      Text('联系方式：${EmployerInfo[3]}',
+                                          style: TextStyle(fontSize: 16)),
+                                    ],
+                                  ))
+                            ],
+                          ));
+                    else if (index == 1)
+                      return Container(
+                          alignment: Alignment.center,
+                          height: 80,
+                          child: Column(
+                            children: [
+                              Text('认证信息', style: TextStyle(fontSize: 20)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.accessibility),
+                                  Icon(Icons.home),
+                                  Icon(Icons.cached),
+                                  Icon(Icons.dashboard),
+                                  Icon(Icons.face),
+                                ],
+                              )
+                            ],
+                          ));
+                    else
+                      return Container(
+                          alignment: Alignment.center,
+                          height: 80,
+                          child: Column(
+                            children: [
+                              Text('历史评分', style: TextStyle(fontSize: 20)),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                '${rating[0]}',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ));
+                  },
+                  separatorBuilder: (BuildContext context, int index) =>
+                      Container(height: 1.0, color: Colors.grey),
+                ),
+              ),
+
+              Container(height: 1.0, color: Colors.grey),
+              Container(
+                  alignment: Alignment.center,
+                  height: 200,
+                  child: Column(
+                    children: [
+                      Text(
+                        '接单人',
+                        style: TextStyle(fontSize: 22),
+                      ),
+                      Container(
+                        height: 80,
+                        child: Image(
+                          image:
+                          AssetImage("assets/notFind.jpeg"),
+                        ),
+                      ),
+                      Expanded(
+                          child: ListView.builder(
+                              padding: const EdgeInsets.all(8),
+                              itemCount: entries2.length,
+                              itemBuilder: (BuildContext context,
+                                  int index) {
+                                return Container(
+                                  height: 20,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                      '${entries2[index]}: ${UserInfo[index + 1]}',
+                                      style: TextStyle(
+                                          fontSize: 16)),
+                                );
+                              })),
+                    ],
+                  )),
+              Container(height: 1.0, color: Colors.grey),
+              Container(
+                  alignment: Alignment.center,
+                  height: 100,
+                  child: Column(
+                    children: [
+                      Text('历史评分',
+                          style: TextStyle(fontSize: 20)),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        '${rating[1]}',
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  )),
+                  Offstage(
+                    offstage: hasEmployee,
+                    child: Container(
+                        alignment: Alignment.center,
+                        child: Column(
+                          children: [
+                            Text('接单人', style: TextStyle(fontSize: 22)),
+                            Text('暂无接单人', style: TextStyle(fontSize: 20))
+                          ],
+                        )),
+                  )
+                ],
+              )
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -1124,7 +1263,18 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                   Container(
                       width: 0.30 * width,
                       padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                      child: _card2()),
+                      child: Stack(
+                        children: [
+                          Offstage(
+                            offstage: _role == 1,
+                            child: _card2(),
+                          ),
+                          Offstage(
+                            offstage: _role == 0,
+                            child: _card3(),
+                          )
+                        ],
+                      )),
                 ],
               ),
             ),
@@ -1140,9 +1290,20 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                         padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                         child: _card1(width)),
                     Container(
-                        height: 500,
+                        height: 750,
                         padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                        child: _card2()),
+                        child: Stack(
+                          children: [
+                            Offstage(
+                              offstage: _role == 1,
+                              child: _card2(),
+                            ),
+                            Offstage(
+                              offstage: _role == 0,
+                              child: _card3(),
+                            )
+                          ],
+                        )),
                   ],
                 ),
               ),
