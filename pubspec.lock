@@ -113,6 +113,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.3"
+  date_format:
+    dependency: "direct main"
+    description:
+      name: date_format
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.8"
   fake_async:
     dependency: transitive
     description:
@@ -229,6 +236,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.1"
+  lite_switch:
+    dependency: "direct main"
+    description:
+      name: lite_switch
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.6"
   logging:
     dependency: transitive
     description:

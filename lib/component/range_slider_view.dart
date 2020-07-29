@@ -31,18 +31,18 @@ class _RangeSliderViewState extends State<RangeSliderView> {
               Row(
                 children: <Widget>[
                   Expanded(
-                    flex: _values.start.round(),
+                    flex: (_values.start - 1).round(),
                     child: const SizedBox(),
                   ),
                   Container(
-                    width: 54,
+                    width: 50,
                     child: Text(
                       '\$${_values.start.round()}',
                       textAlign: TextAlign.center,
                     ),
                   ),
                   Expanded(
-                    flex: 1000 - _values.start.round(),
+                    flex: 10000 - _values.start.round(),
                     child: const SizedBox(),
                   ),
                 ],
@@ -50,18 +50,18 @@ class _RangeSliderViewState extends State<RangeSliderView> {
               Row(
                 children: <Widget>[
                   Expanded(
-                    flex: _values.end.round(),
+                    flex: (_values.end - 1).round(),
                     child: const SizedBox(),
                   ),
                   Container(
-                    width: 54,
+                    width: 50,
                     child: Text(
                       '\$${_values.end.round()}',
                       textAlign: TextAlign.center,
                     ),
                   ),
                   Expanded(
-                    flex: 1000 - _values.end.round(),
+                    flex: 10000 - _values.end.round(),
                     child: const SizedBox(),
                   ),
                 ],
@@ -74,8 +74,8 @@ class _RangeSliderViewState extends State<RangeSliderView> {
             ),
             child: RangeSlider(
               values: _values,
-              min: 0.0,
-              max: 1000.0,
+              min: 1.0,
+              max: 10000.0,
               activeColor: HotelAppTheme.buildLightTheme().primaryColor,
               inactiveColor: Colors.grey.withOpacity(0.4),
               divisions: 1000,
@@ -94,6 +94,101 @@ class _RangeSliderViewState extends State<RangeSliderView> {
     );
   }
 }
+
+class RangeSliderView2 extends StatefulWidget {
+  const RangeSliderView2({Key key, this.values, this.onChangeRangeValues})
+      : super(key: key);
+
+  final Function(RangeValues) onChangeRangeValues;
+  final RangeValues values;
+
+  @override
+  _RangeSliderView2State createState() => _RangeSliderView2State();
+}
+
+class _RangeSliderView2State extends State<RangeSliderView2> {
+  RangeValues _values;
+
+  @override
+  void initState() {
+    _values = widget.values;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Stack(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: (_values.start - 1).round(),
+                    child: const SizedBox(),
+                  ),
+                  Container(
+                    width: 50,
+                    child: Text(
+                      '\$${_values.start.round()}',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 120 - _values.start.round(),
+                    child: const SizedBox(),
+                  ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: (_values.end - 1).round(),
+                    child: const SizedBox(),
+                  ),
+                  Container(
+                    width: 50,
+                    child: Text(
+                      '\$${_values.end.round()}',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 120 - _values.end.round(),
+                    child: const SizedBox(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderThemeData(
+              rangeThumbShape: CustomRangeThumbShape(),
+            ),
+            child: RangeSlider(
+              values: _values,
+              min: 1.0,
+              max: 120.0,
+              activeColor: HotelAppTheme.buildLightTheme().primaryColor,
+              inactiveColor: Colors.grey.withOpacity(0.4),
+              divisions: 1000,
+              onChanged: (RangeValues values) {
+                try {
+                  setState(() {
+                    _values = values;
+                  });
+                  widget.onChangeRangeValues(_values);
+                } catch (_) {}
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class CustomRangeThumbShape extends RangeSliderThumbShape {
   static const double _thumbSize = 3.0;
