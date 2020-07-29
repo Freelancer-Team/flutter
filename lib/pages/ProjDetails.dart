@@ -401,25 +401,55 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                     children: [
                       Offstage(
                         offstage: !isEdit,
-                        child: TextFormField(
-                          key: Key('info'),
-                          autofocus: true,
-                          maxLines: 1,
-                          controller: TextEditingController()
-                            ..text = '${ProjInfo[index + 1]}',
-                          decoration: InputDecoration(
-                            disabledBorder: InputBorder.none,
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                                borderSide: BorderSide(
-                                  width: 0.5,
-                                )),
-                          ),
-                          enabled: isEdit,
-                          textAlignVertical: TextAlignVertical.center,
-                          onFieldSubmitted: (value) {
-                            ProjInfo[index + 1] = value;
-                          },
+                        child: Column(
+                          children: [
+                            Offstage(
+                              offstage: index == 1,
+                              child: TextFormField(
+                                key: Key('info'),
+                                autofocus: true,
+                                maxLines: 1,
+                                controller: TextEditingController()
+                                  ..text = '${ProjInfo[index + 1]}',
+                                decoration: InputDecoration(
+                                  disabledBorder: InputBorder.none,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      borderSide: BorderSide(
+                                        width: 0.5,
+                                      )),
+                                ),
+                                enabled: isEdit,
+                                textAlignVertical: TextAlignVertical.center,
+                                onFieldSubmitted: (value) {
+                                  ProjInfo[index + 1] = value;
+                                },
+                              ),
+                            ),
+                            Offstage(
+                              offstage: index != 1,
+                              child: TextFormField(
+                                key: Key('info'),
+                                autofocus: true,
+                                maxLines: 5,
+                                controller: TextEditingController()
+                                  ..text = '${ProjInfo[index + 1]}',
+                                decoration: InputDecoration(
+                                  disabledBorder: InputBorder.none,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      borderSide: BorderSide(
+                                        width: 0.5,
+                                      )),
+                                ),
+                                enabled: isEdit,
+                                textAlignVertical: TextAlignVertical.center,
+                                onFieldSubmitted: (value) {
+                                  ProjInfo[index + 1] = value;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Offstage(
