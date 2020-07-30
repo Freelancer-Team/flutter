@@ -37,7 +37,7 @@ class RecomendedPage extends State<HomePage> {
     if(uid!=null) setState(() {
       isLog=true;
     });
-    var url = "${Url.url_prefix}/getJobs";
+    var url = "${Url.url_prefix}/getSuggestJobs";
     var response = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     });
