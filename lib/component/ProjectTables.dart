@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:unicorndial/unicorndial.dart';
 import 'package:freelancer_flutter/component/MyPaginateDataTable.dart';
 import 'hotel_app_theme.dart';
@@ -53,8 +54,9 @@ typedef void MyCallback(var dessert);
 class DataTableDemo extends StatefulWidget {
   final List<String> columnNames;
   final String tableKind;
+  final List<StatisticProject> jobList;
 
-  DataTableDemo({this.columnNames, this.tableKind});
+  DataTableDemo({this.columnNames, this.tableKind, this.jobList});
 
   @override
   State<StatefulWidget> createState() => _DataTableDemoState();
@@ -65,16 +67,12 @@ class _DataTableDemoState extends State<DataTableDemo> {
   int _sortColumnIndex;
   bool _sortAscending = true;
 
-  /*数据源*/
-//  final EmployerProceedingDataSource _dessertsDataSource = EmployerProceedingDataSource(widget.tableKind);
-
   /*DataSource状态映射*/
   bool hasSelectedDessert = false;
-  Dessert selectedDessert;
+  StatisticProject selectedDessert;
 
-
-  void myTapCallback() {
-    Navigator.pushNamed(context, '/projdetails');
+  void myTapCallback(StatisticProject project) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProjDetails(project.projectId)));
   }
 
   void selectOneDessert(var dessert){
@@ -95,22 +93,17 @@ class _DataTableDemoState extends State<DataTableDemo> {
     });
   }
 
-//  void _sort<T>(Comparable<T> getField(Dessert d), int columnIndex, bool ascending) {
-//    _dessertsDataSource._sort<T>(getField, ascending);
-//    setState(() {
-//      _sortColumnIndex = columnIndex;
-//      _sortAscending = ascending;
-//    });
-//  }
-
   Widget tableContent(){
-    final EmployerProceedingDataSource _dessertsDataSource = EmployerProceedingDataSource(widget.tableKind);
-    _dessertsDataSource.myCallback = myTapCallback;
-    _dessertsDataSource.selectOneDessert = selectOneDessert;
-    _dessertsDataSource.cancelSelectOneDessert = cancelSelectOneDessert;
+    final EmployerProceedingDataSource _statisticJobDataSource = EmployerProceedingDataSource(
+      dataTableType: widget.tableKind,
+      myCallback: myTapCallback,
+      selectOneDessert: selectOneDessert,
+      cancelSelectOneDessert: cancelSelectOneDessert,
+      statisticProject: widget.jobList
+    );
 
-    void _sort<T>(Comparable<T> getField(Dessert d), int columnIndex, bool ascending) {
-      _dessertsDataSource._sort<T>(getField, ascending);
+    void _sort<T>(Comparable<T> getField(StatisticProject d), int columnIndex, bool ascending) {
+      _statisticJobDataSource._sort<T>(getField, ascending);
       setState(() {
         _sortColumnIndex = columnIndex;
         _sortAscending = ascending;
@@ -134,21 +127,22 @@ class _DataTableDemoState extends State<DataTableDemo> {
                     columns: <DataColumn>[
                       DataColumn(
                           label: Text(widget.columnNames[0]),
-                          onSort: (int columnIndex, bool ascending) => _sort<String>((Dessert d) => d.projectName, columnIndex, ascending)
+                          onSort: (int columnIndex, bool ascending) => _sort<String>((StatisticProject d) => d.projectName, columnIndex, ascending)
                       ),
                       DataColumn(
                           label: Text(widget.columnNames[1]),
                           onSort: (int columnIndex, bool ascending) {
                             if(widget.tableKind == "employerProceeding" || widget.tableKind == "employerComplete")
-                              _sort<String>((Dessert d) => d.employeeName, columnIndex, ascending);
-                            else _sort<String>((Dessert d) => d.employerName, columnIndex, ascending);
+                              _sort<String>((StatisticProject d) => d.employeeName, columnIndex, ascending);
+                            else _sort<String>((StatisticProject d) => d.employerName, columnIndex, ascending);
                           }
                       ),
                       DataColumn(
                           label: Text(widget.columnNames[2]),
                           numeric: true,
-                          onSort: (int columnIndex, bool ascending) => _sort<num>((Dessert d) => d.price, columnIndex, ascending)
+                          onSort: (int columnIndex, bool ascending) => _sort<num>((StatisticProject d) => d.price, columnIndex, ascending)
                       ),
+                      //TODO 日期的排序
                       DataColumn(
                         label: Text(widget.columnNames[3]),
 //                          onSort: (int columnIndex, bool ascending) => _sort<num>((Dessert d) => d.carbs, columnIndex, ascending)
@@ -158,12 +152,12 @@ class _DataTableDemoState extends State<DataTableDemo> {
                           numeric: true,
                           onSort: (int columnIndex, bool ascending) {
                             if(widget.tableKind == "employerProceeding" || widget.tableKind == "employerComplete")
-                              _sort<num>((Dessert d) => d.employeeRate, columnIndex, ascending);
-                            else _sort<num>((Dessert d) => d.employerRate, columnIndex, ascending);
+                              _sort<num>((StatisticProject d) => d.employeeRate, columnIndex, ascending);
+                            else _sort<num>((StatisticProject d) => d.employerRate, columnIndex, ascending);
                           }
                       ),
                     ],
-                    source: _dessertsDataSource
+                    source: _statisticJobDataSource
                 )
               ],
             ),
@@ -200,7 +194,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
               )
             ],
           ),
-          height: 100,
+          height: 90,
         ),
         tableContent()
       ],
@@ -209,7 +203,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
 
   Widget getSearchBarUI() {
     return Padding(
-      padding: const EdgeInsets.only(left: 6, right: 16, top: 8, bottom: 8),
+      padding: const EdgeInsets.only(left: 6, right: 16),
       child: Row(
         children: <Widget>[
           Expanded(
@@ -284,67 +278,62 @@ class _DataTableDemoState extends State<DataTableDemo> {
 }
 
 
-class Dessert {
-  Dessert(
-      this.projectId,
-      this.projectName,
-      this.employerName,
-      this.employerId,
-      this.employeeName,
-      this.employeeId,
-      this.price,
-      this.employerRate,
-      this.employeeRate,
-      this.deadLine,
-      this.completeDate
-      );
-  final int projectId;
+class StatisticProject {
+  StatisticProject({
+    this.projectId,
+    this.projectName,
+    this.employerName,
+    this.employerId,
+    this.employeeName,
+    this.employeeId,
+    this.price,
+    this.employerRate,
+    this.employeeRate,
+    this.startTime,
+    this.finishTime,
+    this.avgPrice,
+    this.lowestPrice,
+    this.deadline
+  });
+  final String projectId;
   final String projectName;
   final String employerName;
   final int employerId;
   final String employeeName;
   final int employeeId;
-  final double price;
+  final int price;
   final double employerRate;
   final double employeeRate;
-  final String deadLine;
-  final String completeDate;
+  final String startTime;
+  final String finishTime;
+  final int avgPrice;
+  final int lowestPrice;
+  final String deadline;
 
   bool selected = false;
 }
 
-/*假数据在这里*/
-List<Dessert> data = [
-  Dessert(1,'Frozen yogurt',                        "xtc",  6,  "sqy",  3,  87, 14,  1, "7月18日", "7月6日"),
-  Dessert(2,'Ice cream sandwich',                   "bb",   9,  "sqy",  3, 129,  8,  1, "7月18日", "7月6日"),
-  Dessert(3,'Eclair',                               "gdy",  1,  "sqy",  3, 337,  6,  7, "7月18日", "7月6日"),
-  Dessert(4,'Cupcake',                              "sqy",  3,  "sqy",  3, 413,  3,  8, "7月18日", "7月6日"),
-  Dessert(5,'Gingerbread',                          "xjq", 16,  "sqy",  3, 327,  7, 16, "7月18日", "7月6日"),
-  Dessert(6,'Jelly bean',                           "lyx",  8,  "sqy",  3,  50,  0,  0, "7月18日", "7月6日"),
-  Dessert(7,'Lollipop',                             "hlz",  2,  "sqy",  3,  38,  0,  2, "7月18日", "7月6日"),
-  Dessert(8,'Honeycomb',                            "zdy",  5,  "sqy",  3, 562,  0, 45, "7月18日", "7月6日"),
-  Dessert(9,'Donut',                                "lnr",  7,  "sqy",  3, 326,  2, 22, "7月18日", "7月6日"),
-  Dessert(10,'KitKat',                               "ryl", 4,  "sqy",  3,  54, 12,  6, "7月18日", "7月6日"),
-];
-
 class  EmployerProceedingDataSource extends DataTableSource{
-  VoidCallback myCallback;
+
+  EmployerProceedingDataSource({
+    this.dataTableType,
+    this.statisticProject,
+    this.selectOneDessert,
+    this.cancelSelectOneDessert,
+    this.myCallback
+  });
+  /*数据源*/
+  final List<StatisticProject> statisticProject;
+  Function(StatisticProject) myCallback;
   MyCallback selectOneDessert;
   VoidCallback cancelSelectOneDessert;
-//  Dessert selectedDessert;
-
   String dataTableType;
 
-  EmployerProceedingDataSource(String type){dataTableType = type;}
-  /*数据源*/
-  final List<Dessert> _desserts = data;
-
-
 /*ascending 上升 这里排序 没看懂比较的是个啥*/
-  void _sort<T> (Comparable<T> getField(Dessert d),bool ascending){
-    _desserts.sort((Dessert a, Dessert b) {
+  void _sort<T> (Comparable<T> getField(StatisticProject d),bool ascending){
+    statisticProject.sort((StatisticProject a, StatisticProject b) {
       if (ascending) {
-        final Dessert c = a;
+        final StatisticProject c = a;
         a = b;
         b = c;
       }
@@ -359,29 +348,20 @@ class  EmployerProceedingDataSource extends DataTableSource{
 
   @override
   DataRow getRow(int index) {
-    if (index >= _desserts.length)
+    if (index >= statisticProject.length)
       return null;
-    final Dessert dessert = _desserts[index];
+    final StatisticProject dessert = statisticProject[index];
     if(dataTableType == "employerProceeding"){
       return DataRow.byIndex(
           index: index,
           selected: dessert.selected,
           onSelectChanged: (bool value) {
             if(value) {
-//            if(selectedDessert != null){
-//              selectedDessert.selected = false;
-//              print('${selectedDessert.projectName}');
-//            }
-//            else _selectedCount += 1;
-//            selectedDessert = dessert;
               selectOneDessert(dessert);
             }
             else {
-//            _selectedCount += -1;
-//            selectedDessert = null;
               cancelSelectOneDessert();
             }
-//          assert(_selectedCount >= 0);
             dessert.selected = value;
             notifyListeners();
           },
@@ -389,21 +369,29 @@ class  EmployerProceedingDataSource extends DataTableSource{
             DataCell(
               GestureDetector(
                 onTap: () {
-                  myCallback();
+                  myCallback(dessert);
                 },
-                child: Text(
-                  '${dessert.projectName}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+                child: Container(
+                  width: 200,
+                  child: Tooltip(
+                    message: dessert.projectName,
+                    child: Text(
+                      dessert.projectName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             DataCell(Text('${dessert.employeeName}')),
             DataCell(Text('${dessert.price.toStringAsFixed(1)}')),
-            DataCell(Text('${dessert.deadLine}')),
+            DataCell(Text('${dessert.startTime}')),
             DataCell(Text('${(dessert.price * 0.2).toStringAsFixed(1)}')),
           ]
       );
@@ -414,20 +402,11 @@ class  EmployerProceedingDataSource extends DataTableSource{
           selected: dessert.selected,
           onSelectChanged: (bool value) {
             if(value) {
-//            if(selectedDessert != null){
-//              selectedDessert.selected = false;
-//              print('${selectedDessert.projectName}');
-//            }
-//            else _selectedCount += 1;
-//            selectedDessert = dessert;
               selectOneDessert(dessert);
             }
             else {
-//            _selectedCount += -1;
-//            selectedDessert = null;
               cancelSelectOneDessert();
             }
-//          assert(_selectedCount >= 0);
             dessert.selected = value;
             notifyListeners();
           },
@@ -435,21 +414,29 @@ class  EmployerProceedingDataSource extends DataTableSource{
             DataCell(
               GestureDetector(
                 onTap: () {
-                  myCallback();
+                  myCallback(dessert);
                 },
-                child: Text(
-                  '${dessert.projectName}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+                child: Container(
+                  width: 200,
+                  child: Tooltip(
+                    message: dessert.projectName,
+                    child: Text(
+                      dessert.projectName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             DataCell(Text('${dessert.employeeName}')),
             DataCell(Text('${dessert.price.toStringAsFixed(1)}')),
-            DataCell(Text('${dessert.completeDate}')),
+            DataCell(Text('${dessert.finishTime}')),
             DataCell(Text('${(dessert.employeeRate).toStringAsFixed(1)}')),
           ]
       );
@@ -460,20 +447,11 @@ class  EmployerProceedingDataSource extends DataTableSource{
           selected: dessert.selected,
           onSelectChanged: (bool value) {
             if(value) {
-//            if(selectedDessert != null){
-//              selectedDessert.selected = false;
-//              print('${selectedDessert.projectName}');
-//            }
-//            else _selectedCount += 1;
-//            selectedDessert = dessert;
               selectOneDessert(dessert);
             }
             else {
-//            _selectedCount += -1;
-//            selectedDessert = null;
               cancelSelectOneDessert();
             }
-//          assert(_selectedCount >= 0);
             dessert.selected = value;
             notifyListeners();
           },
@@ -481,21 +459,29 @@ class  EmployerProceedingDataSource extends DataTableSource{
             DataCell(
               GestureDetector(
                 onTap: () {
-                  myCallback();
+                  myCallback(dessert);
                 },
-                child: Text(
-                  '${dessert.projectName}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+                child: Container(
+                  width: 200,
+                  child: Tooltip(
+                    message: dessert.projectName,
+                    child: Text(
+                      dessert.projectName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             DataCell(Text('${dessert.employerName}')),
             DataCell(Text('${dessert.price.toStringAsFixed(1)}')),
-            DataCell(Text('${dessert.deadLine}')),
+            DataCell(Text('${dessert.startTime}')),
             DataCell(Text('${(dessert.price * 0.2).toStringAsFixed(1)}')),
           ]
       );
@@ -506,20 +492,11 @@ class  EmployerProceedingDataSource extends DataTableSource{
           selected: dessert.selected,
           onSelectChanged: (bool value) {
             if(value) {
-//            if(selectedDessert != null){
-//              selectedDessert.selected = false;
-//              print('${selectedDessert.projectName}');
-//            }
-//            else _selectedCount += 1;
-//            selectedDessert = dessert;
               selectOneDessert(dessert);
             }
             else {
-//            _selectedCount += -1;
-//            selectedDessert = null;
               cancelSelectOneDessert();
             }
-//          assert(_selectedCount >= 0);
             dessert.selected = value;
             notifyListeners();
           },
@@ -527,21 +504,29 @@ class  EmployerProceedingDataSource extends DataTableSource{
             DataCell(
               GestureDetector(
                 onTap: () {
-                  myCallback();
+                  myCallback(dessert);
                 },
-                child: Text(
-                  '${dessert.projectName}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+                child: Container(
+                  width: 200,
+                  child: Tooltip(
+                    message: dessert.projectName,
+                    child: Text(
+                      dessert.projectName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             DataCell(Text('${dessert.employerName}')),
             DataCell(Text('${dessert.price.toStringAsFixed(1)}')),
-            DataCell(Text('${dessert.completeDate}')),
+            DataCell(Text('${dessert.finishTime}')),
             DataCell(Text('${(dessert.employerRate).toStringAsFixed(1)}')),
           ]
       );
@@ -551,20 +536,11 @@ class  EmployerProceedingDataSource extends DataTableSource{
           selected: dessert.selected,
           onSelectChanged: (bool value) {
             if(value) {
-//            if(selectedDessert != null){
-//              selectedDessert.selected = false;
-//              print('${selectedDessert.projectName}');
-//            }
-//            else _selectedCount += 1;
-//            selectedDessert = dessert;
               selectOneDessert(dessert);
             }
             else {
-//            _selectedCount += -1;
-//            selectedDessert = null;
               cancelSelectOneDessert();
             }
-//          assert(_selectedCount >= 0);
             dessert.selected = value;
             notifyListeners();
           },
@@ -572,21 +548,29 @@ class  EmployerProceedingDataSource extends DataTableSource{
             DataCell(
               GestureDetector(
                 onTap: () {
-                  myCallback();
+                  myCallback(dessert);
                 },
-                child: Text(
-                  '${dessert.projectName}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
+                child: Container(
+                  width: 200,
+                  child: Tooltip(
+                    message: dessert.projectName,
+                    child: Text(
+                      dessert.projectName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             DataCell(Text('${dessert.employeeName}')),
             DataCell(Text('${dessert.price.toStringAsFixed(1)}')),
-            DataCell(Text('${dessert.deadLine}')),
+            DataCell(Text('${dessert.startTime}')),
             DataCell(Text('${(dessert.price * 0.2).toStringAsFixed(1)}')),
           ]
       );
@@ -598,7 +582,7 @@ class  EmployerProceedingDataSource extends DataTableSource{
 
   // TODO: implement rowCount
   @override
-  int get rowCount => _desserts.length;
+  int get rowCount => statisticProject.length;
 
   // TODO: implement selectedRowCount
   @override

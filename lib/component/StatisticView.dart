@@ -45,26 +45,27 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
     getUsers();
   }
 
-  //假数据随机数
-  int getState() {
-    return new Random().nextInt(6) - 3;
-  }
-  String getDeadline() {
-    return '2020-0' + (new Random().nextInt(9) + 1).toString() + '-' + (new Random().nextInt(20) + 10).toString();
-  }
-  int getCandidateNumber() {
-    return new Random().nextInt(50);
-  }
-  int getAccessTimes() {
-    return new Random().nextInt(1000);
-  }
+//  //假数据随机数
+//  int getState() {
+//    return new Random().nextInt(6) - 3;
+//  }
+//  String getDeadline() {
+//    return '2020-0' + (new Random().nextInt(9) + 1).toString() + '-' + (new Random().nextInt(20) + 10).toString();
+//  }
+//  int getCandidateNumber() {
+//    return new Random().nextInt(50);
+//  }
+//  int getAccessTimes() {
+//    return new Random().nextInt(1000);
+//  }
 
   getJobs() async {
     List<StatisticJob> jobs = [];
     List<StatisticJob> chooseJobs = [];
     var response = [];
     String url = "${Url.url_prefix}/getJobs";
-    final res = await http.get(url);
+    String token = await StorageUtil.getStringItem('token');
+    final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
     final data = json.decode(res.body);
     response = data;
     for(int i = 0; i < response.length; ++i){
@@ -72,7 +73,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
       for(int j = 0; j < response[i]['skills'].length; ++j){
         skills.add(response[i]['skills'][j].toString());
       }
-      jobs.add(StatisticJob(response[i]['id'], response[i]['title'], getState(), getDeadline(), getAccessTimes(), getCandidateNumber()));
+      jobs.add(StatisticJob(response[i]['id'], response[i]['title'], response[i]['state'], response[i]['deadline'], response[i]['click'], response[i]['candidateNum']));
     }
     setState(() {
       originJobList = jobs;
@@ -83,11 +84,6 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
     setState(() {
       jobList = chooseJobs;
     });
-  }
-
-  /*得到随机数*/
-  int getRandom() {
-    return new Random().nextInt(4) - 2;
   }
 
   getUsers() async {
@@ -103,7 +99,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
       for(int j = 0; j < response[i]['skills'].length; ++j){
         skills.add(response[i]['skills'][j].toString());
       }
-      users.add(StatisticUser(response[i]['id'], response[i]['name'], getRandom(), getCandidateNumber(), getCandidateNumber()));
+      users.add(StatisticUser(response[i]['id'], response[i]['name'], response[i]['role'], response[i]['workNumber'], response[i]['publishNumber']));
     }
     setState(() {
       originUserList = users;
@@ -307,13 +303,13 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ToggleSwitch(
-                            minWidth: 120.0,
+                            minWidth: MediaQuery.of(context).size.width > 1080? 120.0 : 80,
                             cornerRadius: 20,
                             activeBgColor: HexColor('#54D3C2'),
                             activeFgColor: Colors.white,
                             inactiveBgColor: Colors.grey.withOpacity(0.6),
                             inactiveFgColor: Colors.white,
-                            labels: ['项目数据', '用户数据'],
+                            labels: MediaQuery.of(context).size.width > 1080? ['项目数据', '用户数据'] : ['项目', '用户'],
                             icons: [Icons.desktop_windows, Icons.group],
                             onToggle: (index) {
                               if(index == 1) setState(() {
@@ -416,6 +412,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
         setState(() {
           chooseUserRole = newValue;
         });
+        executeChooseUserRole();
       },
       items: <String>['所有用户', '待核验', '已核验', '已封禁', '管理员']
           .map<DropdownMenuItem<String>>((String value) {
@@ -480,13 +477,13 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
       var now = DateTime.now();
       if(isBid){
         for(int i = 0; i < jobs.length; ++i){
-          var then = DateTime.parse(jobs[i].deadline);
+          var then = DateTime.parse(jobs[i].deadline.replaceAll('.', '-'));
           if(then.isAfter(now)) timeSatisfyJobs.add(jobs[i]);
         }
       }
       else{
         for(int i = 0; i < jobs.length; ++i){
-          var then = DateTime.parse(jobs[i].deadline);
+          var then = DateTime.parse(jobs[i].deadline.replaceAll('.', '-'));
           if(then.isBefore(now)) timeSatisfyJobs.add(jobs[i]);
         }
       }
@@ -496,6 +493,42 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
     }
     else setState(() {
       jobList = jobs;
+    });
+  }
+
+  executeChooseUserRole() {
+    List<StatisticUser> users = [];
+    int role;
+    switch(chooseUserRole){
+      case '所有用户': {
+        setState(() {
+          userList = originUserList;
+        });
+        return;
+      }
+      break;
+      case '待核验': {
+        role = -2;
+      }
+      break;
+      case '已封禁': {
+        role = -1;
+      }
+      break;
+      case '已核验': {
+        role = 0;
+      }
+      break;
+      case '管理员': {
+        role = 1;
+      }
+      break;
+    }
+    for(int i = 0; i < originUserList.length; ++i){
+      if(originUserList[i].role == role) users.add(originUserList[i]);
+    }
+    setState(() {
+      userList = users;
     });
   }
 }

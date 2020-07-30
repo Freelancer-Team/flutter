@@ -11,11 +11,13 @@ class ProjectAdminItem extends StatelessWidget {
         this.animationController,
         this.animation,
         this.callback,
+        this.navigateToEmployer,
         this.toggleCallback
       })
       : super(key: key);
 
   final VoidCallback callback;
+  final VoidCallback navigateToEmployer;
   final Function(int) toggleCallback;
   final Job jobData;
   final AnimationController animationController;
@@ -89,18 +91,23 @@ class ProjectAdminItem extends StatelessWidget {
                                             Row(
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
-                                                Chip(
-                                                  label: Text(jobData.employerName),
-                                                  avatar: CircleAvatar(
-                                                    child: Icon(Icons.person, size: 20,),
+                                                InkWell(
+                                                  onTap: (){
+                                                    navigateToEmployer();
+                                                  },
+                                                  child: Chip(
+                                                    label: Text(jobData.employerName),
+                                                    avatar: CircleAvatar(
+                                                      child: Icon(Icons.person, size: 20,),
+                                                    ),
+                                                    labelPadding: EdgeInsets.only(left: 8, right: 10),
+                                                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                                                   ),
-                                                  labelPadding: EdgeInsets.only(left: 8, right: 10),
-                                                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                                                 ),
                                                 Container(
                                                   margin: EdgeInsets.only(left: 15),
                                                   child: Chip(
-                                                    label: Text(formatDate(DateTime.parse(jobData.deadline), [yyyy, '-', mm, '-', dd])),
+                                                    label: Text(formatDate(DateTime.parse(jobData.publishTime.replaceAll('.', '-')), [yyyy, '-', mm, '-', dd])),
                                                     avatar: CircleAvatar(
                                                       child: Icon(Icons.query_builder, size: 20,),
                                                     ),
@@ -108,7 +115,7 @@ class ProjectAdminItem extends StatelessWidget {
                                                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                                                   ),
                                                 ),
-                                                StateCard(state: jobData.state, date: jobData.deadline,)
+                                                StateCard(state: jobData.state, date: jobData.publishTime,)
                                               ],
                                             ),
                                             Text(
@@ -175,7 +182,7 @@ class ProjectAdminItem extends StatelessWidget {
                         Positioned(
                           top: 10,
                           right: 10,
-                          child: getToggleSwitch()
+                          child: MyToggleSwitch(state: jobData.state, toggleCallback: toggleCallback,)
                         ),
                       ],
                     ),
@@ -202,54 +209,104 @@ class ProjectAdminItem extends StatelessWidget {
     }
     else return '美元 每小时';
   }
+}
 
-  Widget getToggleSwitch() {
-    int index = 0;
-    double opacity = 1;
-    bool _absorbing = false;
-    switch (jobData.state) {
+class MyToggleSwitch extends StatelessWidget{
+  const MyToggleSwitch({Key key, this.state, this.toggleCallback})
+      : super(key: key);
+
+  final int state;
+  final Function(int) toggleCallback;
+
+  // flutter更新组件状态时，只更新最底部最小的部分，由于initialLabelIndex是在initialState中使用的，initialState不重复调用，
+  // 因此toggleSwitch状态不会自动更新，此处通过为不同内容加上不同的父组件包裹，强制重新初始化一个新的toggleSwitch，解决了状态更新问题。
+  @override
+  Widget build(BuildContext context) {
+    switch (state) {
       case -3:
         {
-          index = -1;
+          return ToggleSwitch(
+              minWidth: 90.0,
+              initialLabelIndex: -1,
+              cornerRadius: 16.0,
+              activeFgColor: Colors.white,
+              activeBgColor: Colors.grey,
+              inactiveBgColor: Colors.grey,
+              inactiveFgColor: Colors.white,
+              labels: ['正常', '禁用'],
+              activeBgColors: [Colors.blue, Colors.pink],
+              onToggle: (index) {
+                toggleCallback(index);
+              },
+          );
         }
         break;
       case -1:
         {
-          index = 1;
+          return SizedBox(
+            child: new ToggleSwitch(
+              minWidth: 90.0,
+              initialLabelIndex: 1,
+              cornerRadius: 16.0,
+              activeFgColor: Colors.white,
+              activeBgColor: Colors.grey,
+              inactiveBgColor: Colors.grey,
+              inactiveFgColor: Colors.white,
+              labels: ['正常', '禁用'],
+              activeBgColors: [Colors.blue, Colors.pink],
+              onToggle: (index) {
+                toggleCallback(index);
+              },
+            ),
+          );
         }
         break;
-      case 0:{}
+      case 0:
+        {
+          return Container(
+            child: new ToggleSwitch(
+              minWidth: 90.0,
+              initialLabelIndex: 0,
+              cornerRadius: 16.0,
+              activeFgColor: Colors.white,
+              activeBgColor: Colors.grey,
+              inactiveBgColor: Colors.grey,
+              inactiveFgColor: Colors.white,
+              labels: ['正常', '禁用'],
+              activeBgColors: [Colors.blue, Colors.pink],
+              onToggle: (index) {
+                toggleCallback(index);
+              },
+            ),
+          );
+        }
         break;
       case -2:
       case 1:
       case 2:
         {
-          _absorbing = true;
-          opacity = 0.5;
+          return new AbsorbPointer(
+            child: new ToggleSwitch(
+              minWidth: 90.0,
+              initialLabelIndex: 0,
+              cornerRadius: 16.0,
+              activeFgColor: Colors.white,
+              activeBgColor: Colors.grey.withOpacity(0.5),
+              inactiveBgColor: Colors.grey.withOpacity(0.5),
+              inactiveFgColor: Colors.white,
+              labels: ['正常', '禁用'],
+              activeBgColors: [Colors.blue.withOpacity(0.5), Colors.pink.withOpacity(0.5)],
+              onToggle: (index) {
+                toggleCallback(index);
+              },
+            ),
+          );
         }
         break;
     }
-    return AbsorbPointer(
-      absorbing: _absorbing,
-      child: ToggleSwitch(
-        minWidth: 90.0,
-        initialLabelIndex: index,
-        cornerRadius: 16.0,
-        activeFgColor: Colors.white,
-        activeBgColor: Colors.grey.withOpacity(opacity),
-        inactiveBgColor: Colors.grey.withOpacity(opacity),
-        inactiveFgColor: Colors.white,
-        labels: ['正常', '禁用'],
-        activeBgColors: [Colors.blue.withOpacity(opacity), Colors.pink.withOpacity(opacity)],
-        onToggle: (index) {
-//          print('switched to: $index');
-          toggleCallback(index);
-        },
-      ),
-    );
+    return null;
   }
 }
-
 
 class Job {
   Job(
@@ -263,6 +320,7 @@ class Job {
       this.minPrice,
       this.maxPrice,
       this.state,    //分类情况见StateCard.dart
+      this.publishTime,
       this.deadline
       );
   final String projectId;
@@ -275,5 +333,6 @@ class Job {
   final int minPrice;
   final int maxPrice;
   int state;
+  final String publishTime;
   final String deadline;
 }

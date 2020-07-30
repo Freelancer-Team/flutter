@@ -1,5 +1,6 @@
 import 'hotel_app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HotelListView extends StatelessWidget {
   const HotelListView(
@@ -86,11 +87,11 @@ class HotelListView extends StatelessWidget {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(Icons.restore, size: 18,),
+                                                  Icon(FontAwesomeIcons.hourglassHalf, size: 18,),
                                                   Padding(
                                                     padding: EdgeInsets.only(left: 3),
                                                     child: Text(
-                                                      jobData.deadline,
+                                                      jobData.deadline.substring(0, 10),
                                                       style: TextStyle(height: 1,fontSize: 14,)
                                                     ),
                                                   )

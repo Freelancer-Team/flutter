@@ -7,9 +7,10 @@ import 'FilterStaticDataType.dart';
 import 'calendar_popup_view.dart';
 import 'SkillChooseModal.dart';
 import 'LiteSwitch.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 
-//TODO 两种技能搜索模式未区别实现，目前全部以模糊对待
+//TODO Bug：先只保留时薪工作，再重新加上固定价格工作，工作总数减少
 class FiltersScreen extends StatefulWidget {
   const FiltersScreen({Key key, this.filterConditionChange,})
       : super(key: key);
@@ -20,20 +21,35 @@ class FiltersScreen extends StatefulWidget {
 }
 
 class _FiltersScreenState extends State<FiltersScreen> {
-  List<PopularFilterListData> projectTypeListData =
-      PopularFilterListData.projectTypeList;
+  //新建临时变量，取消时状态还原
+  List<PopularFilterListData> projectTypeListData = <PopularFilterListData>[
+    PopularFilterListData(
+      titleTxt: '固定价格项目',
+      isSelected: PopularFilterListData.projectTypeList[0].isSelected,
+    ),
+    PopularFilterListData(
+      titleTxt: '时薪项目',
+      isSelected: PopularFilterListData.projectTypeList[1].isSelected,
+    )
+  ];
 
-  PriceRangeData _fixedPrices = PriceRangeData.filterRangeData[0];
-  PriceRangeData _hourlyPrices = PriceRangeData.filterRangeData[1];
+  RangeValues _fixedPrices = PriceRangeData.filterRangeData[0].prices;
+  RangeValues _hourlyPrices = PriceRangeData.filterRangeData[1].prices;
 
-  bool _ifLimitDeadLine = false;
-  DeadlineData _startDate = DeadlineData.deadlineData[0];
-  DeadlineData _endDate = DeadlineData.deadlineData[1];
+  bool _ifLimitDeadLine = IfLimit.ifLimitDeadline.ifLimit;
+  DateTime _startDate = DeadlineData.deadlineData[0].dateTime;
+  DateTime _endDate = DeadlineData.deadlineData[1].dateTime;
 
-  bool _ifLimitSkills = false;
+  bool _ifLimitSkills = IfLimit.ifLimitSkills.ifLimit;
   final ValueNotifier<bool> switchState = new ValueNotifier<bool>(true);
-  bool _chooseVagueModel = true;
-  RequireSkills _skills = RequireSkills.skills;
+  bool _chooseVagueModel = IfLimit.chooseVagueModel.ifLimit;
+  List<String> _skills = new List();
+
+  @override
+  void initState() {
+    super.initState();
+    _skills.addAll(RequireSkills.skills.requireSkills);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,16 +135,29 @@ class _FiltersScreenState extends State<FiltersScreen> {
                     highlightColor: Colors.transparent,
                     onTap: () {
                       Navigator.pop(context);
+                      //状态保存
+                      PopularFilterListData.projectTypeList[0].isSelected = projectTypeListData[0].isSelected;
+                      PopularFilterListData.projectTypeList[1].isSelected = projectTypeListData[1].isSelected;
+                      PriceRangeData.filterRangeData[0].prices = _fixedPrices;
+                      PriceRangeData.filterRangeData[1].prices = _hourlyPrices;
+                      IfLimit.ifLimitDeadline.ifLimit = _ifLimitDeadLine;
+                      DeadlineData.deadlineData[0].dateTime = _startDate;
+                      DeadlineData.deadlineData[1].dateTime = _endDate;
+                      IfLimit.ifLimitSkills.ifLimit = _ifLimitSkills;
+                      IfLimit.chooseVagueModel.ifLimit = _chooseVagueModel;
+                      RequireSkills.skills.requireSkills = _skills;
+
                       widget.filterConditionChange(FilterCondition(
                         fixedPriceExist: projectTypeListData[0],
                         hourlyPriceExist: projectTypeListData[1],
-                        fixedPrices: _fixedPrices.prices,
-                        hourlyPrices: _hourlyPrices.prices,
+                        fixedPrices: _fixedPrices,
+                        hourlyPrices: _hourlyPrices,
                         ifLimitDeadline: _ifLimitDeadLine,
-                        startDate: _startDate.dateTime,
-                        endDate: _endDate.dateTime,
+                        startDate: _startDate,
+                        endDate: _endDate,
                         ifLimitSkills: _ifLimitSkills,
-                        requireSkills: _skills.requireSkills,
+                        chooseVagueModel: _chooseVagueModel,
+                        requireSkills: _skills,
                       ));
                     },
                     child: Center(
@@ -203,7 +232,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
                                 showDemoDialog(context: context);
                               },
                               child: Text(
-                                '${DateFormat("dd, MMM").format(_startDate.dateTime)} - ${DateFormat("dd, MMM").format(_endDate.dateTime)}',
+                                '${DateFormat("dd, MMM").format(_startDate)} - ${DateFormat("dd, MMM").format(_endDate)}',
                                 style: TextStyle(
                                   fontSize: 16,
                                 ),
@@ -235,13 +264,17 @@ class _FiltersScreenState extends State<FiltersScreen> {
                                 onTap: () {
                                   FocusScope.of(context).requestFocus(FocusNode());
                                   if(!_ifLimitDeadLine) showDemoDialog(context: context);
+                                  else setState(() {
+                                    _startDate = DateTime.now();
+                                    _endDate = DateTime.now().add(const Duration(days: 7));
+                                  });
                                   setState(() {
                                     _ifLimitDeadLine = !_ifLimitDeadLine;
                                   });
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
-                                  child: Icon(_ifLimitDeadLine? Icons.close : Icons.build,
+                                  child: Icon(_ifLimitDeadLine ? Icons.close : Icons.build,
                                       size: 14,
                                       color: const Color(0xFFFFFFFF)),
                                 ),
@@ -270,13 +303,13 @@ class _FiltersScreenState extends State<FiltersScreen> {
       builder: (BuildContext context) => CalendarPopupView(
         barrierDismissible: true,
         minimumDate: DateTime.now(),
-        initialEndDate: _endDate.dateTime,
-        initialStartDate: _startDate.dateTime,
+        initialEndDate: _endDate,
+        initialStartDate: _startDate,
         onApplyClick: (DateTime startData, DateTime endData) {
           setState(() {
             if (startData != null && endData != null) {
-              _startDate.dateTime = startData;
-              _endDate.dateTime = endData;
+              _startDate = startData;
+              _endDate = endData;
             }
           });
         },
@@ -394,10 +427,10 @@ class _FiltersScreenState extends State<FiltersScreen> {
           ),
         ),
         RangeSliderView(
-          values: _fixedPrices.prices,
+          values: _fixedPrices,
           onChangeRangeValues: (RangeValues values) {
             setState(() {
-              _fixedPrices.prices = values;
+              _fixedPrices = values;
             });
           },
         ),
@@ -425,10 +458,10 @@ class _FiltersScreenState extends State<FiltersScreen> {
           ),
         ),
         RangeSliderView2(
-          values: _hourlyPrices.prices,
+          values: _hourlyPrices,
           onChangeRangeValues: (RangeValues values) {
             setState(() {
-              _hourlyPrices.prices = values;
+              _hourlyPrices = values;
             });
           },
         ),
@@ -440,7 +473,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
   }
 
   Widget getSkillChooseUI() {
-    List<Widget> skillManageList = _skills.requireSkills.map((skill) => Container(
+    List<Widget> skillManageList = _skills.map((skill) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 5.3),
       decoration: BoxDecoration(
@@ -494,7 +527,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
                   message: _chooseVagueModel? "项目技能要求至少包含所选技能之一" : "项目技能要求必须包含所选全部技能",
                   child: LiteSwitch(
                     switchState: switchState,
-                    initValue: false,
+                    initValue: !_chooseVagueModel,
                     textSize: 14.0,
                     iWidth: 100,
                     iHeight: 30,
@@ -502,8 +535,8 @@ class _FiltersScreenState extends State<FiltersScreen> {
                     textOff: '模糊模式',
                     colorOn: HexColor('#54D3C2'),
                     colorOff: HexColor('#54D3C2'),
-                    iconOn: IconData(0xe63e, fontFamily: 'MyIcons'),
-                    iconOff: IconData(0xe669, fontFamily: 'MyIcons'),
+                    iconOn: MediaQuery.of(context).size.width > 1080? IconData(0xe63e, fontFamily: 'MyIcons') : FontAwesomeIcons.dotCircle,
+                    iconOff: MediaQuery.of(context).size.width > 1080? IconData(0xe669, fontFamily: 'MyIcons') : FontAwesomeIcons.spinner,
                     onChanged: (bool state) {
                       setState(() {
                         _chooseVagueModel = !_chooseVagueModel;
@@ -534,7 +567,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
       if(skills.length == 0) _ifLimitSkills = false;
       else _ifLimitSkills = true;
       setState(() {
-        _skills.requireSkills = skills;
+        _skills = skills;
       });
       Navigator.pop(context);
     }
@@ -545,7 +578,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
         // 这里传入一个选择器列表即可
         children: [
           SkillDialog(
-            skillChoose: this._skills.requireSkills,
+            skillChoose: this._skills,
             onSkillChanged: onSkillChange,
           ),
         ]
@@ -621,6 +654,7 @@ class FilterCondition {
     this.startDate,
     this.endDate,
     this.ifLimitSkills,
+    this.chooseVagueModel,
     this.requireSkills
   });
   PopularFilterListData fixedPriceExist;
@@ -631,5 +665,6 @@ class FilterCondition {
   DateTime startDate;
   DateTime endDate;
   bool ifLimitSkills;
+  bool chooseVagueModel;
   List<String> requireSkills;
 }

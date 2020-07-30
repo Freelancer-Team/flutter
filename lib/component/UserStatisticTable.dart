@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:freelancer_flutter/component/MyPaginateDataTable.dart';
+import 'package:freelancer_flutter/pages/profile.dart';
 
 
 class UserStatisticTable extends StatefulWidget {
@@ -17,8 +18,8 @@ class _UserStatisticTableState extends State<UserStatisticTable> {
   int _sortColumnIndex;
   bool _sortAscending = true;
 
-  void myTapCallback(StatisticUser job) {
-
+  void myTapCallback(StatisticUser user) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: user.userId)));
   }
 
   @override
@@ -125,7 +126,7 @@ class  StatisticUserDataSource extends DataTableSource{
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.blue,
                         decoration: TextDecoration.underline,
                       ),
