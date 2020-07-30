@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freelancer_flutter/pages/profile.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 
@@ -42,7 +43,10 @@ class _MyDrawerState extends State<MyDrawer> {
   Widget UserInfo() {
     // TODO: implement build
     return Container(
-        width: MediaQuery.of(context).size.width * 0.85,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width * 0.85,
         child: DrawerHeader(
           child: Row(children: <Widget>[
             CircleAvatar(
@@ -116,7 +120,7 @@ class _MyDrawerState extends State<MyDrawer> {
               color: Colors.black,
             ),
             onTap: () {
-              !isLog?Navigator.pushNamed(context, '/login'):Navigator.pushNamed(context, '/profile');
+              !isLog ? Navigator.pushNamed(context, '/login') : navigateToProfile();
             },
           ),
           Divider(
@@ -132,7 +136,9 @@ class _MyDrawerState extends State<MyDrawer> {
               Icons.dashboard,
               color: Colors.black,
             ),
-            onTap: () {Navigator.pushNamed(context, '/admin');},
+            onTap: () {
+              Navigator.pushNamed(context, '/admin');
+            },
           ),
           Divider(
             height: 12.0,
@@ -162,7 +168,9 @@ class _MyDrawerState extends State<MyDrawer> {
               Icons.search,
               color: Colors.black,
             ),
-            onTap: () {Navigator.pushNamed(context, '/jobList');},
+            onTap: () {
+              Navigator.pushNamed(context, '/jobList');
+            },
           ),
           Divider(
             height: 10.0,
@@ -170,7 +178,7 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           ListTile(
             title: Text(
-              !isLog?"Login":"Logout",
+              !isLog ? "Login" : "Logout",
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             ),
             leading: Icon(
@@ -179,11 +187,17 @@ class _MyDrawerState extends State<MyDrawer> {
             ),
             onTap: () {
               Account.delUserInfo();
-              !isLog?Navigator.pushNamed(context, '/login'):Navigator.pushNamed(context, '/home');
+              !isLog ? Navigator.pushNamed(context, '/login') : Navigator
+                  .pushNamed(context, '/home');
             },
           ),
         ],
       ),
     );
+  }
+
+  navigateToProfile() async {
+    int userId = await StorageUtil.getIntItem("uid");
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Profile(userId: userId)));
   }
 }

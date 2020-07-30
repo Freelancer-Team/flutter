@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freelancer_flutter/component/MyPaginateDataTable.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
-import 'hotel_app_theme.dart';
 
 
 class ProjectStatisticTable extends StatefulWidget {
@@ -128,7 +126,7 @@ class  StatisticJobDataSource extends DataTableSource{
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.blue,
                         decoration: TextDecoration.underline,
                       ),
@@ -161,7 +159,7 @@ class  StatisticJobDataSource extends DataTableSource{
       break;
       case 0: {
         var now = DateTime.now();
-        var then = DateTime.parse(job.deadline);
+        var then = DateTime.parse(job.deadline.replaceAll('.', '-'));
         if(then.isAfter(now)){
           text = '竞标中';
         }

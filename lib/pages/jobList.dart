@@ -31,19 +31,19 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
     getJobs();
   }
 
-  //假数据随机数
-  int getMaxPriceRandom() {
-    return (new Random().nextInt(10) + 1) * 10;
-  }
-  int getMinPriceRandom() {
-    return new Random().nextInt(10) + 1;
-  }
-  int getPriceTypeRandom() {
-    return new Random().nextInt(2);
-  }
-  String getDeadline() {
-    return '2020-0' + (new Random().nextInt(9) + 1).toString() + '-' + (new Random().nextInt(20) + 10).toString();
-  }
+//  //假数据随机数
+//  int getMaxPriceRandom() {
+//    return (new Random().nextInt(10) + 1) * 10;
+//  }
+//  int getMinPriceRandom() {
+//    return new Random().nextInt(10) + 1;
+//  }
+//  int getPriceTypeRandom() {
+//    return new Random().nextInt(2);
+//  }
+//  String getDeadline() {
+//    return '2020-0' + (new Random().nextInt(9) + 1).toString() + '-' + (new Random().nextInt(20) + 10).toString();
+//  }
 
   getJobs() async {
     List<Job> jobs = [];
@@ -56,7 +56,7 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
         for(int j = 0; j < response[i]['skills'].length; ++j){
           skills.add(response[i]['skills'][j].toString());
         }
-      jobs.add(Job(response[i]['id'], response[i]['title'], response[i]['description'], skills, getPriceTypeRandom(), getMinPriceRandom(), getMaxPriceRandom(), getDeadline()));
+      jobs.add(Job(response[i]['id'], response[i]['title'], response[i]['description'], skills, response[i]['type'], response[i]['low'], response[i]['high'], response[i]['deadline'].replaceAll('.', '-')));
     }
     setState(() {
       originJobList = jobs;
@@ -257,7 +257,6 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
   }
 
   handleFilterCondition(FilterCondition condition) {
-    print(condition);
     bool fixedPriceExist = condition.fixedPriceExist.isSelected;
     bool hourlyPriceExist = condition.hourlyPriceExist.isSelected;
     List<Job> jobs = [];
@@ -273,38 +272,17 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
           jobs.add(originJobList[i]);
       }
     }
-    if(!condition.ifLimitDeadline){
-      if(!condition.ifLimitSkills) {
-        setState(() {
-          jobList = jobs;
-        });
-      }
-      else{
-        for(int i = 0; i < jobs.length; ++i){
-          bool satisfy = false;
-          for(int j = 0; j < condition.requireSkills.length; ++j){
-            if(jobs[i].skills.contains(condition.requireSkills[j]))
-              satisfy = true;
-          }
-          if(satisfy) skillSatisfyJobs.add(jobs[i]);
-        }
-        setState(() {
-          jobList = skillSatisfyJobs;
-        });
-      }
-    }
-    else{
+    if(condition.ifLimitDeadline){
       for(int i = 0; i < jobs.length; ++i){
         DateTime jobDeadline = DateTime.parse(jobs[i].deadline);
         if(jobDeadline.isAfter(condition.startDate) && jobDeadline.isBefore(condition.endDate))
           timeSatisfyJobs.add(jobs[i]);
       }
-      if(!condition.ifLimitSkills) {
-        setState(() {
-          jobList = timeSatisfyJobs;
-        });
-      }
-      else{
+    }
+    else timeSatisfyJobs = jobs;
+    if(condition.ifLimitSkills){
+      //模糊过滤和精准过滤，离散小知识
+      if(condition.chooseVagueModel){
         for(int i = 0; i < timeSatisfyJobs.length; ++i){
           bool satisfy = false;
           for(int j = 0; j < condition.requireSkills.length; ++j){
@@ -313,11 +291,22 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
           }
           if(satisfy) skillSatisfyJobs.add(timeSatisfyJobs[i]);
         }
-        setState(() {
-          jobList = skillSatisfyJobs;
-        });
+      }
+      else{
+        for(int i = 0; i < timeSatisfyJobs.length; ++i){
+          bool satisfy = true;
+          for(int j = 0; j < condition.requireSkills.length; ++j){
+            if(!timeSatisfyJobs[i].skills.contains(condition.requireSkills[j]))
+              satisfy = false;
+          }
+          if(satisfy) skillSatisfyJobs.add(timeSatisfyJobs[i]);
+        }
       }
     }
+    else skillSatisfyJobs = timeSatisfyJobs;
+    setState(() {
+      jobList = skillSatisfyJobs;
+    });
   }
 
   Widget getFilterBarUI() {

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/pages/admin.dart';
 import 'package:freelancer_flutter/pages/apply.dart';
 import 'package:freelancer_flutter/pages/home.dart';
+import 'package:freelancer_flutter/pages/person.dart';
 import 'package:freelancer_flutter/pages/publish.dart';
-import 'package:freelancer_flutter/pages/profile.dart';
+import 'package:freelancer_flutter/pages/profile_old.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
 import 'package:freelancer_flutter/pages/login.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
@@ -24,10 +25,10 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => signUpScreen(),
 //        '/category' : (context) => Category(),
-        '/profile': (context) => ProfilePage(),
         '/publish': (context) => PublishPage(),
         '/jobList':(context) => JobListPage(),
-        '/admin': (context) => AdminPage()
+        '/admin': (context) => AdminPage(),
+        '/person': (context) => Person()
 //        '/apply': (context) => HomePage(),
       },
     );

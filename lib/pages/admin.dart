@@ -8,13 +8,16 @@ import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/component/UserAdminItem.dart';
 import 'package:freelancer_flutter/component/StatisticView.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
+import 'package:freelancer_flutter/pages/profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/component/config.dart';
 
 
-
+//TODO 搜索、分类与过滤同时应用未实现，同一时刻只有最后的操作生效
+//TODO 移动端UI适配问题，stack覆盖和标签过长overflow
+//TODO 列表为空时展示一个图片
 class AdminPage extends StatefulWidget {
   @override
   _AdminPageState createState() => _AdminPageState();
@@ -125,18 +128,21 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
     getJobs();
   }
 
-  //假数据随机数
-  int getState() {
-    return new Random().nextInt(6) - 3;
-  }
-  int getMaxPriceRandom() {
-    return (new Random().nextInt(10) + 1) * 10;
-  }
-  int getMinPriceRandom() {
-    return new Random().nextInt(10) + 1;
-  }
-  int getPriceTypeRandom() {
-    return new Random().nextInt(2);
+//  //假数据随机数
+//  int getState() {
+//    return new Random().nextInt(6) - 3;
+//  }
+//  int getMaxPriceRandom() {
+//    return (new Random().nextInt(10) + 1) * 10;
+//  }
+//  int getMinPriceRandom() {
+//    return new Random().nextInt(10) + 1;
+//  }
+//  int getPriceTypeRandom() {
+//    return new Random().nextInt(2);
+//  }
+  String getPublishTime() {
+    return '2020-0' + (new Random().nextInt(9) + 1).toString() + '-' + (new Random().nextInt(20) + 10).toString();
   }
   String getDeadline() {
     return '2020-0' + (new Random().nextInt(9) + 1).toString() + '-' + (new Random().nextInt(20) + 10).toString();
@@ -147,7 +153,8 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
     List<Job> chooseJobs = [];
     var response = [];
     String url = "${Url.url_prefix}/getJobs";
-    final res = await http.get(url);
+    String token = await StorageUtil.getStringItem('token');
+    final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
     final data = json.decode(res.body);
     response = data;
     for(int i = 0; i < response.length; ++i){
@@ -155,7 +162,7 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
       for(int j = 0; j < response[i]['skills'].length; ++j){
         skills.add(response[i]['skills'][j].toString());
       }
-      jobs.add(Job(response[i]['id'], response[i]['title'], response[i]['employerId'], response[i]['employerName'], response[i]['description'], skills, getPriceTypeRandom(), getMinPriceRandom(), getMaxPriceRandom(), getState(), getDeadline()));
+      jobs.add(Job(response[i]['id'], response[i]['title'], response[i]['employerId'], response[i]['employerName'], response[i]['description'], skills, response[i]['type'], response[i]['low'], response[i]['high'], response[i]['state'], response[i]['publishTime'], response[i]['deadline']));
     }
     setState(() {
       originJobList = jobs;
@@ -243,6 +250,9 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
                         return ProjectAdminItem(
                           callback: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => ProjDetails(jobList[index].projectId)));
+                          },
+                          navigateToEmployer: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: jobList[index].employerId)));
                           },
                           toggleCallback: (value) {
                             if(value == 1){
@@ -387,7 +397,7 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
     }
     else{
       for(int i = 0; i < jobs.length; ++i){
-        DateTime jobDate = DateTime.parse(jobs[i].deadline);
+        DateTime jobDate = DateTime.parse(jobs[i].deadline.replaceAll('.', '-'));
         if(jobDate.isAfter(condition.startDate) && jobDate.isBefore(condition.endDate))
           timeSatisfyJobs.add(jobs[i]);
       }
@@ -592,13 +602,13 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
       var now = DateTime.now();
       if(isBid){
         for(int i = 0; i < jobs.length; ++i){
-          var then = DateTime.parse(jobs[i].deadline);
+          var then = DateTime.parse(jobs[i].deadline.replaceAll('.', '-'));
           if(then.isAfter(now)) timeSatisfyJobs.add(jobs[i]);
         }
       }
       else{
         for(int i = 0; i < jobs.length; ++i){
-          var then = DateTime.parse(jobs[i].deadline);
+          var then = DateTime.parse(jobs[i].deadline.replaceAll('.', '-'));
           if(then.isBefore(now)) timeSatisfyJobs.add(jobs[i]);
         }
       }
@@ -639,10 +649,10 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
     getUsers();
   }
 
-  /*得到随机数*/
-  int getRandom() {
-    return new Random().nextInt(4) - 2;
-  }
+//  /*得到随机数*/
+//  int getRandom() {
+//    return new Random().nextInt(4) - 2;
+//  }
 
   getUsers() async {
     List<User> users = [];
@@ -657,7 +667,7 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
       for(int j = 0; j < response[i]['skills'].length; ++j){
         skills.add(response[i]['skills'][j].toString());
       }
-      users.add(User(response[i]['id'], response[i]['name'], response[i]['gender'], response[i]['email'], response[i]['phone'], response[i]['description'], skills, getRandom(), 'assets/ProfileImage/userIcon.jpg'));
+      users.add(User(response[i]['id'], response[i]['name'], response[i]['gender'], response[i]['email'], response[i]['phone'], response[i]['description'], skills, response[i]['role'], 'assets/ProfileImage/userIcon.jpg'));
     }
     setState(() {
       originUserList = users;
@@ -739,7 +749,9 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
                                     curve: Curves.fastOutSlowIn)));
                         animationController.forward();
                         return UserAdminItem(
-                            callback: () {},
+                            callback: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: userList[index].userId)));
+                            },
                             toggleCallback: (value) {
                               if(value == 1){
                                 setState(() {
@@ -918,6 +930,7 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
         setState(() {
           chooseUserRole = newValue;
         });
+        executeChooseUserRole();
       },
       items: <String>['所有用户', '待核验', '已核验', '已封禁', '管理员']
           .map<DropdownMenuItem<String>>((String value) {
@@ -927,6 +940,42 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
         );
       }).toList(),
     );
+  }
+
+  executeChooseUserRole() {
+    List<User> users = [];
+    int role;
+    switch(chooseUserRole){
+      case '所有用户': {
+        setState(() {
+          userList = originUserList;
+        });
+        return;
+      }
+      break;
+      case '待核验': {
+        role = -2;
+      }
+      break;
+      case '已封禁': {
+        role = -1;
+      }
+      break;
+      case '已核验': {
+        role = 0;
+      }
+      break;
+      case '管理员': {
+        role = 1;
+      }
+      break;
+    }
+    for(int i = 0; i < originUserList.length; ++i){
+      if(originUserList[i].role == role) users.add(originUserList[i]);
+    }
+    setState(() {
+      userList = users;
+    });
   }
 }
 

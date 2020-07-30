@@ -210,36 +210,38 @@ class UserAdminItem extends StatelessWidget {
         ),
       );
     else if(userData.role == 0)
-      return ToggleSwitch(
-        minWidth: 90.0,
-        initialLabelIndex: 0,
-        cornerRadius: 16.0,
-        activeFgColor: Colors.white,
-        activeBgColor: Colors.grey,
-        inactiveBgColor: Colors.grey,
-        inactiveFgColor: Colors.white,
-        labels: ['正常', '禁用'],
-        activeBgColors: [Colors.blue, Colors.pink],
-        onToggle: (index) {
-//          print('switched to: $index');
-          toggleCallback(index);
-        },
+      return SizedBox(
+        child: ToggleSwitch(
+          minWidth: 90.0,
+          initialLabelIndex: 0,
+          cornerRadius: 16.0,
+          activeFgColor: Colors.white,
+          activeBgColor: Colors.grey,
+          inactiveBgColor: Colors.grey,
+          inactiveFgColor: Colors.white,
+          labels: ['正常', '禁用'],
+          activeBgColors: [Colors.blue, Colors.pink],
+          onToggle: (index) {
+            toggleCallback(index);
+          },
+        ),
       );
     else if(userData.role == -1)
-      return ToggleSwitch(
-        minWidth: 90.0,
-        initialLabelIndex: 1,
-        cornerRadius: 16.0,
-        activeFgColor: Colors.white,
-        activeBgColor: Colors.grey,
-        inactiveBgColor: Colors.grey,
-        inactiveFgColor: Colors.white,
-        labels: ['正常', '禁用'],
-        activeBgColors: [Colors.blue, Colors.pink],
-        onToggle: (index) {
-//          print('switched to: $index');
-          toggleCallback(index);
-        },
+      return Container(
+        child: ToggleSwitch(
+          minWidth: 90.0,
+          initialLabelIndex: 1,
+          cornerRadius: 16.0,
+          activeFgColor: Colors.white,
+          activeBgColor: Colors.grey,
+          inactiveBgColor: Colors.grey,
+          inactiveFgColor: Colors.white,
+          labels: ['正常', '禁用'],
+          activeBgColors: [Colors.blue, Colors.pink],
+          onToggle: (index) {
+            toggleCallback(index);
+          },
+        ),
       );
     else return ToggleSwitch(
         minWidth: 90.0,
@@ -252,7 +254,6 @@ class UserAdminItem extends StatelessWidget {
         labels: ['正常', '禁用'],
         activeBgColors: [Colors.blue, Colors.pink],
         onToggle: (index) {
-//          print('switched to: $index');
           toggleCallback(index);
         },
       );

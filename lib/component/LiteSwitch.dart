@@ -81,6 +81,7 @@ class _LiteSwitchState extends State<LiteSwitch>
       });
     });
     turnState = widget.initValue;
+    if(widget.initValue == true) _determine();
 //    _determine();
   }
 
@@ -196,11 +197,13 @@ class _LiteSwitchState extends State<LiteSwitch>
 
   void _determine({bool changeState = false}) {
     setState(() {
-      if (changeState) turnState = !turnState;
-      (turnState)
-          ? animationController.forward()
-          : animationController.reverse();
-      widget.onChanged(turnState);
+      if (changeState) {
+        turnState = !turnState;
+        widget.onChanged(turnState);
+      }
+        (turnState)
+            ? animationController.forward()
+            : animationController.reverse();
     });
   }
 }

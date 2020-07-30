@@ -19,33 +19,6 @@ class PopularFilterListData {
       isSelected: true,
     ),
   ];
-
-  static List<PopularFilterListData> accommodationList = [
-    PopularFilterListData(
-      titleTxt: 'All',
-      isSelected: false,
-    ),
-    PopularFilterListData(
-      titleTxt: 'Apartment',
-      isSelected: false,
-    ),
-    PopularFilterListData(
-      titleTxt: 'Home',
-      isSelected: true,
-    ),
-    PopularFilterListData(
-      titleTxt: 'Villa',
-      isSelected: false,
-    ),
-    PopularFilterListData(
-      titleTxt: 'Hotel',
-      isSelected: false,
-    ),
-    PopularFilterListData(
-      titleTxt: 'Resort',
-      isSelected: false,
-    ),
-  ];
 }
 
 class PriceRangeData {
@@ -83,4 +56,16 @@ class RequireSkills {
   List<String> requireSkills;
 
   static RequireSkills skills = RequireSkills(requireSkills: []);
+}
+
+class IfLimit {
+  IfLimit({
+    this.ifLimit
+  });
+
+  bool ifLimit;
+
+  static IfLimit ifLimitDeadline = IfLimit(ifLimit: false);
+  static IfLimit ifLimitSkills = IfLimit(ifLimit: false);
+  static IfLimit chooseVagueModel = IfLimit(ifLimit: true);
 }

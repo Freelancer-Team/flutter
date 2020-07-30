@@ -1,187 +1,655 @@
-//import 'dart:html';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:freelancer_flutter/component/MyDrawer.dart';
-import 'package:freelancer_flutter/component/SkillChooseModal.dart';
+import 'package:freelancer_flutter/component/PersonRateJobItem.dart';
+import 'package:freelancer_flutter/component/hotel_app_theme.dart';
+import 'package:freelancer_flutter/component/config.dart';
+import 'package:freelancer_flutter/pages/onesJobManage.dart';
+import 'package:freelancer_flutter/pages/person.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
-import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:toggle_switch/toggle_switch.dart';
-import 'package:freelancer_flutter/component/ProjectTables.dart';
-import 'package:freelancer_flutter/component/config.dart';
+import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
+import 'package:freelancer_flutter/pages/ProjDetails.dart';
+import 'package:freelancer_flutter/component/UserInfoEditModal.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:freelancer_flutter/component/SkillChooseModal.dart';
 
-class ProfilePage extends StatefulWidget {
+
+//'个人资料'、'我的资料'统一入口
+class UserInfoPage extends StatefulWidget{
+  UserInfoPage({this.userId});
+
+  final int userId;
+
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  State<StatefulWidget> createState() {
+    return new _UserInfoPageState();
+  }
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  Choice _selectedChoice = choices[0]; // The app's "state".
+class _UserInfoPageState extends State<UserInfoPage>{
+  bool isOneSelf = false;
 
-  void _select(Choice choice) {
+  @override
+  void initState() {
+    super.initState();
+    getUserIdentity();
+  }
+
+  getUserIdentity() async {
+    int userId = await StorageUtil.getIntItem("uid");
     setState(() {
-      // Causes the app to rebuild with the new _selectedChoice.
-      _selectedChoice = choice;
+      isOneSelf = (userId == widget.userId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text(
-          '个人中心',
-          style: TextStyle(
-            fontSize: 30.0,
-          ),
-        ),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            color: Colors.blue[900],
-          ),
-        ),
-        brightness: Brightness.light,
-        actions: <Widget>[
-          PopupMenuButton<Choice>(
-            // overflow menu
-            icon: Icon(Icons.dashboard),
-            onSelected: _select,
-            itemBuilder: (BuildContext context) {
-              return choices.map<PopupMenuItem<Choice>>((Choice choice) {
-                return PopupMenuItem<Choice>(
-                  value: choice,
-                  child: new ListTile(
-                    leading: Icon(choice.icon),
-                    title: Text(choice.title),
-                  ),
-                );
-              }).toList();
-            },
-          ),
-        ],
-      ),
-      drawer: MyDrawer(),
-      body: ChoiceCard(choice: _selectedChoice),
-    );
+    if(isOneSelf) return Profile(userId: widget.userId);
+    else return Person(userId: widget.userId,);
   }
 }
 
-class Choice {
-  const Choice({this.title, this.icon});
+class Profile extends StatefulWidget{
+  Profile({this.userId});
 
-  final String title;
-  final IconData icon;
-}
-
-const List<Choice> choices = <Choice>[
-  Choice(title: '个人信息', icon: Icons.account_circle),
-  Choice(title: '我的项目', icon: Icons.assignment),
-  Choice(title: '私信', icon: Icons.email),
-];
-
-class ChoiceCard extends StatelessWidget {
-  const ChoiceCard({Key key, this.choice}) : super(key: key);
-
-  final Choice choice;
+  final int userId;
 
   @override
-  Widget build(BuildContext context) {
-    if (choice.title == '个人信息')
-      return UserInfo();
-    else if (choice.title == '我的项目')
-      return ProjectInfo();
-    else
-      return Card(
-        color: Colors.white,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(choice.icon, size: 128.0),
-              Text(choice.title),
-            ],
-          ),
-        ),
-      );
+  State<StatefulWidget> createState() {
+    return new _ProfileState();
   }
 }
 
-class UserInfo extends StatefulWidget {
-  UserInfo({Key key}) : super(key: key);
-
-  @override
-  _UserInfoState createState() => new _UserInfoState();
-}
-
-class _UserInfoState extends State<UserInfo> {
-  List<String> _skills =
-      []; //= ["Java", "C++", "JavaScript", "Dart", "Python"];
-  String token;
-  String email, username, desc;
-  String date, address, gender, tel;
-  int uid, age;
-
+class _ProfileState extends State<Profile> with TickerProviderStateMixin{
+  TabController _tabController;
+  final List<Tab> tabs = <Tab>[
+    new Tab(text: "雇主"),
+    new Tab(text: "雇员"),
+  ];
+  AnimationController animationController;
   FlutterToast flutterToast;
 
-  getToken() async {
-    token = await StorageUtil.getStringItem('token');
-    String email = await StorageUtil.getStringItem("email");
-    String uname = await StorageUtil.getStringItem("username");
-    String time = await StorageUtil.getStringItem("time");
-    String add = await StorageUtil.getStringItem("address");
-    String g = await StorageUtil.getStringItem("gender");
-    String phone = await StorageUtil.getStringItem("phone");
-    String des = await StorageUtil.getStringItem("desc");
-    int userid = await StorageUtil.getIntItem("uid");
-    int age = await StorageUtil.getIntItem("age");
-    List<String> skills = await StorageUtil.getStringListItem("skills");
-
-    if (email != null) {
-      // 跳转到首页print(user);
-//      print(user[0]);
-      setState(() {
-        this.email = email;
-        uid = userid;
-        username = uname;
-        date = time;
-        address = add;
-        tel = phone;
-        gender = g;
-        desc = des;
-        this.age = age;
-        print(skills);
-        if (skills != null) _skills = skills;
-      });
-    } else
-      print('bbb');
-  }
+  User user = User(0,'',0,'','','','','','',[],true);
+  List<Job> employerJobList = [];
+  List<Job> employeeJobList = [];
+  var _image;
 
   @override
   void initState() {
     super.initState();
-    getToken();
+    _tabController = new TabController(length: tabs.length, vsync: this);
+    animationController = AnimationController(
+        duration: const Duration(milliseconds: 1000), vsync: this);
     flutterToast = FlutterToast(context);
+    getUser();
+    getEmployerJobs();
+    getEmployeeJobs();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
+  getUser() async {
+    User u;
+    List<String> skills = [];
+    String url = "${Url.url_prefix}/getUser?id=" + widget.userId.toString();
+    String token = await StorageUtil.getStringItem('token');
+    final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
+    final data = json.decode(res.body);
+
+    for(int i = 0; i < data['skills'].length; ++i){
+      skills.add(data['skills'][i]);
+    }
+    u = new User(data['id'], data['name'], data['age'], data['gender'], data['email'], data['address'], data['phone'], data['time'], data['description'], skills, true);
+    setState(() {
+      user = u;
+    });
+  }
+
+  getEmployerJobs() async {
+    List<Job> jobs = [];
+    var response = [];
+    String url = '${Url.url_prefix}/getEmployerJob?userId=' + widget.userId.toString();
+    print("我的信息页获得雇主项目  " + widget.userId.toString());
+    String token = await StorageUtil.getStringItem('token');
+    final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
+    final data = json.decode(res.body);
+    response = data;
+    for(int i = 0; i < response.length; ++i){
+      if(response[i]['state'] == 2){
+        List<String> skills = [];
+        for(int j = 0; j < response[i]['skills'].length; ++j){
+          skills.add(response[i]['skills'][j].toString());
+        }
+        jobs.add(Job(response[i]['id'], response[i]['title'], response[i]['description'], skills, response[i]['employeeRate'], response[i]['employerRate'], response[i]['finishTime']));
+      }
+    }
+    setState(() {
+      employerJobList = jobs;
+    });
+  }
+
+  getEmployeeJobs() async {
+    List<Job> jobs = [];
+    var response = [];
+    String url = '${Url.url_prefix}/getEmployeeJob?userId=' + widget.userId.toString();
+    String token = await StorageUtil.getStringItem('token');
+    final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
+    final data = json.decode(res.body);
+    response = data;
+    for(int i = 0; i < response.length; ++i){
+      if(response[i]['state'] == 2){
+        List<String> skills = [];
+        for(int j = 0; j < response[i]['skills'].length; ++j){
+          skills.add(response[i]['skills'][j].toString());
+        }
+        jobs.add(Job(response[i]['id'], response[i]['title'], response[i]['description'], skills, response[i]['employeeRate'], response[i]['employerRate'], response[i]['finishTime']));
+      }
+    }
+    setState(() {
+      employeeJobList = jobs;
+    });
+  }
+
+  Widget jobList(List<Job> jobList, bool isEmployer){
+    if(!user.recordCanSee){
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.visibility_off, size: 50,),
+            Text("已设置查阅权限", style: TextStyle(fontSize: 18),),
+            SizedBox(
+              height: 40,
+              child: Container(),
+            )
+          ],
+        ),
+      );
+    }
+    else if(jobList.length == 0){
+      return Padding(
+        padding: EdgeInsets.only(top: 50),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('assets/empty.png'),
+              height: 50,
+              width: 50,
+            ),
+            Text("暂无完成记录", style: TextStyle(fontSize: 18),),
+            SizedBox(
+              height: 40,
+              child: Container(),
+            )
+          ],
+        ),
+      );
+    }
+    else return ListView.builder(
+      itemCount: jobList.length,
+      padding: const EdgeInsets.only(top: 8),
+      scrollDirection: Axis.vertical,
+      itemBuilder: (BuildContext context, int index) {
+        final int count =
+        jobList.length > 10 ? 10 : jobList.length;
+        final Animation<double> animation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(
+                parent: animationController,
+                curve: Interval(
+                    (1 / count) * index, 1.0,
+                    curve: Curves.fastOutSlowIn)));
+        animationController.forward();
+        return PersonRateJobItem(
+          callback: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ProjDetails(jobList[index].projectId)));},
+          jobData: jobList[index],
+          isEmployer: isEmployer,
+          animation: animation,
+          animationController: animationController,
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> skillManageList = user.skills.map((skill) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
+      margin: const EdgeInsets.only(right: 6.0, bottom: 8.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15.0),
+        color: Colors.grey.withOpacity(0.3),
+      ),
+      child: Text(skill,style: TextStyle(height: 1,fontSize: 14),),
+    )).toList();
+    skillManageList.add(Container(
+      child: Column(
+        children: [
+          SizedOverflowBox(
+            size: Size(32, 32),
+            alignment: Alignment.center,
+            child: IconButton(
+              // action button
+              icon: new Icon(Icons.add_circle, color: Colors.black54,),
+              padding: const EdgeInsets.all(0),
+              onPressed: () {
+                _showSimpleDialog();
+              },
+            ),
+          ),
+          SizedBox(
+            height: 3,
+            width: 2,
+            child: Container(),
+          )
+        ],
+      ),
+    ));
+
+    return new Scaffold(
+        body: CustomScrollView(
+          slivers: <Widget>[
+            // 头部信息栏
+            SliverAppBar(
+                leading: InkWell(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(32.0),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new Icon(Icons.arrow_back_ios, color: Colors.white),
+                  ),
+                ),
+                title: new Text("我的资料",
+                    style: new TextStyle(
+                        color: Colors.white
+                    )
+                ),
+                actions: <Widget>[
+                  new IconButton(
+                      icon: new Icon(Icons.mail),
+                      color: Colors.white,
+                      onPressed: () {}
+                  )
+                ],
+                backgroundColor: Colors.blue,
+                pinned: true,
+                expandedHeight: 250,
+                flexibleSpace: new FlexibleSpaceBar(
+                    background: new Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding: new EdgeInsets.all(16.0),
+                        height: 200,
+                        decoration: new BoxDecoration(
+                            image: DecorationImage(
+                                image: _image == null
+                                    ? AssetImage('assets/ProfileImage/userIcon.jpg') : FileImage(_image),
+                                fit: BoxFit.cover,
+                                colorFilter: new ColorFilter.mode(Colors.grey.withOpacity(0.4), BlendMode.darken)
+                            )
+                        ),
+                        child: new Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              new Container(
+                                  width: 95,
+                                  height: 95,
+                                  child: new CircleAvatar(
+                                    backgroundImage: _image == null? AssetImage('assets/ProfileImage/userIcon.jpg') : FileImage(_image),
+                                  )
+                              ),
+                              new Expanded(
+                                  child: Container(
+                                      height: 95,
+                                      padding: new EdgeInsets.fromLTRB(16, 0, 0, 0),
+                                      child: new Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Text(user.name, style: new TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white)),
+                                            new Row(
+                                                children: <Widget>[
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
+                                                    margin: const EdgeInsets.only(right: 15, top: 4),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(7.0),
+                                                      color: Colors.white.withOpacity(0.3),
+                                                    ),
+                                                    child: Text(
+                                                      user.age.toString() + '岁',
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.black
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
+                                                    margin: const EdgeInsets.only(right: 15, top: 4),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(7.0),
+                                                      color: Colors.white.withOpacity(0.3),
+                                                    ),
+                                                    child: Text(
+                                                      user.gender == 'M' ? '男' : '女',
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.black
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ]
+                                            )
+                                          ]
+                                      )
+                                  )
+                              )
+                            ]
+                        )
+                    )
+                )
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((content, index) {
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.desktop_windows, color: Colors.black),
+                      title: Text("我的项目"),
+                      trailing: Icon(Icons.keyboard_arrow_right),
+                      onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => OnesJobManagePage(userId: user.userId,)));},
+                    ),
+                  ],
+                );
+              }, childCount: 1),
+            ),
+            SliverToBoxAdapter(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.6),
+                      offset: const Offset(4, 8),
+                      blurRadius: 16,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
+                  child: Container(
+                    color: HotelAppTheme.buildLightTheme().backgroundColor,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: 16, left: 16, bottom: 4, right: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('资料卡',
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w600
+                                ),
+                              ),
+                              RaisedButton(
+                                onPressed: (){
+                                  FocusScope.of(context).requestFocus(FocusNode());
+                                  showDemoDialog(context: context);
+                                },
+                                color: Colors.blue,
+                                textColor: Colors.white,
+                                child: Text('编辑资料', style: TextStyle(fontWeight: FontWeight.w300, fontSize: 15)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    side: BorderSide(
+                                        color: Colors.blue,
+                                        width: 1.0,
+                                        style: BorderStyle.solid
+                                    )
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(Icons.email, color: Colors.grey),
+                              Padding(
+                                padding: EdgeInsets.only(left: 20),
+                                child: Text(user.email, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(Icons.phone, color: Colors.grey),
+                              Padding(
+                                padding: EdgeInsets.only(left: 20),
+                                child: Text(user.phone, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.grey),
+                              Padding(
+                                padding: EdgeInsets.only(left: 20),
+                                child: Text(user.address, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(Icons.watch_later, color: Colors.grey),
+                              Padding(
+                                padding: EdgeInsets.only(left: 20),
+                                child: Text(user.time, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.local_offer, color: Colors.grey),
+                              Padding(
+                                  padding: EdgeInsets.only(left: 20),
+                                  child: Container(
+                                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 70),
+                                    child: Wrap(
+                                      crossAxisAlignment: WrapCrossAlignment.end,
+                                      children: skillManageList,
+                                    ),
+                                  )
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 16, right: 16, top: 2, bottom: 16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.border_color, color: Colors.grey),
+                              Padding(
+                                padding: EdgeInsets.only(left: 20, top: 2),
+                                child: Text(user.description,
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                                  textAlign: TextAlign.start,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Container(
+                margin: EdgeInsets.only(top: 16),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.6),
+                      offset: const Offset(4, 8),
+                      blurRadius: 16,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+                  child: Container(
+                    color: HotelAppTheme.buildLightTheme().backgroundColor,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: 16, left: 16, bottom: 4, right: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                width: 100,
+                                child: Text('项目经历',
+                                  style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600
+                                  ),
+                                ),
+                              ),
+                              TabBar(
+                                isScrollable: true,
+                                unselectedLabelColor: Colors.grey,
+                                labelColor: Colors.white,
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                indicator: new BubbleTabIndicator(
+                                  indicatorHeight: 25.0,
+                                  indicatorColor: Colors.blueAccent,
+                                  tabBarIndicatorSize: TabBarIndicatorSize.tab,
+                                ),
+                                tabs: tabs,
+                                controller: _tabController,
+                              ),
+                              SizedBox(
+                                width: 100,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      onPressed: (){
+                                        setState(() {
+                                          user.recordCanSee = !user.recordCanSee;
+                                        });
+                                      },
+                                      icon: user.recordCanSee? Icon(Icons.visibility) : Icon(Icons.visibility_off),
+                                      color: Colors.blue,
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: user.recordCanSee? 600 : 160,
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: tabs.map((Tab tab) {
+                              if (tab == tabs[0])
+                                return jobList(employerJobList, true);
+                              else
+                                return jobList(employeeJobList, false);
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        )
+    );
+  }
+
+  //TODO 资料更新未传到后端保存
+  void showDemoDialog({BuildContext context}) {
+    showDialog<dynamic>(
+      context: context,
+      builder: (BuildContext context) => UserInfoEditModal(
+        userInfo: FoundationInfo(
+            name: user.name,
+            gender: user.gender,
+            age: user.age,
+            phone: user.phone,
+            address: user.address,
+            description: user.description
+        ),
+        onApplyClick: (FoundationInfo userInfo) {
+            setState(() {
+              user.name = userInfo.name;
+              user.age = userInfo.age;
+              user.gender = userInfo.gender;
+              user.phone = userInfo.phone;
+              user.address = userInfo.address;
+              user.description = userInfo.description;
+              if(userInfo.image != null) _image = userInfo.image;
+            });
+        },
+        onCancelClick: () {},
+      ),
+    );
   }
 
   _showToast() {
     Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 6.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: Colors.black12,
+        color: Colors.blueAccent,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check),
+          Icon(Icons.check, color: Colors.white,),
           SizedBox(
             width: 12.0,
           ),
-          Text("更新技能点成功"),
+          Text("更新技能点成功", style: TextStyle(color: Colors.white),),
         ],
       ),
     );
@@ -195,14 +663,14 @@ class _UserInfoState extends State<UserInfo> {
 
   saveSkills(skills) async {
     try {
-      String url = "${Url.url_prefix}/updateSkills?userId=" + uid.toString();
-      print(url);print(skills);
+      String url = "${Url.url_prefix}/updateSkills?userId=" + user.userId.toString();
+      String token = await StorageUtil.getStringItem('token');
       var res = await http.post(Uri.encodeFull(url),
           headers: {"content-type": "application/json","Authorization": "$token"},
           body:  json.encode(skills));
       var response = json.decode(res.body);
       if (response != null) {
-        Account.saveUserSkill(response);
+        print("update skills success");
       }
     } catch (e) {
       print(e);
@@ -212,7 +680,7 @@ class _UserInfoState extends State<UserInfo> {
   _showSimpleDialog() {
     onSkillChange(var skills) {
       setState(() {
-        _skills = skills;
+        user.skills = skills;
       });
       saveSkills(skills);
       Navigator.pop(context);
@@ -223,327 +691,16 @@ class _UserInfoState extends State<UserInfo> {
         barrierDismissible: false,
         context: context,
         builder: (context) => SimpleDialog(title: Text('编辑您的专业技能'),
-                // 这里传入一个选择器列表即可
-                children: [
-                  SkillDialog(
-                    skillChoose: this._skills,
-                    onSkillChanged: onSkillChange,
-                  ),
-                ]));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-//    getToken();
-    List<Widget> skillManageList = _skills
-        .map((skill) => Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25.0),
-                color: Color(0xFF023E8A),
+            // 这里传入一个选择器列表即可
+            children: [
+              SkillDialog(
+                skillChoose: user.skills,
+                onSkillChanged: onSkillChange,
               ),
-              child:
-                  Text(skill, style: TextStyle(height: 1, color: Colors.white)),
-            ))
-        .toList();
-    skillManageList.add(Container(
-      child: SizedOverflowBox(
-        size: Size(32, 32),
-        alignment: Alignment.center,
-        child: IconButton(
-          // action button
-          icon: new Icon(Icons.add_circle),
-          padding: const EdgeInsets.all(0),
-          onPressed: () {
-            _showSimpleDialog();
-          },
-        ),
-      ),
-    ));
-
-    return Container(
-        child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        new ListTile(
-          leading: Icon(Icons.account_circle),
-          title: Text("个人信息"),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image(
-              image: AssetImage('assets/ProfileImage/userIcon.jpg'),
-              height: 128,
-              width: 128,
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(minHeight: 128),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Text(
-                    "$username",
-                    style: TextStyle(
-                      fontSize: 30.0,
-                      fontFamily: "Courier",
-                    ),
-                  ),
-                  Text("年龄：$age"),
-                  Text("性别：$gender"),
-                  Text("邮箱：$email"),
-                  Text("电话：$tel"),
-                  Text("地区：$address")
-                ],
-              ),
-            )
-          ],
-        ),
-        Text("加入日期：$date"),
-        Text("技能点："),
-        Wrap(
-          children: skillManageList,
-        ),
-        Text("个人描述："),
-        Text("$desc"),
-      ]),
-    ));
-  }
-}
-
-class ProjectInfo extends StatefulWidget {
-  ProjectInfo({Key key}) : super(key: key);
-
-  @override
-  _ProjectInfoState createState() => new _ProjectInfoState();
-}
-
-class _ProjectInfoState extends State<ProjectInfo> {
-  String chooseView = 'employer';
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ListTile(
-                          leading: Icon(Icons.assessment),
-                          title: Text("我的项目"),
-                          contentPadding: EdgeInsets.only(left: 0.0),
-                        ),
-                      ),
-                      ToggleSwitch(
-                          minWidth: 90.0,
-                          cornerRadius: 20,
-                          activeBgColor: Colors.blue,
-                          activeFgColor: Colors.white,
-                          inactiveBgColor: Colors.grey,
-                          inactiveFgColor: Colors.white,
-                          labels: ['雇主', '雇员'],
-                          icons: [Icons.language, Icons.group],
-                          onToggle: (index) {
-                            if(index == 1) setState(() {
-                              chooseView = 'employee';
-                            });
-                            else setState(() {
-                              chooseView = 'employer';
-                            });
-                          }),
-                    ],
-                  ),
-                ),
-                (chooseView == 'employer') ? EmployerView() : EmployeeView()
-              ]
-          ),
+            ]
         )
     );
   }
 }
 
-class EmployerView extends StatefulWidget {
-  @override
-  _EmployerViewState createState() => _EmployerViewState();
-}
 
-class _EmployerViewState extends State<EmployerView> with SingleTickerProviderStateMixin {
-
-  TabController mController;
-  List<String> tabTitles;
-
-  @override
-  void initState() {
-    super.initState();
-    tabTitles = [
-      "进行中",
-      "已完成",
-      "竞标中",
-    ];
-    mController = TabController(
-      length: tabTitles.length,
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    mController.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Column(
-          children: <Widget>[
-            Container(
-                height: 38.0,
-                margin: EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                    border: Border(bottom:BorderSide(width: 0.7,color: Colors.blue) )
-                ),
-                child: Row(
-                  children: [
-                    TabBar(
-                      isScrollable: true,
-                      //是否可以滚动
-                      controller: mController,
-                      labelColor: Colors.blue,
-                      unselectedLabelColor: Color(0xff666666),
-                      labelStyle: TextStyle(fontSize: 16.0),
-                      tabs: tabTitles.map((item) {
-                        return Tab(
-                          text: item,
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                )
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: mController,
-                children: tabTitles.map((item) {
-                  if (item == "进行中")
-                    return DataTableDemo(
-                      columnNames: ["项目名称","雇员","佣金","截止日期","违约金"],
-                      tableKind: "employerProceeding",
-                    );
-                  else if(item == "已完成")
-                    return DataTableDemo(
-                      columnNames: ["项目名称","雇员","佣金","完成日期","雇员评分"],
-                      tableKind: "employerComplete",
-                    );
-//                  else if(item == "竞标中")
-//                    return DataTableDemo(
-//                      columnNames: ["项目名称","最低竞价","平均竞价","截止日期","状态"],
-//                      tableKind: "employerBid",
-//                    );
-                  else return Text("竞标还没写");
-                }).toList(),
-              ),
-            ),
-          ],
-        ));
-  }
-}
-
-class EmployeeView extends StatefulWidget {
-  @override
-  _EmployeeViewState createState() => _EmployeeViewState();
-}
-
-class _EmployeeViewState extends State<EmployeeView> with SingleTickerProviderStateMixin {
-
-  TabController mController;
-  List<String> tabTitles;
-
-  @override
-  void initState() {
-    super.initState();
-    tabTitles = [
-      "进行中",
-      "已完成",
-      "竞标中",
-    ];
-    mController = TabController(
-      length: tabTitles.length,
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    mController.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Column(
-          children: <Widget>[
-            Container(
-                height: 38.0,
-                margin: EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                    border: Border(bottom:BorderSide(width: 0.7,color: Colors.blue) )
-                ),
-                child: Row(
-                  children: [
-                    TabBar(
-                      isScrollable: true,
-                      //是否可以滚动
-                      controller: mController,
-                      labelColor: Colors.blue,
-                      unselectedLabelColor: Color(0xff666666),
-                      labelStyle: TextStyle(fontSize: 16.0),
-                      tabs: tabTitles.map((item) {
-                        return Tab(
-                          text: item,
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                )
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: mController,
-                children: tabTitles.map((item) {
-                  if (item == "进行中")
-                    return DataTableDemo(
-                      columnNames: ["项目名称","雇主","佣金","截止日期","违约金"],
-                      tableKind: "employeeProceeding",
-                    );
-                  else if(item == "已完成")
-                    return DataTableDemo(
-                      columnNames: ["项目名称","雇主","佣金","完成日期","雇主评分"],
-                      tableKind: "employeeComplete",
-                    );
-//                  else if(item == "竞标中")
-//                    return DataTableDemo(
-//                      columnNames: ["项目名称","最低竞价","平均竞价","截止日期","状态"],
-//                      tableKind: "employerBid",
-//                    );
-                  else return Text("竞标还没写");
-                }).toList(),
-              ),
-            ),
-          ],
-        ));
-  }
-}

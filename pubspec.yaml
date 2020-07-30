@@ -34,6 +34,10 @@ dependencies:
   date_format: ^1.0.8
   lite_switch: ^1.0.6
   percent_indicator: ^2.1.1+1
+  bubble_tab_indicator: ^0.1.4
+  flutter_picker:
+    git: git://github.com/yangyxd/flutter_picker.git
+  image_picker: ^0.6.7+4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -67,6 +71,7 @@ flutter:
     - assets/star_nomal.png
     - assets/dragon.jpg
     - assets/unlogin.jpg
+    - assets/empty.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
