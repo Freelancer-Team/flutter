@@ -30,7 +30,7 @@ class StateCard extends StatelessWidget{
       break;
       case 0: {
         var now = DateTime.now();
-        var then = DateTime.parse(date);
+        var then = DateTime.parse(date.replaceAll('.', '-'));
         if(then.isAfter(now)){
           text = '竞标中';
           color = Colors.green.withOpacity(0.6);

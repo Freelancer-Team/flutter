@@ -191,7 +191,7 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                                         ),
                                         boxShadow: <BoxShadow>[
                                           BoxShadow(
-                                              color: Colors.grey.withOpacity(0.2),
+                                              color: Colors.grey.withOpacity(0.35),
                                               offset: const Offset(2, 2),
                                               blurRadius: 8.0),
                                         ],
@@ -293,7 +293,7 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                                                 ),
                                                 boxShadow: <BoxShadow>[
                                                   BoxShadow(
-                                                      color: Colors.grey.withOpacity(0.2),
+                                                      color: Colors.grey.withOpacity(0.35),
                                                       offset: const Offset(2, 2),
                                                       blurRadius: 8.0),
                                                 ],
@@ -350,7 +350,7 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                                         ),
                                         boxShadow: <BoxShadow>[
                                           BoxShadow(
-                                              color: Colors.grey.withOpacity(0.2),
+                                              color: Colors.grey.withOpacity(0.35),
                                               offset: const Offset(2, 2),
                                               blurRadius: 8.0),
                                         ],
@@ -406,7 +406,7 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                                         ),
                                         boxShadow: <BoxShadow>[
                                           BoxShadow(
-                                              color: Colors.grey.withOpacity(0.2),
+                                              color: Colors.grey.withOpacity(0.35),
                                               offset: const Offset(2, 2),
                                               blurRadius: 8.0),
                                         ],
@@ -458,7 +458,7 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                                         ),
                                         boxShadow: <BoxShadow>[
                                           BoxShadow(
-                                              color: Colors.grey.withOpacity(0.2),
+                                              color: Colors.grey.withOpacity(0.35),
                                               offset: const Offset(2, 2),
                                               blurRadius: 8.0),
                                         ],
