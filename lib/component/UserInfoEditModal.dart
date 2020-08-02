@@ -223,7 +223,7 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                             Row(
                               children: [
                                 Container(
-                                  width: MediaQuery.of(context).size.width / 2 - 5,
+                                  width: 200,
                                   child: Row(
                                     children: [
                                       Padding(

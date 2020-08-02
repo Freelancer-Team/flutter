@@ -87,7 +87,13 @@ class HotelListView extends StatelessWidget {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(FontAwesomeIcons.hourglassHalf, size: 18,),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: 2),
+                                                    child: Icon(
+                                                      FontAwesomeIcons.hourglassHalf,
+                                                      size: 13,
+                                                    ),
+                                                  ),
                                                   Padding(
                                                     padding: EdgeInsets.only(left: 3),
                                                     child: Text(
