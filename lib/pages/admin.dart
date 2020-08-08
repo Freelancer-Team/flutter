@@ -267,6 +267,7 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
                           jobData: jobList[index],
                           animation: animation,
                           animationController: animationController,
+                          isLarge: MediaQuery.of(context).size.width > 1080,
                         );
                       },
                     ),
@@ -764,7 +765,8 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
                             },
                             userData: userList[index],
                             animation: animation,
-                            animationController: animationController
+                            animationController: animationController,
+                            isLarge: MediaQuery.of(context).size.width > 1080,
                         );
                       },
                     ),

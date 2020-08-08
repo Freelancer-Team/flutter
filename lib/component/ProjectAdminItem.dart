@@ -12,7 +12,8 @@ class ProjectAdminItem extends StatelessWidget {
         this.animation,
         this.callback,
         this.navigateToEmployer,
-        this.toggleCallback
+        this.toggleCallback,
+        this.isLarge
       })
       : super(key: key);
 
@@ -22,6 +23,7 @@ class ProjectAdminItem extends StatelessWidget {
   final Job jobData;
   final AnimationController animationController;
   final Animation<dynamic> animation;
+  final bool isLarge;
 
   @override
   Widget build(BuildContext context) {
@@ -56,133 +58,150 @@ class ProjectAdminItem extends StatelessWidget {
                     borderRadius: const BorderRadius.all(Radius.circular(16.0)),
                     child: Stack(
                       children: <Widget>[
-                        Column(
-                          children: <Widget>[
-                            Container(
-                              color: HotelAppTheme.buildLightTheme()
-                                  .backgroundColor,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Container(
+                        Container(
+                            color: HotelAppTheme.buildLightTheme().backgroundColor,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Offstage(
+                                      offstage: isLarge,
                                       child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 16, top: 8, bottom: 8),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Container(
-                                              margin: EdgeInsets.only(right: 130),
-                                              child:
-                                                Text(
-                                                  jobData.projectName,
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 22,
+                                        padding: EdgeInsets.only(bottom: 8),
+                                        child: StateCard(state: jobData.state, date: jobData.publishTime,),
+                                      )
+                                  ),
+                                  Text(
+                                    jobData.projectName,
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: (){
+                                          navigateToEmployer();
+                                        },
+                                        child: Chip(
+                                          label: Text(jobData.employerName),
+                                          avatar: CircleAvatar(
+                                            child: Icon(Icons.person, size: 20,),
+                                          ),
+                                          labelPadding: EdgeInsets.only(left: 8, right: 10),
+                                          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(left: 15),
+                                        child: Chip(
+                                          label: Text(formatDate(DateTime.parse(jobData.publishTime.replaceAll('.', '-')), [yyyy, '-', mm, '-', dd])),
+                                          avatar: CircleAvatar(
+                                            child: Icon(Icons.query_builder, size: 20,),
+                                          ),
+                                          labelPadding: EdgeInsets.only(left: 8, right: 10),
+                                          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                        ),
+                                      ),
+                                      Offstage(
+                                          offstage: !isLarge,
+                                          child: Padding(
+                                            padding: EdgeInsets.only(left: 15),
+                                            child: StateCard(state: jobData.state, date: jobData.publishTime,),
+                                          )
+
+                                      )
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(left: 3, right: 50),
+                                    child: Text(
+                                      jobData.description,
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey
+                                              .withOpacity(0.8)),
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Container(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(top: 4),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(top: 4),
+                                                  child: Wrap(
+                                                    children: jobData.skills.map((skill) => Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
+                                                      margin: const EdgeInsets.only(right: 6.0, top: 4.0, bottom: 4.0),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(15.0),
+                                                        color: Colors.black54,
+                                                      ),
+                                                      child: Text(skill,style: TextStyle(height: 1,fontSize: 14, color: Colors.white.withOpacity(0.8)),),
+                                                    )).toList(),
                                                   ),
                                                 ),
-                                            ),
-                                            Row(
-                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                              children: [
-                                                InkWell(
-                                                  onTap: (){
-                                                    navigateToEmployer();
-                                                  },
-                                                  child: Chip(
-                                                    label: Text(jobData.employerName),
-                                                    avatar: CircleAvatar(
-                                                      child: Icon(Icons.person, size: 20,),
-                                                    ),
-                                                    labelPadding: EdgeInsets.only(left: 8, right: 10),
-                                                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  margin: EdgeInsets.only(left: 15),
-                                                  child: Chip(
-                                                    label: Text(formatDate(DateTime.parse(jobData.publishTime.replaceAll('.', '-')), [yyyy, '-', mm, '-', dd])),
-                                                    avatar: CircleAvatar(
-                                                      child: Icon(Icons.query_builder, size: 20,),
-                                                    ),
-                                                    labelPadding: EdgeInsets.only(left: 8, right: 10),
-                                                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                                  ),
-                                                ),
-                                                StateCard(state: jobData.state, date: jobData.publishTime,)
                                               ],
                                             ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 2),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: <Widget>[
                                             Text(
-                                              jobData.description,
+                                              getPriceText(),
                                               textAlign: TextAlign.left,
                                               style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey
-                                                      .withOpacity(0.8)),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 22,
+                                              ),
                                             ),
                                             Padding(
-                                              padding:
-                                              const EdgeInsets.only(top: 4),
-                                              child: Wrap(
-                                                children: jobData.skills.map((skill) => Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
-                                                  margin: const EdgeInsets.only(right: 6.0, top: 4.0, bottom: 4.0),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(15.0),
-                                                    color: Colors.black54,
-                                                  ),
-                                                  child: Text(skill,style: TextStyle(height: 1,fontSize: 14, color: Colors.white.withOpacity(0.8)),),
-                                                )).toList(),
+                                              padding: EdgeInsets.only(right: 0.8),
+                                              child: Text(
+                                                getPriceType(),
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 14,
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 14, bottom: 10),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: <Widget>[
-                                        Text(
-                                          getPriceText(),
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 22,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(right: 0.8),
-                                          child: Text(
-                                            getPriceType(),
-                                            textAlign: TextAlign.left,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                            )
                         ),
                         Positioned(
-                          top: 10,
-                          right: 10,
-                          child: MyToggleSwitch(state: jobData.state, toggleCallback: toggleCallback,)
+                          top: 16,
+                          right: 16,
+                          child: SizedBox(
+                            height: 30,
+                            child: MyToggleSwitch(state: jobData.state, toggleCallback: toggleCallback,),
+                          )
                         ),
                       ],
                     ),
