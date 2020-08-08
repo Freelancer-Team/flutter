@@ -1,35 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:freelancer_flutter/pages/admin.dart';
-import 'package:freelancer_flutter/pages/apply.dart';
-import 'package:freelancer_flutter/pages/home.dart';
-import 'package:freelancer_flutter/pages/person.dart';
-import 'package:freelancer_flutter/pages/publish.dart';
-import 'package:freelancer_flutter/pages/profile_old.dart';
-import 'package:freelancer_flutter/pages/ProjDetails.dart';
+import 'package:flutter/services.dart';
+import 'package:freelancer_flutter/theme/app_theme.dart';
+import 'package:freelancer_flutter/component/custom_drawer/navigation_home_screen.dart';
 import 'package:freelancer_flutter/pages/login.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
-import 'package:freelancer_flutter/pages/jobList.dart';
 
-void main() => runApp(MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations(<DeviceOrientation>[DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
+      .then((_) => runApp(MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarDividerColor: Colors.grey,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+    return MaterialApp(
+      title: 'Freelancer',
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        textTheme: AppTheme.textTheme,
+        platform: TargetPlatform.iOS,
+      ),
       initialRoute: '/home',
       routes: {
-//        '/': (context) => Splash(),
-        '/home': (context) => HomePage(),
-//        '/projdetails': (context) => ProjDetails(),
+        '/home': (context) => NavigationHomeScreen(),
         '/login': (context) => LoginScreen(),
-        '/signup': (context) => signUpScreen(),
-//        '/category' : (context) => Category(),
-        '/publish': (context) => PublishPage(),
-        '/jobList':(context) => JobListPage(),
-        '/admin': (context) => AdminPage(),
-        '/person': (context) => Person()
-//        '/apply': (context) => HomePage(),
+        '/signUp': (context) => SignUpScreen(),
       },
     );
   }

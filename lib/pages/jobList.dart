@@ -90,18 +90,18 @@ class _JobListPageState extends State<JobListPage> with TickerProviderStateMixin
             title: Text(
               '项目列表',
               style: TextStyle(
-                fontSize: 30.0,
+                fontSize: 20,
+                fontWeight: FontWeight.w400
               ),
             ),
             centerTitle: true,
             flexibleSpace: Container(
               decoration: BoxDecoration(
-                color: Colors.blue[900],
+                color: Colors.blue,
               ),
             ),
             brightness: Brightness.light,
           ),
-          drawer: MyDrawer(),
           body: Stack(
             children: <Widget>[
               InkWell(

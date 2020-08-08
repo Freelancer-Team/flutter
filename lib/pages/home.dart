@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/component/quad_clipper.dart';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
+import 'package:freelancer_flutter/pages/jobList.dart';
+import 'package:freelancer_flutter/pages/publish.dart';
 import 'package:freelancer_flutter/theme/light_color.dart';
+import 'package:freelancer_flutter/theme/app_theme.dart';
 import 'package:freelancer_flutter/component/Lists.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:http/http.dart'as http;
@@ -534,7 +537,8 @@ class RecomendedPage extends State<HomePage> {
             'Freelancer',
             key: Key('title'),
             style: TextStyle(
-              fontSize: 30.0,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
             ),
           ),
           centerTitle: true,
@@ -545,7 +549,6 @@ class RecomendedPage extends State<HomePage> {
           ),
           brightness: Brightness.light,
         ),
-        drawer: MyDrawer(),
         body: SingleChildScrollView(
           child: Column(children: <Widget>[
             Padding(
@@ -567,7 +570,7 @@ class RecomendedPage extends State<HomePage> {
                         style: TextStyle(fontSize: 26),
                       ),
                       onPressed: () {
-                       isLog?Navigator.pushNamed(context, "/publish"): Navigator.pushNamed(context, "/login");
+                       isLog ? Navigator.push(context, MaterialPageRoute(builder: (context) => PublishPage())) : Navigator.pushNamed(context, "/login");
                       },
                     ),
                   ),
@@ -585,7 +588,7 @@ class RecomendedPage extends State<HomePage> {
                         style: TextStyle(fontSize: 26),
                       ),
                       onPressed: () {
-                        isLog?Navigator.pushNamed(context, "/jobList"): Navigator.pushNamed(context, "/login");
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => JobListPage()));
                       },
                     ),
                   ),

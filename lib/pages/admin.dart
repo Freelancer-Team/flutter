@@ -41,13 +41,14 @@ class _AdminPageState extends State<AdminPage> {
         title: Text(
           '系统管理',
           style: TextStyle(
-            fontSize: 30.0,
+            fontSize: 20,
+            fontWeight: FontWeight.w400
           ),
         ),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            color: Colors.blue[900],
+            color: Colors.blue,
           ),
         ),
         brightness: Brightness.light,
@@ -70,7 +71,6 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ],
       ),
-      drawer: MyDrawer(),
       body: ChoiceCard(choice: _selectedChoice),
     );
   }

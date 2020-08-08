@@ -2,18 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:freelancer_flutter/component/custom_drawer/navigation_home_screen.dart';
 import 'package:freelancer_flutter/theme/constants.dart';
-import 'package:freelancer_flutter/pages/login.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:freelancer_flutter/component/config.dart';
 
-class signUpScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   @override
-  _signUpScreenState createState() => _signUpScreenState();
+  _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-class _signUpScreenState extends State<signUpScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   bool getAccess = true;
   FlutterToast flutterToast;
   Color emailTextColor = Color(0xFF6CA8F1);
@@ -99,8 +98,11 @@ class _signUpScreenState extends State<signUpScreen> {
       "name": name,
     });
     _showToast();
-    Navigator.of(context).push(
-        CupertinoPageRoute(builder: (BuildContext context) => LoginScreen()));
+    //清空路由堆栈，压入新的主页
+    Navigator.of(context).pushAndRemoveUntil(
+        new MaterialPageRoute(builder: (context)=> NavigationHomeScreen()),
+            (route)=>route==null
+    );
   }
 
   _showToast() {
@@ -388,8 +390,8 @@ class _signUpScreenState extends State<signUpScreen> {
   Widget _buildLoginBtn() {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(CupertinoPageRoute(
-            builder: (BuildContext context) => LoginScreen()));
+        //路由替换，将注册页替换为登录页
+        Navigator.pushReplacementNamed(context, '/login');
       },
       child: RichText(
         text: TextSpan(

@@ -38,7 +38,9 @@ class _OnesJobManagePageState extends State<OnesJobManagePage> {
             title: Text(
               '我的项目',
               style: TextStyle(
-                color: Colors.white
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w400
               ),
             ),
             centerTitle: true,
@@ -133,7 +135,10 @@ class _EmployerViewState extends State<EmployerView> with SingleTickerProviderSt
     List<StatisticProject> proceedingJobs = [];
     List<Auction> auctions = [];
     var response = [];
-    String url = '${Url.url_prefix}/getEmployerJob?userId=' + widget.userId.toString();
+    int userID;
+    if(widget.userId != null) userID = widget.userId;
+    else userID = await StorageUtil.getIntItem("uid");
+    String url = '${Url.url_prefix}/getEmployerJob?userId=' + userID.toString();
     String token = await StorageUtil.getStringItem('token');
     final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
     final data = json.decode(res.body);
@@ -302,7 +307,10 @@ class _EmployeeViewState extends State<EmployeeView> with SingleTickerProviderSt
     List<StatisticProject> completeJobs = [];
     List<StatisticProject> proceedingJobs = [];
     var response = [];
-    String url = '${Url.url_prefix}/getEmployeeJob?userId=' + widget.userId.toString();
+    int userID;
+    if(widget.userId != null) userID = widget.userId;
+    else userID = await StorageUtil.getIntItem("uid");
+    String url = '${Url.url_prefix}/getEmployeeJob?userId=' + userID.toString();
     String token = await StorageUtil.getStringItem('token');
     final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
     final data = json.decode(res.body);
@@ -360,7 +368,10 @@ class _EmployeeViewState extends State<EmployeeView> with SingleTickerProviderSt
   getAuction() async {
     List<Auction> auctions = [];
     var response = [];
-    String url = '${Url.url_prefix}/getEmployeeJob?userId=' + widget.userId.toString();
+    int userID;
+    if(widget.userId != null) userID = widget.userId;
+    else userID = await StorageUtil.getIntItem("uid");
+    String url = '${Url.url_prefix}/getEmployeeJob?userId=' + userID.toString();
     String token = await StorageUtil.getStringItem('token');
     final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
     final data = json.decode(res.body);

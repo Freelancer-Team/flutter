@@ -63,7 +63,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      drawer: MyDrawer(),
       body: ChoiceCard(choice: _selectedChoice),
     );
   }
