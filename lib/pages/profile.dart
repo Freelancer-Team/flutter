@@ -271,7 +271,8 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
                 ),
                 title: new Text("我的资料",
                     style: new TextStyle(
-                        color: Colors.white
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400
                     )
                 ),
                 actions: <Widget>[

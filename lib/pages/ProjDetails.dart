@@ -1256,9 +1256,10 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(
-            'Freelancer',
+            '项目详情',
             style: TextStyle(
-              fontSize: 30.0,
+              fontSize: 20,
+              fontWeight: FontWeight.w400
             ),
           ),
           centerTitle: true,
@@ -1267,18 +1268,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
               color: Colors.blue,
             ),
           ),
-          bottom: PreferredSize(
-            child: Container(
-              child: Text(
-                '项目详情',
-                key: Key('detailTitle'),
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
           brightness: Brightness.light,
         ),
-        drawer: MyDrawer(),
         body: Stack(
           children: [
             Offstage(

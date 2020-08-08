@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:freelancer_flutter/component/custom_drawer/navigation_home_screen.dart';
 import 'package:freelancer_flutter/theme/constants.dart';
 import 'package:freelancer_flutter/pages/signup.dart';
 import 'package:freelancer_flutter/pages/home.dart';
@@ -96,8 +97,11 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     });
     if (trueEmail == "YE" && truePass == "YP") {
-      Navigator.of(context).push(CupertinoPageRoute(
-          builder: (BuildContext context) => HomePage()));
+      //清空路由堆栈，压入新的主页
+      Navigator.of(context).pushAndRemoveUntil(
+          new MaterialPageRoute(builder: (context)=> NavigationHomeScreen()),
+              (route)=>route==null
+      );
     } else {
       _showToast();
     }
@@ -338,8 +342,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildSignupBtn() {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(CupertinoPageRoute(
-            builder: (BuildContext context) => signUpScreen()));
+        //路由替换，将登录页替换为注册页
+        Navigator.pushReplacementNamed(context, '/signUp');
       },
       child: RichText(
         text: TextSpan(
