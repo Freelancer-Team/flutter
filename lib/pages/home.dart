@@ -15,6 +15,7 @@ import 'package:http/http.dart'as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:freelancer_flutter/component/config.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class HomePage extends StatefulWidget{
   HomePage({Key key}) : super(key: key);
