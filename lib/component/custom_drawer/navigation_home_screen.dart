@@ -36,7 +36,7 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
           backgroundColor: AppTheme.nearlyWhite,
           body: DrawerUserController(
             screenIndex: drawerIndex,
-            drawerWidth: MediaQuery.of(context).size.width * 0.75,
+            drawerWidth: MediaQuery.of(context).size.width > 1080 ? 300 : MediaQuery.of(context).size.width * 0.75,
             onDrawerCall: (DrawerIndex drawerIndexdata) {
               changeIndex(drawerIndexdata);
               //callback from drawer for replace screen as user need with passing DrawerIndex(Enum index)

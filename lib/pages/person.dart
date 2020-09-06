@@ -6,7 +6,6 @@ import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
-import 'dart:math';
 import 'package:freelancer_flutter/pages/ProjDetails.dart';
 
 class Person extends StatefulWidget{
@@ -31,6 +30,7 @@ class _PersonState extends State<Person> with TickerProviderStateMixin{
   User user = User(0,'',0,'','','','','','',[],true);
   List<Job> employerJobList = [];
   List<Job> employeeJobList = [];
+  String _image = 'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png';
 
   @override
   void initState() {
@@ -60,10 +60,11 @@ class _PersonState extends State<Person> with TickerProviderStateMixin{
     for(int i = 0; i < data['skills'].length; ++i){
       skills.add(data['skills'][i]);
     }
-    u = new User(data['id'], data['name'], data['age'], data['gender'], data['email'], data['address'], data['phone'], data['time'], data['description'], skills, true);
+    u = new User(data['id'], data['name'], data['age'], data['gender'], data['email'], data['address'], data['phone'], data['time'], data['description'], skills, (data['isShow'] == 0)? false : true);
     setState(() {
       user = u;
     });
+    _image = data['icon'];
   }
 
   getEmployerJobs() async {
@@ -216,9 +217,9 @@ class _PersonState extends State<Person> with TickerProviderStateMixin{
                             height: 200,
                             decoration: new BoxDecoration(
                                 image: DecorationImage(
-                                    image: AssetImage('assets/ProfileImage/userIcon.jpg'),
+                                    image: NetworkImage(_image),
                                     fit: BoxFit.cover,
-                                    colorFilter: new ColorFilter.mode(Colors.grey.withOpacity(0.4), BlendMode.darken)
+                                    colorFilter: new ColorFilter.mode(Colors.grey.withOpacity(0.7), BlendMode.darken)
                                 )
                             ),
                             child: new Row(
@@ -228,7 +229,7 @@ class _PersonState extends State<Person> with TickerProviderStateMixin{
                                       width: 95,
                                       height: 95,
                                       child: new CircleAvatar(
-                                        backgroundImage: AssetImage('assets/ProfileImage/userIcon.jpg'),
+                                        backgroundImage: NetworkImage(_image),
                                       )
                                   ),
                                   new Expanded(
@@ -370,7 +371,7 @@ class _PersonState extends State<Person> with TickerProviderStateMixin{
                                     Padding(
                                       padding: EdgeInsets.only(left: 20),
                                       child: Container(
-                                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 70),
+                                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
                                         child: Wrap(
                                           children: user.skills.map((skill) => Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
@@ -465,7 +466,7 @@ class _PersonState extends State<Person> with TickerProviderStateMixin{
                               ),
                             ),
                             SizedBox(
-                              height: 500,
+                              height: user.recordCanSee? 600 : 160,
                               child: TabBarView(
                                 controller: _tabController,
                                 children: tabs.map((Tab tab) {

@@ -11,7 +11,8 @@ class UserAdminItem extends StatelessWidget {
         this.animationController,
         this.animation,
         this.callback,
-        this.toggleCallback
+        this.toggleCallback,
+        this.isLarge
       })
       : super(key: key);
 
@@ -20,6 +21,7 @@ class UserAdminItem extends StatelessWidget {
   final User userData;
   final AnimationController animationController;
   final Animation<dynamic> animation;
+  final bool isLarge;
 
   @override
   Widget build(BuildContext context) {
@@ -74,13 +76,20 @@ class UserAdminItem extends StatelessWidget {
                                           crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                           children: <Widget>[
+                                            Offstage(
+                                                offstage: isLarge,
+                                                child: Padding(
+                                                  padding: EdgeInsets.only(top: 8, bottom: 8),
+                                                  child: RoleCard(role: userData.role, isLarge: false,)
+                                                )
+                                            ),
                                             Row(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Padding(
                                                   padding: EdgeInsets.only(top: 8),
                                                   child: CircleAvatar(
-                                                    backgroundImage: AssetImage('assets/ProfileImage/userIcon.jpg'),
+                                                    backgroundImage: NetworkImage(userData.userIcon),
                                                     radius: 30,
                                                   ),
                                                 ),
@@ -89,9 +98,7 @@ class UserAdminItem extends StatelessWidget {
                                                   child: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Container(
-                                                        margin: EdgeInsets.only(right: 130),
-                                                        child:
+
                                                         Row(
                                                           children: [
                                                             Text(
@@ -106,10 +113,13 @@ class UserAdminItem extends StatelessWidget {
                                                               padding: EdgeInsets.only(left: 10, right: 10),
                                                               child: getGenderIcon(),
                                                             ),
-                                                            RoleCard(role: userData.role)
+                                                            Offstage(
+                                                              offstage: !isLarge,
+                                                              child: RoleCard(role: userData.role, isLarge: true,),
+                                                            )
                                                           ],
                                                         ),
-                                                      ),
+
                                                       Row(
                                                         crossAxisAlignment: CrossAxisAlignment.end,
                                                         children: [
@@ -121,17 +131,20 @@ class UserAdminItem extends StatelessWidget {
                                                             labelPadding: EdgeInsets.only(left: 8, right: 10),
                                                             padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                                                           ),
-                                                          Container(
-                                                            margin: EdgeInsets.only(left: 15),
-                                                            child: Chip(
-                                                              label: Text(userData.phone),
-                                                              avatar: CircleAvatar(
-                                                                child: Icon(Icons.phone, size: 20,),
+                                                          Offstage(
+                                                            offstage: !isLarge,
+                                                            child: Container(
+                                                              margin: EdgeInsets.only(left: 15),
+                                                              child: Chip(
+                                                                label: Text(userData.phone),
+                                                                avatar: CircleAvatar(
+                                                                  child: Icon(Icons.phone, size: 20,),
+                                                                ),
+                                                                labelPadding: EdgeInsets.only(left: 8, right: 10),
+                                                                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                                                               ),
-                                                              labelPadding: EdgeInsets.only(left: 8, right: 10),
-                                                              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                                                             ),
-                                                          ),
+                                                          )
                                                         ],
                                                       ),
                                                     ],
@@ -139,13 +152,16 @@ class UserAdminItem extends StatelessWidget {
                                                 )
                                               ],
                                             ),
-                                            Text(
-                                              userData.description,
-                                              textAlign: TextAlign.left,
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey
-                                                      .withOpacity(0.8)),
+                                            Padding(
+                                              padding: EdgeInsets.only(left: 2),
+                                              child: Text(
+                                                userData.description,
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.grey
+                                                        .withOpacity(0.8)),
+                                              ),
                                             ),
                                             Padding(
                                               padding:
@@ -173,9 +189,12 @@ class UserAdminItem extends StatelessWidget {
                           ],
                         ),
                         Positioned(
-                          top: 10,
-                          right: 10,
-                          child: getToggleSwitch()
+                          top: 16,
+                          right: 16,
+                          child: SizedBox(
+                            height: 30,
+                            child: getToggleSwitch(),
+                          )
                         ),
                       ],
                     ),
@@ -285,10 +304,11 @@ class User {
 }
 
 class RoleCard extends StatelessWidget{
-  const RoleCard({Key key, this.role})
+  const RoleCard({Key key, this.role, this.isLarge})
       : super(key: key);
 
   final int role;
+  final bool isLarge;
 
   @override
   Widget build(BuildContext context) {
@@ -317,8 +337,7 @@ class RoleCard extends StatelessWidget{
       break;
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 1.0),
-//      margin: const EdgeInsets.only(left: 15, bottom: 8),
+      padding: isLarge ? EdgeInsets.symmetric(horizontal: 4.0, vertical: 1.0) : EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(7.0),
         color: color,

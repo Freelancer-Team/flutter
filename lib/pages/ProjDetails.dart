@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:ui';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
+import 'package:freelancer_flutter/component/StateCard.dart';
 import 'package:freelancer_flutter/pages/apply.dart';
+import 'package:freelancer_flutter/pages/profile.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/component/SkillChooseModal.dart';
 import 'package:http/http.dart' as http;
@@ -18,17 +20,14 @@ class ProjDetails extends StatefulWidget {
   var ID;
 
   State<StatefulWidget> createState() {
-    final width = window.physicalSize.width;
-    var isLarge = width > 1080;
-    return Screen(ID, isLarge);
+    return Screen(ID);
   }
 }
 
 class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   ValueNotifier<double> W = ValueNotifier<double>(window.physicalSize.width);
-  Screen(this.ID, this.isLarge);
+  Screen(this.ID);
   var ID;
-  var isLarge;
   var _uid;
   var _role = 0;
   var jobstate = 0;
@@ -62,6 +61,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   List<String> skills = new List();
   List EmployerInfo = ['id', 'name', '登陆后查看', '登陆后查看'];
   List rating = ['暂无', '暂无'];
+  String employerIcon = 'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png';
+  String employeeIcon = 'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png';
 
   var array;
   var array2;
@@ -98,6 +99,8 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       jobstate = array['state'];
       employerRate = array['employerRate'];
       employeeRate = array['employeeRate'];
+
+      getEmployerIcon();
       for (int i = 0; i < array['skills'].length; i++) {
         skills.add(array['skills'][i].toString());
       }
@@ -108,12 +111,13 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
         isEmployee = true;
       }
       if(array['employeeId'] != 0){
+        getEmployeeIcon();
         hasEmployee = true;
       }
     });
 
     url = "${Url.url_prefix}/getUser?id=" + EmployerInfo[0];
-    response = await http.post(Uri.encodeFull(url),
+    response = await http.get(Uri.encodeFull(url),
         headers: {"Accept": "application/json", "Authorization": "$token"});
     final data2 = json.decode(response.body);
     setState(() {
@@ -131,7 +135,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
 
     if (hasEmployee && (isEmployer||_role == 1)) {
       url = "${Url.url_prefix}/getUser?id=" + UserInfo[0];
-      response = await http.post(Uri.encodeFull(url),
+      response = await http.get(Uri.encodeFull(url),
           headers: {"Accept": "application/json", "Authorization": "$token"});
       final data3 = json.decode(response.body);
       setState(() {
@@ -157,7 +161,9 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
             array4[i]['price'],
             array4[i]['description'],
             array4[i]['type'],
-            array4[i]['userId']
+            array4[i]['userId'],
+            //竞标者图片
+            'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'
           ]);
           if(array4[i]['type'] == 0){
             AuctionInfo[i][3] ='时薪';
@@ -165,6 +171,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
           else {
             AuctionInfo[i][3] ='全部';
           }
+          getAuctionIcon(i);
         }
       });
     }
@@ -185,6 +192,33 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     var res = await http.post(Uri.encodeFull(url),
         headers: {"Accept": "application/json", "Authorization": "$token"},
         body: {"userId": userId, "userName": userName, "jobId": ID});
+  }
+
+  getEmployeeIcon() async {
+    String url = "${Url.url_prefix}/getOnesIcon?userId=" + array['employeeId'].toString();
+    final res = await http.get(url, headers: {"Accept": "application/json"});
+    final data = json.decode(res.body);
+    setState(() {
+      employeeIcon = data[1];
+    });
+  }
+
+  getEmployerIcon() async {
+    String url = "${Url.url_prefix}/getOnesIcon?userId=" + array['employerId'].toString();
+    final res = await http.get(url, headers: {"Accept": "application/json"});
+    final data = json.decode(res.body);
+    setState(() {
+      employerIcon = data[1];
+    });
+  }
+
+  getAuctionIcon(int i) async {
+    String url = "${Url.url_prefix}/getOnesIcon?userId=" + array4[i]['userId'].toString();
+    final res = await http.get(url, headers: {"Accept": "application/json"});
+    final data = json.decode(res.body);
+    setState(() {
+      AuctionInfo[i][5] = data[1];
+    });
   }
 
   @override
@@ -500,15 +534,20 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                           return Container(
                               alignment: Alignment.centerLeft,
                               padding:
-                                  EdgeInsets.fromLTRB(0.15 * width, 8, 0, 8),
+                                  EdgeInsets.fromLTRB(10, 8, 0, 8),
                               height: 100,
                               child: Row(
                                 children: [
-                                  Container(
-                                    padding: EdgeInsets.fromLTRB(
-                                        0, 0, 0.05 * width, 0),
-                                    child: Image(
-                                      image: AssetImage("assets/notFind.jpeg"),
+                                  InkWell(
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: AuctionInfo[index][4])));
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.fromLTRB(
+                                          0, 0, 0.05 * width, 0),
+                                      child: CircleAvatar(
+                                        backgroundImage: NetworkImage(AuctionInfo[index][5]),
+                                      ),
                                     ),
                                   ),
                                   Container(
@@ -519,6 +558,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                         Text('Price：${AuctionInfo[index][3]}:${AuctionInfo[index][1]}'),
                                         Text('Message：${AuctionInfo[index][2]}')
                                       ],
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                     ),
                                   ),
                                   MaterialButton(
@@ -628,140 +668,63 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       Offstage(
         offstage: !isEmployee && !isEmployer,
         child: Container(
-          height: 300,
+          height: 488,
           child: Center(
             child: Column(
               children: [
-                Container(
-                  width: 0.6 * width,
-                  child: LinearPercentIndicator(
-                    animation: true,
-                    animationDuration: 1000,
-                    lineHeight: 20.0,
-                    leading: new Text("7月16日"),
-                    trailing: new Text("7月26日"),
-                    percent: 0.4,
-                    center: Text('7月20日(' + (0.4 * 100).toString() + '%)'),
-                    linearStrokeCap: LinearStrokeCap.roundAll,
-                    progressColor: Colors.blue,
-                  ),
-                ),
+                ProjInfo[0] != "ID" ?
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 30,
+                        ),
+                        StateCard(state: array['state'], date: array['deadline'],),
+
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text("发布日期：" + array['publishTime'].substring(0,10), style: TextStyle(fontSize: 18)),
+                        Container(height: 5,),
+                        hasEmployee ? Text("接单日期：" + array['startTime'].substring(0,10), style: TextStyle(fontSize: 18)) : Text("接单截止日期：" + array['deadline'].substring(0,10), style: TextStyle(fontSize: 18)),
+                        Container(height: 5,),
+                        array['finishTime'] != "" ? Text("完成日期：" + array['finishTime'].substring(0,10), style: TextStyle(fontSize: 18)) : Container(),
+
+                      ],
+                    )
+                :
+                    Container(),
                 SizedBox(
-                  height: 50,
+                  height: 30,
                 ),
-                Offstage(
-                  offstage: isEmployer,
+                Container(
+                  width: 180,
                   child: Column(
                     children: [
                       Offstage(
-                        offstage: employeeRate != -1.0,
-                        child: Container(
-                          height: 50,
-                          child: FlatButton(
-                              color: Colors.blue,
-                              textColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: new Text('评分'),
-                              onPressed: () {
-                                _showRatingDialog();
-                              }),
-                        ),
-                      ),
-                      Offstage(
-                          offstage: employeeRate == -1.0,
-                          child: Column(
-                            children: [
-                              Container(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.4 * width, 8, 0, 8),
-                                child: RatingBar(
-                                  value: employeeRate,
-                                  size: 30,
-                                  padding: 5,
-                                  nomalImage: 'assets/star_nomal.png',
-                                  selectImage: 'assets/star.png',
-                                  selectAble: false,
-                                  maxRating: 5,
-                                  count: 5,
-                                ),
+                        offstage: isEmployer || !hasEmployee,
+                        child: Column(
+                          children: [
+                            Offstage(
+                              offstage: employeeRate != -1.0,
+                              child: Container(
+                                height: 50,
+                                child: FlatButton(
+                                    color: Colors.blue,
+                                    textColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10)),
+                                    child: new Text('评分'),
+                                    onPressed: () {
+                                      _showRatingDialog();
+                                    }),
                               ),
-                              Text("你的评分：$employeeRate分"),
-                              Offstage(
-                                offstage: employerRate == -1.0,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.fromLTRB(
-                                          0.4 * width, 8, 0, 8),
-                                      child: RatingBar(
-                                        value: employerRate,
-                                        size: 30,
-                                        padding: 5,
-                                        nomalImage: 'assets/star_nomal.png',
-                                        selectImage: 'assets/star.png',
-                                        selectAble: false,
-                                        maxRating: 5,
-                                        count: 5,
-                                      ),
-                                    ),
-                                    Text("雇主评分：$employerRate分")
-                                  ],
-                                ),
-                              ),
-                              Offstage(
-                                  offstage: employeeRate != -1.0,
-                                  child: Text("雇主未评分"))
-                            ],
-                          ))
-                    ],
-                  ),
-                ),
-                Offstage(
-                  offstage: isEmployee,
-                  child: Column(
-                    children: [
-                      Offstage(
-                        offstage: employerRate != -1.0,
-                        child: Container(
-                          height: 50,
-                          child: FlatButton(
-                              color: Colors.blue,
-                              textColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: new Text('评分'),
-                              onPressed: () {
-                                _showRatingDialog();
-                              }),
-                        ),
-                      ),
-                      Offstage(
-                          offstage: employerRate == -1.0,
-                          child: Column(
-                            children: [
-                              Container(
-                                padding:
-                                    EdgeInsets.fromLTRB(0.4 * width, 8, 0, 8),
-                                child: RatingBar(
-                                  value: employerRate,
-                                  size: 30,
-                                  padding: 5,
-                                  nomalImage: 'assets/star_nomal.png',
-                                  selectImage: 'assets/star.png',
-                                  selectAble: false,
-                                  maxRating: 5,
-                                  count: 5,
-                                ),
-                              ),
-                              Text("你的评分：$employerRate分"),
-                              Offstage(
+                            ),
+                            Offstage(
                                 offstage: employeeRate == -1.0,
                                 child: Column(
                                   children: [
                                     Container(
-                                      padding: EdgeInsets.fromLTRB(
-                                          0.4 * width, 8, 0, 8),
                                       child: RatingBar(
                                         value: employeeRate,
                                         size: 30,
@@ -773,15 +736,100 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                         count: 5,
                                       ),
                                     ),
-                                    Text("雇员评分：$employeeRate分")
+                                    Text("你的评分：$employeeRate分"),
+                                    Offstage(
+                                      offstage: employerRate == -1.0,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            child: RatingBar(
+                                              value: employerRate,
+                                              size: 30,
+                                              padding: 5,
+                                              nomalImage: 'assets/star_nomal.png',
+                                              selectImage: 'assets/star.png',
+                                              selectAble: false,
+                                              maxRating: 5,
+                                              count: 5,
+                                            ),
+                                          ),
+                                          Text("雇主评分：$employerRate分")
+                                        ],
+                                      ),
+                                    ),
+                                    Offstage(
+                                        offstage: employeeRate != -1.0,
+                                        child: Text("雇主未评分"))
                                   ],
-                                ),
+                                )
+                            )
+                          ],
+                        ),
+                      ),
+                      Offstage(
+                        offstage: isEmployee || !hasEmployee,
+                        child: Column(
+                          children: [
+                            Offstage(
+                              offstage: employerRate != -1.0,
+                              child: Container(
+                                height: 50,
+                                child: FlatButton(
+                                    color: Colors.blue,
+                                    textColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10)),
+                                    child: new Text('评分'),
+                                    onPressed: () {
+                                      _showRatingDialog();
+                                    }),
                               ),
-                              Offstage(
-                                  offstage: employeeRate != -1.0,
-                                  child: Text("雇员未评分"))
-                            ],
-                          ))
+                            ),
+                            Offstage(
+                                offstage: employerRate == -1.0,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      child: RatingBar(
+                                        value: employerRate,
+                                        size: 30,
+                                        padding: 5,
+                                        nomalImage: 'assets/star_nomal.png',
+                                        selectImage: 'assets/star.png',
+                                        selectAble: false,
+                                        maxRating: 5,
+                                        count: 5,
+                                      ),
+                                    ),
+                                    Text("你的评分：$employerRate分"),
+                                    Offstage(
+                                      offstage: employeeRate == -1.0,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            child: RatingBar(
+                                              value: employeeRate,
+                                              size: 30,
+                                              padding: 5,
+                                              nomalImage: 'assets/star_nomal.png',
+                                              selectImage: 'assets/star.png',
+                                              selectAble: false,
+                                              maxRating: 5,
+                                              count: 5,
+                                            ),
+                                          ),
+                                          Text("雇员评分：$employeeRate分")
+                                        ],
+                                      ),
+                                    ),
+                                    Offstage(
+                                        offstage: employeeRate != -1.0,
+                                        child: Text("雇员未评分"))
+                                  ],
+                                ))
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 )
@@ -806,7 +854,13 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
             key: Key('bar'),
             toolbarHeight: 50,
             title: Text('${ProjInfo[1]}', key: Key('projectTitle')),
-            centerTitle: false,
+            centerTitle: true,
+            leading: Container(),
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
             actions: <Widget>[
               Offstage(
                   offstage: isEmployer,
@@ -915,23 +969,203 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _card2() {
-    return Stack(
-      children: [
-        Offstage(
-          offstage: isEmployer,
-          child: Card(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
-                    itemCount: 3,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0)
-                        return Container(
+  //普通用户视角
+//  Widget _card2() {
+//    return Stack(
+//      children: [
+//        Offstage(
+//          offstage: isEmployer,
+//          child: Card(
+//            child: Column(
+//              children: <Widget>[
+//                Expanded(
+//                  child: ListView.separated(
+//                    padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
+//                    itemCount: 2,
+//                    itemBuilder: (BuildContext context, int index) {
+//                      if (index == 0)
+//                        return Container(
+//                            alignment: Alignment.center,
+//                            height: 300,
+//                            child: Column(
+//                              children: [
+//                                Container(
+//                                  height: 50,
+//                                  child: Text(
+//                                    '发布公司/个人',
+//                                    style: TextStyle(fontSize: 22),
+//                                  ),
+//                                ),
+////                                Image(),
+//                                Container(
+//                                    height: 250,
+//                                    child: Column(
+//                                      mainAxisAlignment:
+//                                          MainAxisAlignment.spaceEvenly,
+//                                      children: [
+//                                        InkWell(
+//                                          child: Container(
+//                                            height: 80,
+//                                            width: 80,
+//                                            child: CircleAvatar(
+//                                              backgroundImage: NetworkImage(employerIcon),
+//                                              backgroundColor: Colors.white,
+//                                            ),
+//                                          ),
+//                                          onTap: (){
+//                                            Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: array['employerId'])));
+//                                          },
+//                                        ),
+//                                        Text('名称：${EmployerInfo[1]}',
+//                                            style: TextStyle(fontSize: 16)),
+//                                        Text('地址：${EmployerInfo[2]}',
+//                                            style: TextStyle(fontSize: 16)),
+//                                        Text('联系方式：${EmployerInfo[3]}',
+//                                            style: TextStyle(fontSize: 16)),
+//                                      ],
+//                                    ))
+//                              ],
+//                            ));
+//                      else
+//                        return Container(
+//                            alignment: Alignment.center,
+//                            height: 100,
+//                            child: Column(
+//                              children: [
+//                                Text('历史评分', style: TextStyle(fontSize: 20)),
+//                                SizedBox(
+//                                  height: 20,
+//                                ),
+//                                Text(
+//                                  '${rating[0]}',
+//                                  style: TextStyle(
+//                                      fontSize: 24,
+//                                      fontWeight: FontWeight.bold),
+//                                )
+//                              ],
+//                            ));
+//                    },
+//                    separatorBuilder: (BuildContext context, int index) =>
+//                        Container(height: 1.0, color: Colors.grey),
+//                  ),
+//                ),
+//              ],
+//            ),
+//          ),
+//        ),
+//        Offstage(
+//          offstage: !isEmployer,
+//          child: Card(
+//              child: Stack(
+//            children: [
+//              Offstage(
+//                offstage: !hasEmployee,
+//                child: Column(
+//                  children: <Widget>[
+//                    Expanded(
+//                      child: ListView.separated(
+//                        padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
+//                        itemCount: 2,
+//                        itemBuilder: (BuildContext context, int index) {
+//                          if (index == 0)
+//                            return Container(
+//                                alignment: Alignment.center,
+//                                height: 200,
+//                                child: Column(
+//                                  children: [
+//                                    Text(
+//                                      '接单人',
+//                                      style: TextStyle(fontSize: 22),
+//                                    ),
+//                                    InkWell(
+//                                      child: Container(
+//                                        height: 80,
+//                                        width: 80,
+//                                        child: CircleAvatar(
+//                                          backgroundImage: NetworkImage(employeeIcon),
+//                                          backgroundColor: Colors.white,
+//                                        ),
+//                                      ),
+//                                      onTap: (){
+//                                        Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: array['employeeId'])));
+//                                      },
+//                                    ),
+//                                    Expanded(
+//                                        child: ListView.builder(
+//                                            padding: const EdgeInsets.all(8),
+//                                            itemCount: entries2.length,
+//                                            itemBuilder: (BuildContext context,
+//                                                int index) {
+//                                              return Container(
+//                                                height: 20,
+//                                                alignment: Alignment.center,
+//                                                child: Text(
+//                                                    '${entries2[index]}: ${UserInfo[index + 1]}',
+//                                                    style: TextStyle(
+//                                                        fontSize: 16)),
+//                                              );
+//                                            })),
+//                                  ],
+//                                ));
+//                          else
+//                            return Container(
+//                                alignment: Alignment.center,
+//                                height: 100,
+//                                child: Column(
+//                                  children: [
+//                                    Text('历史评分',
+//                                        style: TextStyle(fontSize: 20)),
+//                                    SizedBox(
+//                                      height: 20,
+//                                    ),
+//                                    Text(
+//                                      '${rating[1]}',
+//                                      style: TextStyle(
+//                                          fontSize: 24,
+//                                          fontWeight: FontWeight.bold),
+//                                    )
+//                                  ],
+//                                ));
+//                        },
+//                        separatorBuilder: (BuildContext context, int index) =>
+//                            Container(height: 1.0, color: Colors.grey),
+//                      ),
+//                    ),
+//                  ],
+//                ),
+//              ),
+//              Offstage(
+//                offstage: hasEmployee,
+//                child: Container(
+//                    alignment: Alignment.center,
+//                    child: Column(
+//                      children: [
+//                        Text('接单人', style: TextStyle(fontSize: 22)),
+//                        Text('暂无接单人', style: TextStyle(fontSize: 20))
+//                      ],
+//                    )
+//                ),
+//              )
+//            ],
+//          )),
+//        )
+//      ],
+//    );
+//  }
+
+  Widget _card3() {
+    return Card(
+          child: Column(
+            children: <Widget>[
+              Container(
+                height: 430,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+                  child: Column(
+                    children: [
+                      Container(
                             alignment: Alignment.center,
-                            height: 200,
+                            height: 300,
                             child: Column(
                               children: [
                                 Container(
@@ -941,311 +1175,157 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                     style: TextStyle(fontSize: 22),
                                   ),
                                 ),
-//                                Image(),
                                 Container(
-                                    height: 120,
+                                    height: 250,
                                     child: Column(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        Text('名称：${EmployerInfo[1]}',
+                                        InkWell(
+                                          child: Container(
+                                            height: 80,
+                                            width: 80,
+                                            child: CircleAvatar(
+                                              backgroundImage: NetworkImage(employerIcon),
+                                              backgroundColor: Colors.white,
+                                            ),
+                                          ),
+                                          onTap: (){
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: array['employerId'])));
+                                          },
+                                        ),
+                                        Text(
+                                            '名称：${EmployerInfo[1]}',
                                             style: TextStyle(fontSize: 16)),
                                         Text('地址：${EmployerInfo[2]}',
                                             style: TextStyle(fontSize: 16)),
                                         Text('联系方式：${EmployerInfo[3]}',
                                             style: TextStyle(fontSize: 16)),
                                       ],
-                                    ))
-                              ],
-                            ));
-                      else if (index == 1)
-                        return Container(
+                                    )
+                                ),
+                              ]
+                            )
+                        ),
+                        Container(height: 1.0, color: Colors.grey),
+                        Container(
                             alignment: Alignment.center,
                             height: 80,
                             child: Column(
-                              children: [
-                                Text('认证信息', style: TextStyle(fontSize: 20)),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.accessibility),
-                                    Icon(Icons.home),
-                                    Icon(Icons.cached),
-                                    Icon(Icons.dashboard),
-                                    Icon(Icons.face),
-                                  ],
-                                )
-                              ],
-                            ));
-                      else
-                        return Container(
-                            alignment: Alignment.center,
-                            height: 100,
-                            child: Column(
-                              children: [
-                                Text('历史评分', style: TextStyle(fontSize: 20)),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  '${rating[0]}',
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            ));
-                    },
-                    separatorBuilder: (BuildContext context, int index) =>
-                        Container(height: 1.0, color: Colors.grey),
+                                children: [
+                                  Text('历史评分', style: TextStyle(fontSize: 20)),
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                  Text(
+                                    '${rating[0]}',
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ]
+                            )
+                        )
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        Offstage(
-          offstage: !isEmployer,
-          child: Card(
-              child: Stack(
-            children: [
+              ),
+              Container(height: 3.0, color: Colors.grey.withOpacity(0.6)),
               Offstage(
                 offstage: !hasEmployee,
-                child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
-                        itemCount: 2,
-                        itemBuilder: (BuildContext context, int index) {
-                          if (index == 0)
-                            return Container(
-                                alignment: Alignment.center,
-                                height: 200,
-                                child: Column(
-                                  children: [
-                                    Text(
+                child:
+                Container(
+                    alignment: Alignment.center,
+                    height: 430,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+                    child: Column(
+                      children: [
+                        Container(
+                            alignment: Alignment.center,
+                            height: 300,
+                            child: Column(
+                                children: [
+                                  Container(
+                                    height: 50,
+                                    child: Text(
                                       '接单人',
                                       style: TextStyle(fontSize: 22),
                                     ),
-                                    Container(
-                                      height: 80,
-                                      child: Image(
-                                        image:
-                                            AssetImage("assets/notFind.jpeg"),
-                                      ),
-                                    ),
-                                    Expanded(
-                                        child: ListView.builder(
-                                            padding: const EdgeInsets.all(8),
-                                            itemCount: entries2.length,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              return Container(
-                                                height: 20,
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                    '${entries2[index]}: ${UserInfo[index + 1]}',
-                                                    style: TextStyle(
-                                                        fontSize: 16)),
-                                              );
-                                            })),
-                                  ],
-                                ));
-                          else
-                            return Container(
-                                alignment: Alignment.center,
-                                height: 100,
-                                child: Column(
-                                  children: [
-                                    Text('历史评分',
-                                        style: TextStyle(fontSize: 20)),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text(
-                                      '${rating[1]}',
-                                      style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold),
-                                    )
-                                  ],
-                                ));
-                        },
-                        separatorBuilder: (BuildContext context, int index) =>
-                            Container(height: 1.0, color: Colors.grey),
-                      ),
+                                  ),
+                                  Container(
+                                      height: 250,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          InkWell(
+                                            child: Container(
+                                              height: 80,
+                                              width: 80,
+                                              child: CircleAvatar(
+                                                backgroundImage: NetworkImage(employeeIcon),
+                                                backgroundColor: Colors.white,
+                                              ),
+                                            ),
+                                            onTap: (){
+                                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: array['employeeId'])));
+                                            },
+                                          ),
+                                          Text(
+                                              '姓名：${UserInfo[1]}',
+                                              style: TextStyle(fontSize: 16)),
+                                          Text('电话：${UserInfo[2]}',
+                                              style: TextStyle(fontSize: 16)),
+                                          Text('邮箱：${UserInfo[3]}',
+                                              style: TextStyle(fontSize: 16)),
+                                        ],
+                                      )
+                                  ),
+                                ]
+                            )
+                        ),
+                        Container(height: 1.0, color: Colors.grey),
+                        Container(
+                            alignment: Alignment.center,
+                            height: 80,
+                            child: Column(
+                                children: [
+                                  Text('历史评分', style: TextStyle(fontSize: 20)),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  Text(
+                                    '${rating[1]}',
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ]
+                            )
+                        )
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
               Offstage(
                 offstage: hasEmployee,
-                child: Container(
-                    alignment: Alignment.center,
-                    child: Column(
-                      children: [
-                        Text('接单人', style: TextStyle(fontSize: 22)),
-                        Text('暂无接单人', style: TextStyle(fontSize: 20))
-                      ],
-                    )),
+                child: Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: Column(
+                    children: [
+                      Text('接单人', style: TextStyle(fontSize: 22)),
+                      Padding(
+                          padding: EdgeInsets.only(top: 50, bottom: 80),
+                          child: Text('暂无', style: TextStyle(fontSize: 20))
+                      ),
+                    ],
+                  ),
+                )
               )
             ],
-          )),
-        )
-      ],
-    );
-  }
-
-  Widget _card3() {
-    return Card(
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(8.0, 24.0, 8.0, 8.0),
-                  itemCount: 3,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0)
-                      return Container(
-                          alignment: Alignment.center,
-                          height: 200,
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 50,
-                                child: Text(
-                                  '发布公司/个人',
-                                  style: TextStyle(fontSize: 22),
-                                ),
-                              ),
-//                                Image(),
-                              Container(
-                                  height: 120,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Text(
-                                          '名称：${EmployerInfo[1]}',
-                                          style: TextStyle(fontSize: 16)),
-                                      Text('地址：${EmployerInfo[2]}',
-                                          style: TextStyle(fontSize: 16)),
-                                      Text('联系方式：${EmployerInfo[3]}',
-                                          style: TextStyle(fontSize: 16)),
-                                    ],
-                                  ))
-                            ],
-                          ));
-                    else if (index == 1)
-                      return Container(
-                          alignment: Alignment.center,
-                          height: 80,
-                          child: Column(
-                            children: [
-                              Text('认证信息', style: TextStyle(fontSize: 20)),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.accessibility),
-                                  Icon(Icons.home),
-                                  Icon(Icons.cached),
-                                  Icon(Icons.dashboard),
-                                  Icon(Icons.face),
-                                ],
-                              )
-                            ],
-                          ));
-                    else
-                      return Container(
-                          alignment: Alignment.center,
-                          height: 80,
-                          child: Column(
-                            children: [
-                              Text('历史评分', style: TextStyle(fontSize: 20)),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                '${rating[0]}',
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ));
-                  },
-                  separatorBuilder: (BuildContext context, int index) =>
-                      Container(height: 1.0, color: Colors.grey),
-                ),
-              ),
-
-              Container(height: 1.0, color: Colors.grey),
-              Container(
-                  alignment: Alignment.center,
-                  height: 200,
-                  child: Column(
-                    children: [
-                      Text(
-                        '接单人',
-                        style: TextStyle(fontSize: 22),
-                      ),
-                      Container(
-                        height: 80,
-                        child: Image(
-                          image:
-                          AssetImage("assets/notFind.jpeg"),
-                        ),
-                      ),
-                      Expanded(
-                          child: ListView.builder(
-                              padding: const EdgeInsets.all(8),
-                              itemCount: entries2.length,
-                              itemBuilder: (BuildContext context,
-                                  int index) {
-                                return Container(
-                                  height: 20,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                      '${entries2[index]}: ${UserInfo[index + 1]}',
-                                      style: TextStyle(
-                                          fontSize: 16)),
-                                );
-                              })),
-                    ],
-                  )),
-              Container(height: 1.0, color: Colors.grey),
-              Container(
-                  alignment: Alignment.center,
-                  height: 100,
-                  child: Column(
-                    children: [
-                      Text('历史评分',
-                          style: TextStyle(fontSize: 20)),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        '${rating[1]}',
-                        style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  )),
-                  Offstage(
-                    offstage: hasEmployee,
-                    child: Container(
-                        alignment: Alignment.center,
-                        child: Column(
-                          children: [
-                            Text('接单人', style: TextStyle(fontSize: 22)),
-                            Text('暂无接单人', style: TextStyle(fontSize: 20))
-                          ],
-                        )),
-                  )
-                ],
-              )
+          )
     );
   }
 
@@ -1272,62 +1352,61 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
         ),
         body: Stack(
           children: [
-            Offstage(
-              offstage: !isLarge,
-              child: Row(
-                children: <Widget>[
-                  Container(
-                      width: 0.70 * width,
-                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                      child: _card1(0.7 * width)),
-                  Container(
-                      width: 0.30 * width,
-                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                      child: Stack(
-                        children: [
-                          Offstage(
-                            offstage: _role == 1,
-                            child: _card2(),
-                          ),
-                          Offstage(
-                            offstage: _role == 0,
-                            child: _card3(),
-                          )
-                        ],
-                      )),
-                ],
-              ),
-            ),
-            Offstage(
-              offstage: isLarge,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
+            MediaQuery.of(context).size.width > 1080 ?
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Container(
-                        constraints:
-                            BoxConstraints(minHeight: 100, maxHeight: 700),
+                        width: 0.70 * width,
                         padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                        child: _card1(width)),
-                    Container(
-                        height: 750,
-                        padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                        child: Stack(
-                          children: [
-                            Offstage(
-                              offstage: _role == 1,
-                              child: _card2(),
-                            ),
-                            Offstage(
-                              offstage: _role == 0,
-                              child: _card3(),
-                            )
-                          ],
-                        )),
+                        child: _card1(0.7 * width)),
+                    SingleChildScrollView(
+                      child: Container(
+                          width: 0.30 * width,
+                          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                          child: Stack(
+                            children: [
+                              Offstage(
+                                offstage: _role == 1,
+                                child: _card3(),
+                              ),
+                              Offstage(
+                                offstage: _role == 0,
+                                child: _card3(),
+                              )
+                            ],
+                          )
+                      ),
+                    )
                   ],
+                )
+              :
+                SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                          constraints:
+                          BoxConstraints(minHeight: 100, maxHeight: 600),
+                          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                          child: _card1(width)),
+                      Container(
+                          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 30.0),
+                          child: Stack(
+                            children: [
+                              Offstage(
+                                offstage: _role == 1,
+                                child: _card3(),
+                              ),
+                              Offstage(
+                                offstage: _role == 0,
+                                child: _card3(),
+                              )
+                            ],
+                          )),
+                    ],
+                  ),
                 ),
-              ),
-            )
           ],
         ));
   }

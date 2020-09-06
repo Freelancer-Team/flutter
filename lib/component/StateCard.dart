@@ -54,7 +54,6 @@ class StateCard extends StatelessWidget{
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
-      margin: const EdgeInsets.only(left: 15, bottom: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(7.0),
         color: color,

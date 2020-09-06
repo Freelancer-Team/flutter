@@ -1,3 +1,3 @@
 class Url{
-  static String url_prefix = "http://192.168.1.6:8080";
+  static String url_prefix = "http://10.166.85.28:8080";
 }

@@ -4,8 +4,13 @@ import 'package:flutter_picker/flutter_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freelancer_flutter/component/LiteSwitch.dart';
+import 'package:freelancer_flutter/component/OSS_Uploader.dart';
+import 'package:freelancer_flutter/component/config.dart';
+import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'hotel_app_theme.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class UserInfoEditModal extends StatefulWidget {
   const UserInfoEditModal(
@@ -17,7 +22,7 @@ class UserInfoEditModal extends StatefulWidget {
       : super(key: key);
 
   final FoundationInfo userInfo;
-  final Function(FoundationInfo) onApplyClick;
+  final Function(FoundationInfo, bool, File) onApplyClick;
 
   final Function onCancelClick;
   @override
@@ -35,9 +40,12 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
     age: 0,
     phone: '',
     address: '',
-    description: ''
+    description: '',
+    image: 'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'
   );
   final picker = ImagePicker();
+  var _image;
+  bool ifImageChanged = false;
 
   @override
   void initState() {
@@ -58,9 +66,14 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
 
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      userInfo.image = image;
-    });
+    if(image != null) {
+      setState(() {
+        _image = image;
+      });
+      setState(() {
+        ifImageChanged = true;
+      });
+    }
   }
 
   @override
@@ -136,13 +149,13 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                                     mainAxisSize: MainAxisSize.max,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      userInfo.image == null
+                                      !ifImageChanged
                                           ? CircleAvatar(
-                                        backgroundImage: AssetImage('assets/ProfileImage/userIcon.jpg'),
+                                        backgroundImage: NetworkImage(userInfo.image),
                                         radius: 50,
                                       )
                                           : CircleAvatar(
-                                        backgroundImage: FileImage(userInfo.image),
+                                        backgroundImage: FileImage(_image),
                                         radius: 50,
                                       )
                                     ],
@@ -511,7 +524,7 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
                                         Radius.circular(24.0)),
                                     highlightColor: Colors.transparent,
                                     onTap: () {
-                                      widget.onApplyClick(userInfo);
+                                      onApplyClick();
                                       Navigator.pop(context);
                                     },
                                     child: Center(
@@ -541,6 +554,40 @@ class _UserInfoEditModalState extends State<UserInfoEditModal>
     );
   }
 
+  onApplyClick() async {
+    if(ifImageChanged){
+      String name = await Uploader.uploadImage(_image);
+      setState(() {
+        userInfo.image = "http://freelancer-images.oss-cn-beijing.aliyuncs.com/" + name;
+      });
+      widget.onApplyClick(userInfo, ifImageChanged, _image);
+    }
+    else{
+      widget.onApplyClick(userInfo, false, null);
+    }
+    updateUserInfo();
+  }
+
+  updateUserInfo() async {
+    StorageUtil.setStringItem("userIcon", userInfo.image);
+
+    String url = "${Url.url_prefix}/updateUserInfo";
+    int userId = await StorageUtil.getIntItem("uid");
+    String token = await StorageUtil.getStringItem('token');
+    http.post(Uri.encodeFull(url), headers: {
+      "Accept": "application/json;charset=UTF-8","Authorization": "$token"
+    }, body: {
+      "userId": userId.toString(),
+      "name": userInfo.name,
+      "gender": userInfo.gender,
+      "age": userInfo.age.toString(),
+      "address": userInfo.address,
+      "phone": userInfo.phone,
+      "description": userInfo.description,
+      "image": userInfo.image,
+    });
+  }
+
   showPickerNumber(BuildContext context) {
     Picker(
         adapter: NumberPickerAdapter(data: [
@@ -566,14 +613,15 @@ class FoundationInfo{
     this.age,
     this.address,
     this.phone,
-    this.description
+    this.description,
+    this.image
   });
 
-  var image;
   String name;
   String gender;
   int age;
   String phone;
   String address;
   String description;
+  String image;
 }
