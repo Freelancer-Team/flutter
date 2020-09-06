@@ -67,6 +67,10 @@ class _DataTableDemoState extends State<DataTableDemo> {
   int _sortColumnIndex;
   bool _sortAscending = true;
 
+  String searchCondition = "";
+  List<StatisticProject> jobList;
+  List<StatisticProject> originJobList;
+
   /*DataSource状态映射*/
   bool hasSelectedDessert = false;
   StatisticProject selectedDessert;
@@ -93,13 +97,32 @@ class _DataTableDemoState extends State<DataTableDemo> {
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      jobList = widget.jobList;
+      originJobList = widget.jobList;
+    });
+  }
+
+  executeSearch() {
+    List<StatisticProject> jobs = [];
+    for(int i = 0; i < originJobList.length; ++i){
+      if(originJobList[i].projectName.contains(searchCondition)) jobs.add(originJobList[i]);
+    }
+    setState(() {
+      jobList = jobs;
+    });
+  }
+
   Widget tableContent(){
     final EmployerProceedingDataSource _statisticJobDataSource = EmployerProceedingDataSource(
       dataTableType: widget.tableKind,
       myCallback: myTapCallback,
       selectOneDessert: selectOneDessert,
       cancelSelectOneDessert: cancelSelectOneDessert,
-      statisticProject: widget.jobList
+      statisticProject: jobList
     );
 
     void _sort<T>(Comparable<T> getField(StatisticProject d), int columnIndex, bool ascending) {
@@ -226,7 +249,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
                   padding: const EdgeInsets.only(
                       left: 16, right: 16, top: 4, bottom: 4),
                   child: TextField(
-                    onChanged: (String txt) {},
+                    onChanged: (String txt) {searchCondition = txt;},
                     style: const TextStyle(
                       fontSize: 18,
                     ),
@@ -261,6 +284,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
                 ),
                 onTap: () {
                   FocusScope.of(context).requestFocus(FocusNode());
+                  executeSearch();
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),

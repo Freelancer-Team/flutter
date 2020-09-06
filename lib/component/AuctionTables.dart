@@ -68,9 +68,33 @@ class _EmployeeAuctionTableState extends State<EmployeeAuctionTable> {
   int _sortColumnIndex;
   bool _sortAscending = true;
 
+  String searchCondition = "";
+  List<Auction> auctionList;
+  List<Auction> originAuctionList;
+
   /*DataSource状态映射*/
   bool hasSelectedDessert = false;
   Auction selectedDessert;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      auctionList = widget.auctionList;
+      originAuctionList = widget.auctionList;
+    });
+  }
+
+  executeSearch() {
+    print("start");
+    List<Auction> auctions = [];
+    for(int i = 0; i < originAuctionList.length; ++i){
+      if(originAuctionList[i].projectName.contains(searchCondition)) {auctions.add(originAuctionList[i]); print(i);}
+    }
+    setState(() {
+      auctionList = auctions;
+    });
+  }
 
   void myTapCallback(Auction auction) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ProjDetails(auction.projectId)));
@@ -99,7 +123,7 @@ class _EmployeeAuctionTableState extends State<EmployeeAuctionTable> {
         myCallback: myTapCallback,
         selectOneDessert: selectOneDessert,
         cancelSelectOneDessert: cancelSelectOneDessert,
-        auctionList: widget.auctionList
+        auctionList: auctionList
     );
 
     void _sort<T>(Comparable<T> getField(Auction d), int columnIndex, bool ascending) {
@@ -224,7 +248,7 @@ class _EmployeeAuctionTableState extends State<EmployeeAuctionTable> {
                   padding: const EdgeInsets.only(
                       left: 16, right: 16, top: 4, bottom: 4),
                   child: TextField(
-                    onChanged: (String txt) {},
+                    onChanged: (String txt) {searchCondition = txt;},
                     style: const TextStyle(
                       fontSize: 18,
                     ),
@@ -259,6 +283,7 @@ class _EmployeeAuctionTableState extends State<EmployeeAuctionTable> {
                 ),
                 onTap: () {
                   FocusScope.of(context).requestFocus(FocusNode());
+                  executeSearch();
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -443,9 +468,33 @@ class _EmployerAuctionTableState extends State<EmployerAuctionTable> {
   int _sortColumnIndex;
   bool _sortAscending = true;
 
+  String searchCondition = "";
+  List<Auction> auctionList;
+  List<Auction> originAuctionList;
+
   /*DataSource状态映射*/
   bool hasSelectedDessert = false;
   Auction selectedDessert;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      auctionList = widget.auctionList;
+      originAuctionList = widget.auctionList;
+    });
+  }
+
+  executeSearch() {
+    print("start");
+    List<Auction> auctions = [];
+    for(int i = 0; i < originAuctionList.length; ++i){
+      if(originAuctionList[i].projectName.contains(searchCondition)) {auctions.add(originAuctionList[i]); print(i);}
+    }
+    setState(() {
+      auctionList = auctions;
+    });
+  }
 
   void myTapCallback(Auction auction) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ProjDetails(auction.projectId)));
@@ -474,7 +523,7 @@ class _EmployerAuctionTableState extends State<EmployerAuctionTable> {
         myCallback: myTapCallback,
         selectOneDessert: selectOneDessert,
         cancelSelectOneDessert: cancelSelectOneDessert,
-        auctionList: widget.auctionList
+        auctionList: auctionList
     );
 
     void _sort<T>(Comparable<T> getField(Auction d), int columnIndex, bool ascending) {
@@ -594,7 +643,7 @@ class _EmployerAuctionTableState extends State<EmployerAuctionTable> {
                   padding: const EdgeInsets.only(
                       left: 16, right: 16, top: 4, bottom: 4),
                   child: TextField(
-                    onChanged: (String txt) {},
+                    onChanged: (String txt) {searchCondition = txt;},
                     style: const TextStyle(
                       fontSize: 18,
                     ),
@@ -629,6 +678,7 @@ class _EmployerAuctionTableState extends State<EmployerAuctionTable> {
                 ),
                 onTap: () {
                   FocusScope.of(context).requestFocus(FocusNode());
+                  executeSearch();
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),

@@ -29,30 +29,49 @@ class RecomendedPage extends State<HomePage> {
 
   double width;
   bool isLog=false;
+  bool isSuggestEnd = false;
+  bool firstFetch = true;
 
   List<Lists> categories = [
     Lists(text: '我要工作'),
     Lists(text: '我要雇人'),
   ];
 
-  List RecA =[['1','1','1',1,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['2','2','2',2,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['3','3','3',3,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['4','4','4',4,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png']];
-  List RecB =[['1','1','1',1,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['2','2','2',2,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['3','3','3',3,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['4','4','4',4,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png']];
+  List RecA =[['...','1','1',1,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','2','2',2,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','3','3',3,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','4','4',4,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png']];
+  List RecB =[['...','5','1',1,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','6','2',2,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','7','3',3,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','8','4',4,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png']];
 
   var array = [] ;
-  Future<http.Response> fetchPost() async {
+
+  void fetchPost() async {
+    setState(() {
+      RecA =[['...','1','1',1,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','2','2',2,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','3','3',3,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','4','4',4,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png']];
+      RecB =[['...','5','1',1,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','6','2',2,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','7','3',3,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png'],['...','8','4',4,'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png']];
+    });
     int userId = 0;
     int uid = await StorageUtil.getIntItem("uid");
     if(uid!=null) setState(() {
       isLog=true;
       userId = uid;
     });
-    Cnt.countForSuggest.count++;
+    if(!isSuggestEnd) Cnt.countForSuggest.count++;
+    else Cnt.countForSuggest.count--;
     print(Cnt.countForSuggest.count);
     var url = "${Url.url_prefix}/getSuggestJobs?userId=" + userId.toString() + "&cnt=" + Cnt.countForSuggest.count.toString();
     var response = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     });
     final data = json.decode(response.body);
+    if(!firstFetch){
+      print(array[0]['title']);
+      print(data[0]['title']);
+      if(array[0]['title'] == data[0]['title']){
+        firstFetch = true;
+        isSuggestEnd = true;
+        Cnt.countForSuggest.count = -Cnt.countForSuggest.count;
+        fetchPost();
+        return;
+      }
+    }
     setState(() {
       array = data;
       RecA[0][0] = array[0]['title'];
@@ -96,6 +115,9 @@ class RecomendedPage extends State<HomePage> {
       RecB[3][3] = array[7]['employerId'];
     });
     getEmployerIcon();
+    setState(() {
+      firstFetch = false;
+    });
   }
 
   void initState() {
@@ -155,12 +177,15 @@ class RecomendedPage extends State<HomePage> {
             style: TextStyle(
                 color: LightColor.titleTextColor, fontWeight: FontWeight.bold),
           ),
-          InkWell(
-            onTap: (){
-              fetchPost();
-              print("正在刷新");
-            },
-            child: Icon(Icons.autorenew),
+          Offstage(
+            offstage: firstFetch,
+            child: InkWell(
+              onTap: (){
+                fetchPost();
+                print("正在刷新");
+              },
+              child: Icon(Icons.autorenew),
+            ),
           )
         ],
       ),

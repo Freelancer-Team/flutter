@@ -42,7 +42,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
     String e = await StorageUtil.getStringItem("email");
     int role = await StorageUtil.getIntItem("role");
     String userIcon = await StorageUtil.getStringItem("userIcon");
-    if (name != null && e != null && role != null) {
+    if (name != null && e != null && role != null ) {
       setState(() {
         username = name;
         icon = userIcon;
