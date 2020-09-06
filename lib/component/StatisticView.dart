@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/component/UserStatisticTable.dart';
 import 'dart:ui';
@@ -7,16 +6,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:freelancer_flutter/component/ProjectStatisticTable.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'config.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-
-class PublishData {
-  PublishData(this.year, this.jobCnt);
-
-  final int year;
-  final int jobCnt;
-}
 
 class StatisticView extends StatefulWidget {
   StatisticView({Key key}) : super(key: key);
@@ -43,11 +34,6 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
   List<StatisticUser> userList = [];
   String chooseUserRole = "所有用户";
 
-  List<PublishData> chartData=[];
-  int year=2020;
-  int lowMonth=1;
-  int highMonth=10;
-
   @override
   void initState() {
     animationController = AnimationController(
@@ -55,7 +41,6 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
     super.initState();
     getJobs();
     getUsers();
-    getStatistics();
   }
 
 //  //假数据随机数
@@ -71,23 +56,6 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
 //  int getAccessTimes() {
 //    return new Random().nextInt(1000);
 //  }
-  getStatistics() async {
-    List<PublishData> chart = [];
-    var response = [];
-    String url = "${Url.url_prefix}/getStatistics?year="+year.toString()+'&lowMonth='+lowMonth.toString()+'&highMonth='+highMonth.toString();
-    String token = await StorageUtil.getStringItem('token');
-    final res = await http.get(url,
-        headers: {"Accept": "application/json", "Authorization": "$token"});
-    final data = json.decode(res.body);
-    response = data;
-    for (int i = 0; i < response.length; ++i) {
-      chart.add(PublishData(
-          i+lowMonth,response[i]));
-    }
-    setState(() {
-      chartData =chart;
-    });
-  }
   getJobs() async {
     List<StatisticJob> jobs = [];
     List<StatisticJob> chooseJobs = [];
@@ -200,40 +168,15 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
                       ),
                     ];
                   },
-                  body:
-                  Container(
-                    child: Column(children: <Widget>[
-                      Text('aaaaa'),
-                      Padding(
+                  body: Padding(
                         padding: EdgeInsets.all(16),
                         child: isProjectView
                             ? ProjectStatisticTable(jobList)
                             : UserStatisticTable(userList),
-                      ),
-                      Container(
-                          child: SfCartesianChart(
-                              primaryXAxis: CategoryAxis(),
-                              // Chart title
-                              title: ChartTitle(
-                                  text: 'Half yearly sales analysis'),
-                              // Enable legend
-                              legend: Legend(isVisible: true),
-                              // Enable tooltip
-                              tooltipBehavior: TooltipBehavior(enable: true),
-                              series: <LineSeries<PublishData, int>>[
-                                LineSeries<PublishData, int>(
-                                    dataSource:chartData,
-                                    xValueMapper: (PublishData sales, _) =>
-                                    sales.year,
-                                    yValueMapper: (PublishData sales, _) =>
-                                    sales.jobCnt,
-                                    // Enable data label
-                                    dataLabelSettings:
-                                    DataLabelSettings(isVisible: true))
-                              ]))
-                    ]),
-                  )
-          ))],
+                  ),
+                )
+              )
+            ],
           ),
         ),
       ],

@@ -55,15 +55,13 @@ class RecomendedPage extends State<HomePage> {
     });
     if(!isSuggestEnd) Cnt.countForSuggest.count++;
     else Cnt.countForSuggest.count--;
-    print(Cnt.countForSuggest.count);
+
     var url = "${Url.url_prefix}/getSuggestJobs?userId=" + userId.toString() + "&cnt=" + Cnt.countForSuggest.count.toString();
     var response = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     });
     final data = json.decode(response.body);
     if(!firstFetch){
-      print(array[0]['title']);
-      print(data[0]['title']);
       if(array[0]['title'] == data[0]['title']){
         firstFetch = true;
         isSuggestEnd = true;

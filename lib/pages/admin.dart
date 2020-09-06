@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:freelancer_flutter/component/Chart.dart';
 import 'package:freelancer_flutter/component/ProjectAdminItem.dart';
 import 'package:freelancer_flutter/component/filters_screen.dart';
 import 'package:freelancer_flutter/component/hotel_app_theme.dart';
@@ -86,7 +87,8 @@ class Choice {
 const List<Choice> choices = <Choice>[
   Choice(title: '项目管理', icon: Icons.desktop_mac),
   Choice(title: '用户管理', icon: Icons.group),
-  Choice(title: '数据统计', icon: Icons.assessment)
+  Choice(title: '数据统计', icon: Icons.assessment),
+  Choice(title: '图表', icon: Icons.assessment)
 ];
 
 class ChoiceCard extends StatelessWidget {
@@ -100,7 +102,9 @@ class ChoiceCard extends StatelessWidget {
       return ProjectAdmin();
     else if (choice.title == '用户管理')
       return UserAdmin();
-    else return StatisticView();
+    else if (choice.title == '数据统计')
+      return StatisticView();
+    else return ChartView();
   }
 }
 
