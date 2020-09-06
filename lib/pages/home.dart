@@ -45,8 +45,9 @@ class RecomendedPage extends State<HomePage> {
       isLog=true;
       userId = uid;
     });
-
-    var url = "${Url.url_prefix}/getSuggestJobs";
+    Cnt.countForSuggest.count++;
+    print(Cnt.countForSuggest.count);
+    var url = "${Url.url_prefix}/getSuggestJobs?userId=" + userId.toString() + "&cnt=" + Cnt.countForSuggest.count.toString();
     var response = await http.post(Uri.encodeFull(url), headers: {
       "Accept": "application/json"
     });
@@ -76,22 +77,22 @@ class RecomendedPage extends State<HomePage> {
       RecB[0][0] = array[4]['title'];
       RecB[0][1] = array[4]['price'];
       RecB[0][2] = array[4]['id'];
-      RecA[0][3] = array[4]['employerId'];
+      RecB[0][3] = array[4]['employerId'];
 
       RecB[1][0] = array[5]['title'];
       RecB[1][1] = array[5]['price'];
       RecB[1][2] = array[5]['id'];
-      RecA[1][3] = array[5]['employerId'];
+      RecB[1][3] = array[5]['employerId'];
 
       RecB[2][0] = array[6]['title'];
       RecB[2][1] = array[6]['price'];
       RecB[2][2] = array[6]['id'];
-      RecA[2][3] = array[6]['employerId'];
+      RecB[2][3] = array[6]['employerId'];
 
       RecB[3][0] = array[7]['title'];
       RecB[3][1] = array[7]['price'];
       RecB[3][2] = array[7]['id'];
-      RecA[3][3] = array[7]['employerId'];
+      RecB[3][3] = array[7]['employerId'];
     });
     getEmployerIcon();
   }
@@ -153,7 +154,13 @@ class RecomendedPage extends State<HomePage> {
             style: TextStyle(
                 color: LightColor.titleTextColor, fontWeight: FontWeight.bold),
           ),
-//          _chip("See all", primary)
+          InkWell(
+            onTap: (){
+              fetchPost();
+              print("正在刷新");
+            },
+            child: Icon(Icons.autorenew),
+          )
         ],
       ),
     );
@@ -446,9 +453,10 @@ class RecomendedPage extends State<HomePage> {
               padding: EdgeInsets.only(right: 10),
               width: MediaQuery.of(context).size.width > 1080 ? width * 0.23 : width * 0.43,
               alignment: Alignment.topCenter,
-
               child: Text(
                 title,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
