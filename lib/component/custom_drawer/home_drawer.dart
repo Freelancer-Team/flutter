@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freelancer_flutter/component/custom_drawer/navigation_home_screen.dart';
 import 'package:freelancer_flutter/pages/login.dart';
@@ -39,10 +41,11 @@ class _HomeDrawerState extends State<HomeDrawer> {
     String name = await StorageUtil.getStringItem("username");
     String e = await StorageUtil.getStringItem("email");
     int role = await StorageUtil.getIntItem("role");
+    String userIcon = await StorageUtil.getStringItem("userIcon");
     if (name != null && e != null && role != null) {
       setState(() {
         username = name;
-        icon = 'assets/dragon.jpg';
+        icon = userIcon;
         isLog = true;
         isManager = (role == 1) ? true : false;
       });
@@ -112,7 +115,17 @@ class _HomeDrawerState extends State<HomeDrawer> {
 
   navigateToProfile() async {
     int userId = await StorageUtil.getIntItem("uid");
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Profile(userId: userId)));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Profile(userId: userId))).then((value) => updateImage());
+  }
+
+  updateImage() async {
+    setState(() {
+      icon = 'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png';
+    });
+    String userIcon = await StorageUtil.getStringItem("userIcon");
+    setState(() {
+      icon = userIcon;
+    });
   }
 
   @override
@@ -174,9 +187,9 @@ class _HomeDrawerState extends State<HomeDrawer> {
                                       BoxShadow(color: AppTheme.grey.withOpacity(0.6), offset: const Offset(2.0, 4.0), blurRadius: 8),
                                     ],
                                   ),
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.all(Radius.circular(60.0)),
-                                    child: Image.asset(icon),
+                                  child: new CircleAvatar(
+                                    backgroundImage: !isLog ? AssetImage(icon) : NetworkImage(icon),
+                                    backgroundColor: Colors.grey.withOpacity(0.01),
                                   ),
                                 ),
                               ),

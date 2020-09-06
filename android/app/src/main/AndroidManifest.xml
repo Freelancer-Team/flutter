@@ -7,8 +7,8 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="freelancer_flutter"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Freelancer"
+        android:icon="@mipmap/freelancer">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

@@ -89,7 +89,7 @@ class UserAdminItem extends StatelessWidget {
                                                 Padding(
                                                   padding: EdgeInsets.only(top: 8),
                                                   child: CircleAvatar(
-                                                    backgroundImage: AssetImage('assets/ProfileImage/userIcon.jpg'),
+                                                    backgroundImage: NetworkImage(userData.userIcon),
                                                     radius: 30,
                                                   ),
                                                 ),

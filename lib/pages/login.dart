@@ -20,8 +20,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
-  String trueEmail = "NE";
-  String truePass = "NP";
   FlutterToast flutterToast;
 
   Color emailTextColor = Color(0xFF6CA8F1);
@@ -40,12 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
     flutterToast = FlutterToast(context);
   }
 
-  _showToast() {
+  _showToast(String message) {
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: Colors.black12,
+        color: Colors.grey,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -54,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
           SizedBox(
             width: 12.0,
           ),
-          Text("用户名或密码错误"),
+          Text(message),
         ],
       ),
     );
@@ -75,36 +73,40 @@ class _LoginScreenState extends State<LoginScreen> {
         "password": password,
       });
       var response = json.decode(res.body);
-      if (response != null) {
-        trueEmail = "YE";
-        truePass = "YP";
-        Account.saveUserInfo(response["user"]);
-        Account.saveToken(response["token"]);
+      if(response['message'] == "登录失败,密码错误"){
+        _showToast("用户名或密码错误");
+        setState(() {
+          emailTextColor = Color(0xDFB0C4DE);
+          passwordControl.text = "";
+        });
+        return;
       }
+      if(response['message'] == "登录失败,用户不存在"){
+        _showToast("该账户还未注册");
+        setState(() {
+          emailAddressControl.text = "";
+          passwordControl.text = "";
+        });
+        return;
+      }
+      if(response['user']['role'] == -1){
+        _showToast("该账户已被禁用");
+        setState(() {
+          emailTextColor = Color(0xDFB0C4DE);
+          passTextColor = Color(0xDFB0C4DE);
+        });
+        return;
+      }
+      Account.saveUserInfo(response["user"]);
+      Account.saveToken(response["token"]);
     } catch (e) {
       print("error name or password");
     }
-    setState(() {
-      if (trueEmail == "NE") {
-        emailTextColor = Color(0xDFB0C4DE);
-      } else {
-        emailTextColor = Color(0xFF6CA8F1);
-      }
-      if (truePass == "NP") {
-        passTextColor = Color(0xDFB0C4DE);
-      } else {
-        passTextColor = Color(0xFF6CA8F1);
-      }
-    });
-    if (trueEmail == "YE" && truePass == "YP") {
-      //清空路由堆栈，压入新的主页
-      Navigator.of(context).pushAndRemoveUntil(
-          new MaterialPageRoute(builder: (context)=> NavigationHomeScreen()),
-              (route)=>route==null
-      );
-    } else {
-      _showToast();
-    }
+    //清空路由堆栈，压入新的主页
+    Navigator.of(context).pushAndRemoveUntil(
+        new MaterialPageRoute(builder: (context)=> NavigationHomeScreen()),
+            (route)=>route==null
+    );
   }
 
   Widget _buildEmailTF() {

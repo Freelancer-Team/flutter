@@ -211,16 +211,17 @@ class _PublishState extends State<PublishPage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(
-            'Publish A Project',
+            "发布项目",
             key: Key('publishTitle'),
             style: TextStyle(
-              fontSize: 30.0,
+                fontSize: 20,
+                fontWeight: FontWeight.w400
             ),
           ),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              color: Colors.blue[900],
+              color: Colors.blue,
             ),
           ),
           brightness: Brightness.light,

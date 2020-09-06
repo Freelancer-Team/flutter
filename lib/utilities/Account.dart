@@ -17,6 +17,7 @@ class Account {
     StorageUtil.setStringItem("email", response["email"]);
     StorageUtil.setStringItem("phone", response["phone"]);
     StorageUtil.setStringItem("username", response["name"]);
+    StorageUtil.setStringItem("userIcon", response["icon"]);
     StorageUtil.setIntItem("uid", response["id"]);
     StorageUtil.setStringItem("address", response["address"]);
     StorageUtil.setStringItem("time", response["time"]);

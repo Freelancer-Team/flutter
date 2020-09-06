@@ -254,15 +254,21 @@ class _ProjectAdminState extends State<ProjectAdmin> with TickerProviderStateMix
                           navigateToEmployer: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: jobList[index].employerId)));
                           },
-                          toggleCallback: (value) {
+                          toggleCallback: (value) async {
+                            String url = "${Url.url_prefix}/setJobState?jobId=" + jobList[index].projectId.toString() + '&state=';
+                            String token = await StorageUtil.getStringItem('token');
                             if(value == 1){
+                              http.post(url + "-1", headers: {"Accept": "application/json","Authorization": "$token"});
                               setState(() {
                                 jobList[index].state = -1;
                               });
                             }
-                            else setState(() {
-                              jobList[index].state = 0;
-                            });
+                            else {
+                              http.post(url + "0", headers: {"Accept": "application/json","Authorization": "$token"});
+                              setState(() {
+                                jobList[index].state = 0;
+                              });
+                            }
                           },
                           jobData: jobList[index],
                           animation: animation,
@@ -668,7 +674,7 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
       for(int j = 0; j < response[i]['skills'].length; ++j){
         skills.add(response[i]['skills'][j].toString());
       }
-      users.add(User(response[i]['id'], response[i]['name'], response[i]['gender'], response[i]['email'], response[i]['phone'], response[i]['description'], skills, response[i]['role'], 'assets/ProfileImage/userIcon.jpg'));
+      users.add(User(response[i]['id'], response[i]['name'], response[i]['gender'], response[i]['email'], response[i]['phone'], response[i]['description'], skills, response[i]['role'], response[i]['icon']));
     }
     setState(() {
       originUserList = users;
@@ -753,15 +759,21 @@ class _UserAdminState extends State<UserAdmin> with TickerProviderStateMixin {
                             callback: () {
                               Navigator.push(context, MaterialPageRoute(builder: (context) => UserInfoPage(userId: userList[index].userId)));
                             },
-                            toggleCallback: (value) {
+                            toggleCallback: (value) async {
+                              String url = "${Url.url_prefix}/setUserRole?userId=" + userList[index].userId.toString() + '&role=';
+                              String token = await StorageUtil.getStringItem('token');
                               if(value == 1){
+                                http.get(url + "-1", headers: {"Accept": "application/json","Authorization": "$token"});
                                 setState(() {
                                   userList[index].role = -1;
                                 });
                               }
-                              else setState(() {
-                                userList[index].role = 0;
-                              });
+                              else {
+                                http.get(url + "0", headers: {"Accept": "application/json","Authorization": "$token"});
+                                setState(() {
+                                  userList[index].role = 0;
+                                });
+                              }
                             },
                             userData: userList[index],
                             animation: animation,

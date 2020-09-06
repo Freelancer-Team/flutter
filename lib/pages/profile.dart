@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:freelancer_flutter/component/PersonRateJobItem.dart';
 import 'package:freelancer_flutter/component/hotel_app_theme.dart';
@@ -72,7 +74,10 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
   User user = User(0,'',0,'','','','','','',[],true);
   List<Job> employerJobList = [];
   List<Job> employeeJobList = [];
-  var _image;
+  // TODO 这里是空白图片
+  String _image = 'http://freelancer-images.oss-cn-beijing.aliyuncs.com/blank.png';
+  bool _ifImageChanged = false;
+  var _newImage;
 
   @override
   void initState() {
@@ -93,6 +98,8 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
   }
 
   getUser() async {
+    //获得用户头像
+    _image = await StorageUtil.getStringItem("userIcon");
     User u;
     List<String> skills = [];
     String url = "${Url.url_prefix}/getUser?id=" + widget.userId.toString();
@@ -103,7 +110,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
     for(int i = 0; i < data['skills'].length; ++i){
       skills.add(data['skills'][i]);
     }
-    u = new User(data['id'], data['name'], data['age'], data['gender'], data['email'], data['address'], data['phone'], data['time'], data['description'], skills, true);
+    u = new User(data['id'], data['name'], data['age'], data['gender'], data['email'], data['address'], data['phone'], data['time'], data['description'], skills, (data['isShow'] == 0)? false : true);
     setState(() {
       user = u;
     });
@@ -292,10 +299,9 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
                         height: 200,
                         decoration: new BoxDecoration(
                             image: DecorationImage(
-                                image: _image == null
-                                    ? AssetImage('assets/ProfileImage/userIcon.jpg') : FileImage(_image),
+                                image: !_ifImageChanged ? NetworkImage(_image) : FileImage(_newImage),
                                 fit: BoxFit.cover,
-                                colorFilter: new ColorFilter.mode(Colors.grey.withOpacity(0.4), BlendMode.darken)
+                                colorFilter: new ColorFilter.mode(Colors.grey.withOpacity(0.7), BlendMode.darken)
                             )
                         ),
                         child: new Row(
@@ -305,7 +311,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
                                   width: 95,
                                   height: 95,
                                   child: new CircleAvatar(
-                                    backgroundImage: _image == null? AssetImage('assets/ProfileImage/userIcon.jpg') : FileImage(_image),
+                                    backgroundImage: !_ifImageChanged ? NetworkImage(_image) : FileImage(_newImage)
                                   )
                               ),
                               new Expanded(
@@ -483,7 +489,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
                               Padding(
                                   padding: EdgeInsets.only(left: 20),
                                   child: Container(
-                                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 70),
+                                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
                                     child: Wrap(
                                       crossAxisAlignment: WrapCrossAlignment.end,
                                       children: skillManageList,
@@ -570,7 +576,10 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     IconButton(
-                                      onPressed: (){
+                                      onPressed: () async {
+                                        String url = "${Url.url_prefix}/setShow?userId=" + widget.userId.toString();
+                                        String token = await StorageUtil.getStringItem('token');
+                                        http.post(url, headers: {"Accept": "application/json","Authorization": "$token"});
                                         setState(() {
                                           user.recordCanSee = !user.recordCanSee;
                                         });
@@ -618,9 +627,10 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
             age: user.age,
             phone: user.phone,
             address: user.address,
-            description: user.description
+            description: user.description,
+            image: _image
         ),
-        onApplyClick: (FoundationInfo userInfo) {
+        onApplyClick: (FoundationInfo userInfo, bool ifImageChanged, File newImage) {
             setState(() {
               user.name = userInfo.name;
               user.age = userInfo.age;
@@ -628,8 +638,14 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin{
               user.phone = userInfo.phone;
               user.address = userInfo.address;
               user.description = userInfo.description;
-              if(userInfo.image != null) _image = userInfo.image;
+              _image = userInfo.image;
             });
+            if(ifImageChanged){
+              setState(() {
+                _newImage = newImage;
+                _ifImageChanged = true;
+              });
+            }
         },
         onCancelClick: () {},
       ),

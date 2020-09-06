@@ -206,16 +206,17 @@ class _ApplyState extends State<ApplyPage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(
-            'Apply for $_title',
+            "项目申请",
             key: Key('applyTitle'),
             style: TextStyle(
-              fontSize: 30.0,
+                fontSize: 20,
+                fontWeight: FontWeight.w400
             ),
           ),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              color: Colors.blue[900],
+              color: Colors.blue,
             ),
           ),
           brightness: Brightness.light,
