@@ -679,7 +679,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                         SizedBox(
                           height: 30,
                         ),
-                        StateCard(state: array['state'], date: array['deadline'],),
+                        StateCard(state: jobstate, date: array['deadline'],),
 
                         SizedBox(
                           height: 30,
@@ -846,6 +846,24 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     ]);
   }
 
+  void closeJob() async {
+    String token = await StorageUtil.getStringItem('token');
+    var url = "${Url.url_prefix}/setJobState?jobId=" + ID + "&state=-2";
+    http.post(Uri.encodeFull(url), headers: {"Accept": "application/json", "Authorization": "$token"});
+    setState(() {
+      jobstate = -2;
+    });
+  }
+
+  void reOpenJob() async {
+    String token = await StorageUtil.getStringItem('token');
+    var url = "${Url.url_prefix}/setJobState?jobId=" + ID + "&state=0";
+    http.post(Uri.encodeFull(url), headers: {"Accept": "application/json", "Authorization": "$token"});
+    setState(() {
+      jobstate = 0;
+    });
+  }
+
   Widget _card1(width) {
     return Card(
       child: Scaffold(
@@ -855,7 +873,19 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
             toolbarHeight: 50,
             title: Text('${ProjInfo[1]}', key: Key('projectTitle')),
             centerTitle: true,
-            leading: Container(),
+            leading: Offstage(
+              offstage: !isEmployer || hasEmployee || (jobstate != -2 && jobstate != 0),
+              child: jobstate == 0 ?
+                  InkWell(
+                    onTap: closeJob,
+                    child: Icon(Icons.delete_forever),
+                  )
+                :
+                  InkWell(
+                    onTap: reOpenJob,
+                    child: Icon(Icons.refresh),
+                  ),
+            ),
             flexibleSpace: Container(
               decoration: BoxDecoration(
                 color: Colors.blue,
@@ -903,7 +933,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                     ),
                   )),
               Offstage(
-                  offstage: !isEmployer || hasEmployee,
+                  offstage: !isEmployer || hasEmployee || jobstate == -1,
                   child: IconButton(
                     key: Key('edit'),
                     icon: Icon(Icons.edit),
@@ -914,7 +944,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                     },
                   )),
               Offstage(
-                  offstage: !isEdit,
+                  offstage: !isEdit || jobstate == -1,
                   child: IconButton(
                     key: Key('save'),
                     icon: Icon(Icons.check),
@@ -929,7 +959,25 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                       array['remaining_time'] = ProjInfo[6];
                       savePost();
                     },
-                  ))
+                  )),
+              Offstage(
+                offstage: jobstate != -1,
+                child: Container(
+                  width: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                  ),
+                  child: Center(
+                    child: Text(
+                      "已禁用",
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white
+                      ),
+                    ),
+                  )
+                )
+              )
             ],
           ),
           body: Column(
