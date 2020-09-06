@@ -379,13 +379,13 @@ class _EmployeeViewState extends State<EmployeeView> with SingleTickerProviderSt
     for(int i = 0; i < response.length; ++i){
       auctions.add(
           Auction(
-              projectId: response[i]['id'],
-              projectName: response[i]['title'],
-              projectState: Random().nextInt(3)-3,
-              auctionState: 1,
-              myPrice: 10,
-              avgPrice: 14,
-              deadline: response[i]['deadline']
+              projectId: response[i][0],
+              projectName: response[i][1],
+              projectState: int.parse(response[i][2]),
+              auctionState: int.parse(response[i][3]),
+              myPrice: int.parse(response[i][4]),
+              avgPrice: int.parse(response[i][5]),
+              deadline: response[i][6]
           )
       );
     }

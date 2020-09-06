@@ -397,7 +397,7 @@ class  EmployeeAuctionDataSource extends DataTableSource{
             ),
           ),
           DataCell(Text(getProjectState(dessert))),
-          DataCell(Text(getAuctionState())),
+          DataCell(Text(getAuctionState(dessert.auctionState))),
           DataCell(Text('${dessert.myPrice}')),
           DataCell(Text('${dessert.avgPrice}')),
           DataCell(Text(dessert.deadline.substring(0, 10)))
@@ -406,7 +406,7 @@ class  EmployeeAuctionDataSource extends DataTableSource{
   }
 
   String getProjectState(Auction auction){
-    String text;
+    String text = "被接单";
     switch(auction.projectState){
       case -3: {
         text = '待审阅';
@@ -435,8 +435,10 @@ class  EmployeeAuctionDataSource extends DataTableSource{
     return text;
   }
 
-  String getAuctionState(){
-    return '等待确认';
+  String getAuctionState(int i){
+    if(i == 0) return '等待确认';
+    else if(i == 1) return "竞标成功";
+    else return "竞标失败";
   }
 
   // TODO: implement isRowCountApproximate
