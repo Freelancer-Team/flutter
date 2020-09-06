@@ -246,6 +246,15 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     }
   }
 
+  completeJob() async {
+    String token = await StorageUtil.getStringItem('token');
+    var url = "${Url.url_prefix}/setJobState?jobId=" + ID + "&state=2";
+    http.post(Uri.encodeFull(url), headers: {"Accept": "application/json", "Authorization": "$token"});
+    setState(() {
+      jobstate = 2;
+    });
+  }
+
   void _showRatingDialog() {
     showDialog(
         context: context,
@@ -285,6 +294,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                               child: new Text('确定'),
                               onPressed: () {
                                 if (isEmployer) {
+                                  completeJob();
                                   array['employerRate'] = ratingValue;
                                 }
                                 if (isEmployee) {
@@ -660,9 +670,11 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
           child: Column(
             children: [
               Container(
-                height: 200,
+                height: 488,
+                child: Center(
+                  child: Text("无法查看", style: TextStyle(fontSize: 22)),
+                ),
               ),
-              Text("无法查看", style: TextStyle(fontSize: 22))
             ],
           )),
       Offstage(

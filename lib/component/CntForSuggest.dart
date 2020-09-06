@@ -9,5 +9,5 @@ class Cnt {
 
   int count;
 
-  static Cnt countForSuggest = Cnt(count: Random().nextInt(20));
+  static Cnt countForSuggest = Cnt(count: 1);
 }

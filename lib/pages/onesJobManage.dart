@@ -371,15 +371,14 @@ class _EmployeeViewState extends State<EmployeeView> with SingleTickerProviderSt
     int userID;
     if(widget.userId != null) userID = widget.userId;
     else userID = await StorageUtil.getIntItem("uid");
-    String url = '${Url.url_prefix}/getEmployeeJob?userId=' + userID.toString();
+    String url = '${Url.url_prefix}/getEmployeeAuction?userId=' + userID.toString();
     String token = await StorageUtil.getStringItem('token');
     final res = await http.get(url, headers: {"Accept": "application/json","Authorization": "$token"});
     final data = json.decode(res.body);
     response = data;
     for(int i = 0; i < response.length; ++i){
-      if(response[i]['state'] == 2){
-        auctions.add(
-            Auction(
+      auctions.add(
+          Auction(
               projectId: response[i]['id'],
               projectName: response[i]['title'],
               projectState: Random().nextInt(3)-3,
@@ -387,9 +386,8 @@ class _EmployeeViewState extends State<EmployeeView> with SingleTickerProviderSt
               myPrice: 10,
               avgPrice: 14,
               deadline: response[i]['deadline']
-            )
-        );
-      }
+          )
+      );
     }
     setState(() {
       auctionList = auctions;
