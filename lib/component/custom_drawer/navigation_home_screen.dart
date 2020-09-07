@@ -10,6 +10,12 @@ import 'package:freelancer_flutter/pages/admin.dart';
 import 'package:freelancer_flutter/pages/jobList.dart';
 
 class NavigationHomeScreen extends StatefulWidget {
+  NavigationHomeScreen({
+    this.drawerIndex = DrawerIndex.HOME
+  });
+
+  final DrawerIndex drawerIndex;
+
   @override
   _NavigationHomeScreenState createState() => _NavigationHomeScreenState();
 }
@@ -20,8 +26,8 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
 
   @override
   void initState() {
-    drawerIndex = DrawerIndex.HOME;
-    screenView = HomePage();
+    drawerIndex = widget.drawerIndex;
+    setIndex();
     super.initState();
   }
 
@@ -47,6 +53,22 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
         ),
       ),
     );
+  }
+
+  void setIndex() {
+    if (drawerIndex == DrawerIndex.HOME) {
+        screenView = HomePage();
+    } else if (drawerIndex == DrawerIndex.Finder) {
+        screenView = JobListPage();
+    } else if (drawerIndex == DrawerIndex.Project) {
+        screenView = OnesJobManagePage();
+    } else if (drawerIndex == DrawerIndex.Contact) {
+        screenView = FeedbackScreen();
+    } else if (drawerIndex == DrawerIndex.Manage) {
+        screenView = AdminPage();
+    } else {
+      //do in your way......
+    }
   }
 
   void changeIndex(DrawerIndex drawerIndexdata) {

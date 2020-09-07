@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:toggle_switch/toggle_switch.dart';
 import 'dart:convert';
 import 'ProjDetails.dart';
+import 'package:intl/intl.dart';
 import 'package:freelancer_flutter/component/config.dart';
 
 class PublishPage extends StatefulWidget {
@@ -57,14 +58,19 @@ class _PublishState extends State<PublishPage> {
   }
 
   saveJob() async {
+    if(_low > _high){
+      _showToast2();
+      return;
+    }
     try {
       String url = "${Url.url_prefix}/saveJob";
-      await packPrice();
+      packPrice();
       var res = await http.post(Uri.encodeFull(url),
           headers: {
             "content-type": "application/json",
             "Authorization": "$token"
           },
+          //publishTime,click
           body: json.encode({
             "skills": selSkills,
             "title": _title,
@@ -73,18 +79,27 @@ class _PublishState extends State<PublishPage> {
             "low": _low,
             "high": _high,
             "type": _isRange ? 0 : 1,
-            "deadline": _ddl.toIso8601String(),
+            "deadline": DateFormat("yyyy.MM.dd HH:mm:ss").format(_ddl),
             "state": -3,
-            "employeeName": _owner,
-            "employeeId": _oid.toString(),
+            "employerName": _owner,
+            "employerId": _oid,
+            "employeeName": "",
+            "employeeId": 0,
+            "click": 0,
+            "candidateNum": 0,
+            "employerRate": -1.0,
+            "employeeRate": -1.0,
+            "startTime": "",
+            "finishTime": "",
+            "avgPrice": 0,
+            "lowestPrice": 0,
+            "publishTime": DateFormat("yyyy.MM.dd HH:mm:ss").format(DateTime.now())
           }));
       var response = json.decode(res.body);
       if (response != null) {
         await _showToast(true);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ProjDetails(response["id"])));
+        Navigator.pop(context);
+        // TODO 替换
       }
     } catch (e) {
       print(e);
@@ -115,6 +130,32 @@ class _PublishState extends State<PublishPage> {
         _oid = uid;
       });
     }
+  }
+
+  _showToast2() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black12,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.clear),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("薪酬区间设置不正确，请重输"),
+        ],
+      ),
+    );
+
+    flutterToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 2),
+    );
   }
 
   _showToast(bool t) {
@@ -313,7 +354,7 @@ class _PublishState extends State<PublishPage> {
                             child: new TextFormField(
 //                            decoration: new InputDecoration(labelText: "Max"),
                           validator: (val) =>
-                              val.length < 1 || _low > int.parse(val)
+                              (val.length < 1)
                                   ? 'Need your max target'
                                   : null,
                           onSaved: (val) => _high = int.parse(val),
