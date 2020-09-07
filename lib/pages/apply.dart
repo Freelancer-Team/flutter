@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:freelancer_flutter/component/custom_drawer/home_drawer.dart';
+import 'package:freelancer_flutter/component/custom_drawer/navigation_home_screen.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
 import 'package:freelancer_flutter/utilities/Account.dart';
 import 'package:http/http.dart' as http;
@@ -115,8 +117,11 @@ class _ApplyState extends State<ApplyPage> {
       var response = json.decode(res.body);
       if (response != null) {
         await _showToast(true);
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ProjDetails(_jid)));
+        //清空路由堆栈，压入新的主页
+        Navigator.of(context).pushAndRemoveUntil(
+            new MaterialPageRoute(builder: (context)=> NavigationHomeScreen(drawerIndex: DrawerIndex.HOME,)),
+                (route)=>route==null
+        );
       }
     } catch (e) {
       print(e);

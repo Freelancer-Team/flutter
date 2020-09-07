@@ -4,6 +4,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:ui';
 import 'package:freelancer_flutter/component/MyDrawer.dart';
 import 'package:freelancer_flutter/component/StateCard.dart';
+import 'package:freelancer_flutter/component/custom_drawer/home_drawer.dart';
+import 'package:freelancer_flutter/component/custom_drawer/navigation_home_screen.dart';
 import 'package:freelancer_flutter/pages/apply.dart';
 import 'package:freelancer_flutter/pages/profile.dart';
 import 'package:freelancer_flutter/utilities/StorageUtil.dart';
@@ -133,7 +135,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
       }
     });
 
-    if (hasEmployee && (isEmployer||_role == 1)) {
+    if (hasEmployee) {
       url = "${Url.url_prefix}/getUser?id=" + UserInfo[0];
       response = await http.get(Uri.encodeFull(url),
           headers: {"Accept": "application/json", "Authorization": "$token"});
@@ -178,6 +180,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
   }
 
   savePost() async {
+    array['state'] = -3;
     var url = "${Url.url_prefix}/saveJob";
     var response = await http.post(url,
         headers: {
@@ -185,6 +188,20 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
           "Authorization": "$token"
         },
         body: json.encode(array));
+  }
+
+  saveAndComplete() async {
+    array['state'] = 2;
+    var url = "${Url.url_prefix}/saveJob";
+    var response = await http.post(url,
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "$token"
+        },
+        body: json.encode(array));
+    setState(() {
+      jobstate = 2;
+    });
   }
 
   assign(userId, userName) async {
@@ -246,14 +263,14 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
     }
   }
 
-  completeJob() async {
-    String token = await StorageUtil.getStringItem('token');
-    var url = "${Url.url_prefix}/setJobState?jobId=" + ID + "&state=2";
-    http.post(Uri.encodeFull(url), headers: {"Accept": "application/json", "Authorization": "$token"});
-    setState(() {
-      jobstate = 2;
-    });
-  }
+//  completeJob() async {
+//    String token = await StorageUtil.getStringItem('token');
+//    var url = "${Url.url_prefix}/setJobState?jobId=" + ID + "&state=2";
+//    http.post(Uri.encodeFull(url), headers: {"Accept": "application/json", "Authorization": "$token"});
+//    setState(() {
+//      jobstate = 2;
+//    });
+//  }
 
   void _showRatingDialog() {
     showDialog(
@@ -294,14 +311,17 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                               child: new Text('确定'),
                               onPressed: () {
                                 if (isEmployer) {
-                                  completeJob();
                                   array['employerRate'] = ratingValue;
                                 }
                                 if (isEmployee) {
                                   array['employeeRate'] = ratingValue;
                                 }
-                                savePost();
-                                Navigator.of(context).pop();
+                                saveAndComplete();
+                                //清空路由堆栈，压入新的主页
+                                Navigator.of(context).pushAndRemoveUntil(
+                                    new MaterialPageRoute(builder: (context)=> NavigationHomeScreen(drawerIndex: DrawerIndex.Project,)),
+                                        (route)=>route==null
+                                );
                               }),
                         ],
                       )),
@@ -596,10 +616,14 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                                 child: new Text('确定'),
                                                 onPressed: () {
                                                   assign(
-                                                      AuctionInfo[index][3]
+                                                      AuctionInfo[index][4]
                                                           .toString(),
                                                       AuctionInfo[index][0]);
-                                                  Navigator.of(context).pop();
+                                                  //清空路由堆栈，压入新的主页
+                                                  Navigator.of(context).pushAndRemoveUntil(
+                                                      new MaterialPageRoute(builder: (context)=> NavigationHomeScreen(drawerIndex: DrawerIndex.Project,)),
+                                                          (route)=>route==null
+                                                  );
                                                 },
                                               ),
                                             ],
@@ -696,7 +720,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                         SizedBox(
                           height: 30,
                         ),
-                        Text("发布日期：" + array['publishTime'].substring(0,10), style: TextStyle(fontSize: 18)),
+                        Text("发布日期：" + array['publishTime'].substring(0,10).replaceAll('.', '-'), style: TextStyle(fontSize: 18)),
                         Container(height: 5,),
                         hasEmployee ? Text("接单日期：" + array['startTime'].substring(0,10), style: TextStyle(fontSize: 18)) : Text("接单截止日期：" + array['deadline'].substring(0,10), style: TextStyle(fontSize: 18)),
                         Container(height: 5,),
@@ -718,7 +742,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                         child: Column(
                           children: [
                             Offstage(
-                              offstage: employeeRate != -1.0,
+                              offstage: employeeRate != -1.0 || employerRate == -1,
                               child: Container(
                                 height: 50,
                                 child: FlatButton(
@@ -836,7 +860,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                     ),
                                     Offstage(
                                         offstage: employeeRate != -1.0,
-                                        child: Text("雇员未评分"))
+                                        child: Text("     雇员未评分     "))
                                   ],
                                 ))
                           ],
@@ -1353,7 +1377,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                 children: [
                                   Text('历史评分', style: TextStyle(fontSize: 20)),
                                   SizedBox(
-                                    height: 20,
+                                    height: 16,
                                   ),
                                   Text(
                                     '${rating[1]}',

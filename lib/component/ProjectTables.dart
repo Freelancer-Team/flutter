@@ -461,7 +461,7 @@ class  EmployerProceedingDataSource extends DataTableSource{
             DataCell(Text('${dessert.employeeName}')),
             DataCell(Text('${dessert.price.toStringAsFixed(1)}')),
             DataCell(Text('${dessert.finishTime}')),
-            DataCell(Text('${(dessert.employeeRate).toStringAsFixed(1)}')),
+            DataCell(Text(dessert.employeeRate != -1 ? '${(dessert.employeeRate).toStringAsFixed(1)}' : "未评价")),
           ]
       );
     }

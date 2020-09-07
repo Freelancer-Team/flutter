@@ -69,7 +69,7 @@ class ProjectAdminItem extends StatelessWidget {
                                       offstage: isLarge,
                                       child: Padding(
                                         padding: EdgeInsets.only(bottom: 8),
-                                        child: StateCard(state: jobData.state, date: jobData.publishTime,),
+                                        child: StateCard(state: jobData.state, date: jobData.deadline,),
                                       )
                                   ),
                                   Text(

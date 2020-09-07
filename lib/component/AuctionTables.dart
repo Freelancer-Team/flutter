@@ -422,7 +422,7 @@ class  EmployeeAuctionDataSource extends DataTableSource{
       break;
       case 0: {
         var now = DateTime.now();
-        var then = DateTime.parse(auction.deadline);
+        var then = DateTime.parse(auction.deadline.replaceAll('.', '-'));
         if(then.isAfter(now)){
           text = '竞标中';
         }
