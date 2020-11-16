@@ -293,7 +293,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
           ),
           child: Padding(
             padding:
-            const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 4),
+            const EdgeInsets.only(left: 4, right: 2, top: 8, bottom: 4),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -323,7 +323,7 @@ class _StatisticViewState extends State<StatisticView> with SingleTickerProvider
                   )
                 ),
                 Padding(
-                  padding: EdgeInsets.only(right: 10),
+                  padding: EdgeInsets.only(right: 2),
                   child: isProjectView ? getJobDropDownMenu() : getUserDropDownMenu(),
                 ),
                 Material(

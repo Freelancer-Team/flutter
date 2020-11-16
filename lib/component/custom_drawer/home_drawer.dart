@@ -197,7 +197,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                           },
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 18),
+                          padding: const EdgeInsets.only(left: 6),
                           child: description()
                         ),
                       ],
@@ -271,7 +271,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
       ),
     );
     else return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         color: Colors.white.withOpacity(0.2),

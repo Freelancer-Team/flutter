@@ -365,7 +365,7 @@ class _PublishState extends State<PublishPage> {
                   ],
                 ),
                 new Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
+                  padding: const EdgeInsets.only(top: 10.0),
                 ),
                 new Align(
                     alignment: new FractionalOffset(0.0, 0.0),
@@ -376,7 +376,7 @@ class _PublishState extends State<PublishPage> {
                       children: skillManageList,
                     )),
                 new Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
+                  padding: const EdgeInsets.only(top: 10.0),
                 ),
                 new Align(
                     alignment: new FractionalOffset(0.0, 0.0),

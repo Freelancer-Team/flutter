@@ -132,7 +132,7 @@ class _ChartViewState extends State<ChartView> with SingleTickerProviderStateMix
               },
               child: Text(highMonth.toString() + '月', style: TextStyle(fontSize: 20),),
             ),
-            Container(width: 100,),
+            Container(width: 50,),
             RaisedButton(
               color: Colors.blue,
               onPressed: getStatistics,

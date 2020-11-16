@@ -564,7 +564,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                           return Container(
                               alignment: Alignment.centerLeft,
                               padding:
-                                  EdgeInsets.fromLTRB(10, 8, 0, 8),
+                                  EdgeInsets.fromLTRB(0, 8, 0, 8),
                               height: 100,
                               child: Row(
                                 children: [
@@ -581,7 +581,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                   Container(
-                                    width: 0.75 * width,
+                                    width: 0.70 * width,
                                     child: Column(
                                       children: [
                                         Text('Name：${AuctionInfo[index][0]}'),
@@ -621,7 +621,7 @@ class Screen extends State<ProjDetails> with SingleTickerProviderStateMixin {
                                                       AuctionInfo[index][0]);
                                                   //清空路由堆栈，压入新的主页
                                                   Navigator.of(context).pushAndRemoveUntil(
-                                                      new MaterialPageRoute(builder: (context)=> NavigationHomeScreen(drawerIndex: DrawerIndex.Project,)),
+                                                      new MaterialPageRoute(builder: (context)=> NavigationHomeScreen(drawerIndex: DrawerIndex.HOME,)),
                                                           (route)=>route==null
                                                   );
                                                 },
